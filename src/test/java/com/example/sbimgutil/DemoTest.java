@@ -17,20 +17,8 @@ import java.util.Iterator;
 public class DemoTest{
     String tifFilePath =
             "C:\\Users\\Gatsby\\IdeaProjects\\sb-img-util\\src\\main\\resources\\" +"08012194802220100.tif";
-//                    "08012194802220100.tif";
+    //                    "08012194802220100.tif";
     File oriFile = new File(tifFilePath);
-    String outPath = "";
-
-    @Test
-    public void t1(){
-    }
-
-    @Test
-    public void t2() throws IOException {
-        String outPath = oriFile.getParentFile()+ "/out.jpg";
-        BufferedImage bufferedImage= ImageIO.read(new File(tifFilePath));
-        TifUtils.TransformImgToJpg(bufferedImage,new FileOutputStream(outPath),500);
-    }
     @Test
     public void t3() throws IOException {
         BufferedImage bufferdImage= ImageIO.read(new File(tifFilePath));
@@ -58,25 +46,5 @@ public class DemoTest{
         ios.flush();
         ios.close();
         bufferdImage.flush();
-    }
-    @Test
-    public void t5() throws IOException {
-        String outPath = oriFile.getParentFile()+ "/out.jp2";
-        BufferedImage bufferedImage = ImageIO.read(oriFile);
-        TifUtils.tranformImgToJp2(bufferedImage,new FileOutputStream(outPath),500);
-    }
-    @Test
-    public void t6() throws IOException {
-
-        URL blurUrl = DemoTest.class.getClassLoader().getResource("blur.png");
-        //加水印
-        BufferedImage bufferedImage = ImageIO.read(oriFile);
-        assert blurUrl != null;
-        BufferedImage blurBufferedImage = ImageIO.read(blurUrl);
-        TifUtils.drawBlurPic(bufferedImage, blurBufferedImage);
-        ImageIO.write(bufferedImage,"jpg", new File("out.jpg"));
-    }
-    @Test
-    public void t7(){
     }
 }

@@ -6,18 +6,40 @@ logging:
 
 app:
   base-dir-path: C:\Users\Gatsby\datasets\1948-02
+  base-out-dir-path: ${app.base-dir-path}
   blur-image-path: C:\Users\Gatsby\IdeaProjects\sb-img-util\src\main\resources\blur.png
-  toJp2:
-    origin-quality-output:
-      enable: true
-    with-loss-quality-output:
-      enable: true
-      output-file-szie-limit: 500
-      with-blur-output:
-        enable: true
-        blur-image-path: ${app.blur-image-path}
 
-  toJpg:
-    origin-quality-output:
+  process-list:
+  - jp2:
+      enable: false
+      with-blur: false
+      compress-limit: 0 #单位kb
+      blur-image-path: ${app.blur-image-path}
+      out-dir-path: ${app.base-out-dir-path}/2 拼图无损JPEG2000
+  - jp2:
+      enable: false
+      with-blur: true
+      compress-limit: 500 #单位kb
+      blur-image-path: ${app.blur-image-path}
+      out-dir-path: ${app.base-out-dir-path}/3 水印有损JPEG2000/无水印
+
+  - jp2:
+      enable: false
+      with-blur: true
+      compress-limit: 500 #单位kb
+      blur-image-path: ${app.blur-image-path}
+      out-dir-path: ${app.base-out-dir-path}/3 水印有损JPEG2000/有水印
+
+  - jpg:
       enable: true
-  toPdf:
+      with-blur: false
+      compress-limit: 0 #单位kb 0表示不压缩
+      blur-image-path: ${app.blur-image-path}
+      out-dir-path: ${app.base-out-dir-path}/无损JPEG
+
+  - pdf:
+      enbale: false
+      with-blur: true
+      compress-limit: 0 #单位kb 0表示不压缩
+      blur-image-path: ${app.blur-image-path}
+      out-dir-path: ${app.base-out-dir-path}/PDF

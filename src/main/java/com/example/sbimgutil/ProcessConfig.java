@@ -5,15 +5,25 @@ import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Configuration;
 
+import java.util.List;
+import java.util.Map;
+
 @Data
 @Configuration
 @ConfigurationProperties(prefix = "app")
 public class ProcessConfig {
-    public int imageCompressLimit=500;
     String baseDirPath;
     String baseOutDirPath;
-    String blurImagePath="C:/Users/Gatsby/IdeaProjects/sb-img-util/src/main/resources/blur.png";
-    public String getBlurImagePath() {
-        return  this.blurImagePath;
-    }
+    String blurImagePath;
+    List<Map<String,ProcessConfigItem>> processList;
+
+}
+@Data
+class ProcessConfigItem{
+    boolean enable;
+    boolean withBlur;
+    String blurImagePath;
+    int compressLimit;
+    String outDirPath;
+    String format;
 }
