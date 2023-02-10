@@ -1,10 +1,11 @@
 package com.example.sbimgutil;
 
 
+import lombok.extern.slf4j.Slf4j;
 import net.coobird.thumbnailator.Thumbnails;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
 import java.io.*;
+
 
 /**
  * @author Gavin.luo
@@ -13,9 +14,9 @@ import java.io.*;
  * @description:
  * @date 2021/7/20 17:30
  */
-public class PicUtils {
+@Slf4j
+public class PicCompressUtils {
     //以下是常量,按照阿里代码开发规范,不允许代码中出现魔法值
-    private static final Logger logger = LoggerFactory.getLogger(PicUtils.class);
     private static final Integer ZERO = 0;
     private static final Integer ONE_ZERO_TWO_FOUR = 1024;
     private static final Integer NINE_ZERO_ZERO = 900;
@@ -34,6 +35,8 @@ public class PicUtils {
      * @return 压缩质量后的图片字节数组
      */
     public static byte[] compressPicForScale(byte[] imageBytes, long desFileSize) {
+        long s = System.currentTimeMillis();
+        if(desFileSize<=0) return imageBytes;
         if (imageBytes == null || imageBytes.length <= ZERO || imageBytes.length < desFileSize * ONE_ZERO_TWO_FOUR) {
             return imageBytes;
         }
@@ -49,10 +52,12 @@ public class PicUtils {
                         .toOutputStream(outputStream);
                 imageBytes = outputStream.toByteArray();
             }
-            logger.info("图片原大小={}kb | 压缩后大小={}kb",
-                    srcSize / ONE_ZERO_TWO_FOUR, imageBytes.length / ONE_ZERO_TWO_FOUR);
+            log.debug("图片原大小={}kb | 压缩后大小={}kb | 耗时:{}s",
+                    srcSize / ONE_ZERO_TWO_FOUR, imageBytes.length / ONE_ZERO_TWO_FOUR,
+                    (System.currentTimeMillis()-s)/1000f
+            );
         } catch (Exception e) {
-            logger.error("【图片压缩】msg=图片压缩失败!", e);
+            log.error("【图片压缩】msg=图片压缩失败!", e);
         }
         return imageBytes;
     }

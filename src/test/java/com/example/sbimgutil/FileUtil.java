@@ -91,20 +91,6 @@ public class FileUtil {
             e.printStackTrace();
         }
     }
-    /**
-     * 3、将图片文件tiff转化为图片文件jpg，生成新的文件
-     *
-     * @param oldPath 原图片的全路径（已存在的路径+已存在的文件名）
-     * @param newPath 生成新的图片的存放目录（须已存在）
-     */
-    public void tiffToJpg2000(String oldPath, String newPath) {
-        try {
-            BufferedImage bufferegImage = ImageIO.read(new File(oldPath));
-            ImageIO.write(bufferegImage, "jpg2000", new File(newPath));//可以是png等其它图片格式
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
 
     /**
      * 补充一个将任意图片文件转为base64的方法，可协助步骤1的检验

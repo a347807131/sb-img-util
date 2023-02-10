@@ -8,8 +8,10 @@ import javax.imageio.IIOImage;
 import javax.imageio.ImageIO;
 import javax.imageio.ImageWriter;
 import javax.imageio.stream.ImageOutputStream;
+import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.*;
+import java.net.URL;
 import java.util.Iterator;
 
 public class DemoTest{
@@ -26,20 +28,12 @@ public class DemoTest{
     @Test
     public void t2() throws IOException {
         String outPath = oriFile.getParentFile()+ "/out.jpg";
-        BufferedImage bufferdImage= ImageIO.read(new File(tifFilePath));
-        // 把图片读入到内存中
-        byte[] bytes = PicUtils.compressPicForScale(TiffUtils.ImageToBytes(bufferdImage),500);
-
-        bufferdImage= TiffUtils.bytesToImage(bytes);
-
-        ImageIO.write(bufferdImage,"jpg 2000",new File(outPath));
-
-        FileUtils.writeByteArrayToFile(new File(outPath),bytes);
+        BufferedImage bufferedImage= ImageIO.read(new File(tifFilePath));
+        TifUtils.TransformImgToJpg(bufferedImage,new FileOutputStream(outPath),500);
     }
     @Test
     public void t3() throws IOException {
         BufferedImage bufferdImage= ImageIO.read(new File(tifFilePath));
-
         Iterator<ImageWriter> writers = ImageIO.getImageWritersByFormatName("JPEG2000");
         ImageWriter writer = writers.next();
         File f = new File("demo.jp2");
@@ -64,5 +58,25 @@ public class DemoTest{
         ios.flush();
         ios.close();
         bufferdImage.flush();
+    }
+    @Test
+    public void t5() throws IOException {
+        String outPath = oriFile.getParentFile()+ "/out.jp2";
+        BufferedImage bufferedImage = ImageIO.read(oriFile);
+        TifUtils.tranformImgToJp2(bufferedImage,new FileOutputStream(outPath),500);
+    }
+    @Test
+    public void t6() throws IOException {
+
+        URL blurUrl = DemoTest.class.getClassLoader().getResource("blur.png");
+        //加水印
+        BufferedImage bufferedImage = ImageIO.read(oriFile);
+        assert blurUrl != null;
+        BufferedImage blurBufferedImage = ImageIO.read(blurUrl);
+        TifUtils.drawBlurPic(bufferedImage, blurBufferedImage);
+        ImageIO.write(bufferedImage,"jpg", new File("out.jpg"));
+    }
+    @Test
+    public void t7(){
     }
 }

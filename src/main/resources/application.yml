@@ -1,0 +1,23 @@
+
+logging:
+  level:
+    com.example: debug
+
+
+app:
+  base-dir-path: C:\Users\Gatsby\datasets\1948-02
+  blur-image-path: C:\Users\Gatsby\IdeaProjects\sb-img-util\src\main\resources\blur.png
+  toJp2:
+    origin-quality-output:
+      enable: true
+    with-loss-quality-output:
+      enable: true
+      output-file-szie-limit: 500
+      with-blur-output:
+        enable: true
+        blur-image-path: ${app.blur-image-path}
+
+  toJpg:
+    origin-quality-output:
+      enable: true
+  toPdf:
