@@ -53,6 +53,9 @@ public class FullProcessTest {
             BookImageDirProcessTask bookImageDirProcessTask = new BookImageDirProcessTask(bookDir, processConfigItems);
             tasks.add(bookImageDirProcessTask);
         }
+
+        System.out.println("开始处理批任务");
+        BookImageDirProcessTask.cpb = new ConsoleProgressBar(50,tasks.size(), '█');
         tasks.parallelStream().forEach(Runnable::run);
     }
 }

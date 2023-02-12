@@ -1,7 +1,7 @@
 
 logging:
   level:
-    com.example: debug
+    com.example: warn
 
 
 app:
@@ -11,13 +11,13 @@ app:
 
   process-list:
   - jp2:
-      enable: false
+      enable: true
       with-blur: false
       compress-limit: 0 #单位kb
       blur-image-path: ${app.blur-image-path}
       out-dir-path: ${app.base-out-dir-path}/2 拼图无损JPEG2000
   - jp2:
-      enable: false
+      enable: true
       with-blur: true
       compress-limit: 500 #单位kb
       blur-image-path: ${app.blur-image-path}
@@ -38,7 +38,7 @@ app:
       out-dir-path: ${app.base-out-dir-path}/无损JPEG
 
   - pdf:
-      enbale: false
+      enbale: true
       with-blur: true
       compress-limit: 0 #单位kb 0表示不压缩
       blur-image-path: ${app.blur-image-path}

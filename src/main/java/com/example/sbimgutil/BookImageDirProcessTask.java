@@ -18,6 +18,8 @@ import java.util.*;
 @Slf4j
 public class BookImageDirProcessTask implements ITask {
 
+    static ConsoleProgressBar cpb =null;
+
     static final Set<String> SUPORTTED_FORMATS=Set.of("pdf","jp2","jpg");
 
     private final File bookDir;
@@ -46,6 +48,8 @@ public class BookImageDirProcessTask implements ITask {
             FileFetchUtils.fetchFileRecursively(files,bookDir,fileFilter);
             log.info("{}下共有{}张图片待处理",bookDir,files.size());
             for (File oriTifFile : files) {
+                long s = System.currentTimeMillis();
+
                 File outFile;
                 for (ProcessConfigItem configItem : processConfigItemList) {
                     String format = configItem.getFormat();
@@ -79,9 +83,11 @@ public class BookImageDirProcessTask implements ITask {
                         TifUtils.transformImgToJpg(bufferedImageToSave, new FileOutputStream(outFile), compressLimit);
                     } else if ("pdf".equals(format)) {
                         // TODO: 2/10/2023
-                        log.info("处理pdf整合流程");
+                        log.debug("处理pdf整合流程");
                     }
                 }
+                cpb.iterate();
+
             }
             log.info("{}处理完成",bookDir);
         }catch (Exception e){

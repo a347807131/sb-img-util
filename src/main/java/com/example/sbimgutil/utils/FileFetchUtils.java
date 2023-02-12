@@ -26,7 +26,7 @@ public class FileFetchUtils {
         return countFileRecursively(dir,null);
     }
 
-    public static int countFileRecursively(File dir, FilenameFilter filter){
+    public static int countFileRecursively(File dir, FileFilter filter){
         int count = 0;
         File[] files = dir.listFiles(filter);
         if (files==null) return count;
