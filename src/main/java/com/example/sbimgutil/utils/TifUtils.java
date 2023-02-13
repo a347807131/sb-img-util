@@ -1,4 +1,4 @@
-package com.example.sbimgutil;
+package com.example.sbimgutil.utils;
 
 import com.github.jaiimageio.jpeg2000.J2KImageWriteParam;
 import lombok.extern.slf4j.Slf4j;

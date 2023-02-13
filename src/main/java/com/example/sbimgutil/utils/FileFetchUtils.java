@@ -3,15 +3,16 @@ package com.example.sbimgutil.utils;
 import java.io.File;
 import java.io.FileFilter;
 import java.io.FilenameFilter;
+import java.util.Collection;
 import java.util.List;
 
 public class FileFetchUtils {
 
-    public static void fetchFileRecursively(List<File> container, File dir) {
+    public static void fetchFileRecursively(Collection<File> container, File dir) {
         fetchFileRecursively(container, dir, null);
     }
 
-    public static void fetchFileRecursively(List<File> container, File dir, FileFilter filter) {
+    public static void fetchFileRecursively(Collection<File> container, File dir, FileFilter filter) {
         File[] files = dir.listFiles(filter);
         if (files == null) return;
         for (File file : files) {

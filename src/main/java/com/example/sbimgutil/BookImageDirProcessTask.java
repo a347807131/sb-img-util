@@ -1,18 +1,16 @@
 package com.example.sbimgutil;
 
 import com.example.sbimgutil.schedule.ITask;
-import com.example.sbimgutil.utils.Const;
+import com.example.sbimgutil.utils.ConsoleProgressBar;
 import com.example.sbimgutil.utils.FileFetchUtils;
-import com.github.jaiimageio.jpeg2000.J2KImageWriteParam;
+import com.example.sbimgutil.utils.TifUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
 
-import javax.imageio.IIOImage;
 import javax.imageio.ImageIO;
-import javax.imageio.ImageWriter;
-import javax.imageio.stream.ImageOutputStream;
 import java.awt.image.BufferedImage;
 import java.io.*;
+import java.nio.charset.Charset;
 import java.util.*;
 
 @Slf4j
@@ -24,32 +22,36 @@ public class BookImageDirProcessTask implements ITask {
 
     private final File bookDir;
     private final List<ProcessConfigItem> processConfigItemList;
+    private final File checkPointFile;
 
     public BookImageDirProcessTask(File bookDir,List<ProcessConfigItem> processConfigItemList){
         this.bookDir=bookDir;
         this.processConfigItemList=processConfigItemList;
+        this.checkPointFile = new File(bookDir.getParentFile().getParentFile(), "temp.txt");
     }
 
     @Override
     public void before() {
-        log.info("开始处理{}下的书籍.",bookDir);
+        log.debug("开始处理{}下的书籍.",bookDir);
     }
 
     @Override
     public void after() {
-
+        log.debug("{}处理完成",bookDir);
+        try {
+            FileUtils.writeStringToFile(checkPointFile,bookDir.getName()+"\n", Charset.defaultCharset(),true);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @Override
     public void doWork() {
         try {
-            List<File> files = new LinkedList<>();
+            HashSet<File> files = new HashSet<>();
             FileFilter fileFilter = file -> file.isDirectory()||file.getName().endsWith(".tif");
             FileFetchUtils.fetchFileRecursively(files,bookDir,fileFilter);
-            log.info("{}下共有{}张图片待处理",bookDir,files.size());
             for (File oriTifFile : files) {
-                long s = System.currentTimeMillis();
-
                 File outFile;
                 for (ProcessConfigItem configItem : processConfigItemList) {
                     String format = configItem.getFormat();
@@ -87,9 +89,7 @@ public class BookImageDirProcessTask implements ITask {
                     }
                 }
                 cpb.iterate();
-
             }
-            log.info("{}处理完成",bookDir);
         }catch (Exception e){
             throw new RuntimeException(e);
         }

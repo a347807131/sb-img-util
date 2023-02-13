@@ -1,4 +1,4 @@
-package com.example.sbimgutil;
+package com.example.sbimgutil.utils;
 
 
 import lombok.extern.slf4j.Slf4j;

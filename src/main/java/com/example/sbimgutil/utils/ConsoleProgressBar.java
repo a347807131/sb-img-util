@@ -1,4 +1,4 @@
-package com.example.sbimgutil;
+package com.example.sbimgutil.utils;
 
 import java.text.DecimalFormat;
 import java.util.concurrent.atomic.AtomicInteger;

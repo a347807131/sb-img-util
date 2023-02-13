@@ -1,7 +1,7 @@
 
 logging:
   level:
-    com.example: warn
+    com.example: info
 
 
 app:
@@ -17,28 +17,28 @@ app:
       blur-image-path: ${app.blur-image-path}
       out-dir-path: ${app.base-out-dir-path}/2 拼图无损JPEG2000
   - jp2:
-      enable: true
+      enable: false
       with-blur: true
       compress-limit: 500 #单位kb
       blur-image-path: ${app.blur-image-path}
       out-dir-path: ${app.base-out-dir-path}/3 水印有损JPEG2000/无水印
 
   - jp2:
-      enable: true
+      enable: false
       with-blur: true
       compress-limit: 500 #单位kb
       blur-image-path: ${app.blur-image-path}
       out-dir-path: ${app.base-out-dir-path}/3 水印有损JPEG2000/有水印
 
   - jpg:
-      enable: true
+      enable: false
       with-blur: false
       compress-limit: 0 #单位kb 0表示不压缩
       blur-image-path: ${app.blur-image-path}
       out-dir-path: ${app.base-out-dir-path}/无损JPEG
 
   - pdf:
-      enbale: true
+      enbale: false
       with-blur: true
       compress-limit: 0 #单位kb 0表示不压缩
       blur-image-path: ${app.blur-image-path}
