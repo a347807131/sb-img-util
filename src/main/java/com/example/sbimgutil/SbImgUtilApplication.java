@@ -75,6 +75,7 @@ public class SbImgUtilApplication {
 
         log.info("开始处理批任务");
         BookImageDirProcessTask.cpb = new ConsoleProgressBar(tifFileCount);
+        BookImageDirProcessTask.cpb.showCurrent();
 
 //        Scheduler scheduler = new Scheduler(8,tasks);
 //        scheduler.start();

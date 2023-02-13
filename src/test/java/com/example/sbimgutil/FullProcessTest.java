@@ -55,7 +55,7 @@ public class FullProcessTest {
         }
 
         System.out.println("开始处理批任务");
-        BookImageDirProcessTask.cpb = new ConsoleProgressBar(50,tasks.size(), '█');
+        BookImageDirProcessTask.cpb = new ConsoleProgressBar(tasks.size());
         tasks.parallelStream().forEach(Runnable::run);
     }
 }

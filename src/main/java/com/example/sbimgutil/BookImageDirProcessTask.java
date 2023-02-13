@@ -102,7 +102,7 @@ public class BookImageDirProcessTask implements ITask {
         newFileAbsPath = newFileAbsPath.substring(0, newFileAbsPath.length() - 3)+format;
         File outFile = new File(newFileAbsPath);
         if(!outFile.getParentFile().exists())
-            FileUtils.forceMkdirParent(outFile);
+            FileUtils.forceMkdir(outFile.getParentFile());
         return outFile;
     }
 }

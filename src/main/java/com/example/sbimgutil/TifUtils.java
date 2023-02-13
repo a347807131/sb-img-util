@@ -12,6 +12,7 @@ import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.*;
 import java.util.Iterator;
+import java.util.Objects;
 
 @Slf4j
 public class TifUtils {
@@ -47,8 +48,18 @@ public class TifUtils {
         try (
                 ImageOutputStream ios = ImageIO.createImageOutputStream(outputStream);
             ){
+            String name = null;
+            ImageWriter writer = null;
             Iterator<ImageWriter> writers = ImageIO.getImageWritersByFormatName("JPEG2000");
-            ImageWriter writer = writers.next();
+//            while (writers.hasNext()){
+//                ImageWriter imageWriter = writers.next();
+//                String name1 = imageWriter.getClass().getName();
+//            }
+            while (!Objects.equals(name, "com.github.jaiimageio.jpeg2000.impl.J2KImageWriter")) {
+                writer = writers.next();
+                name = writer.getClass().getName();
+//                System.out.println(name);
+            }
             writer.setOutput(ios);
             J2KImageWriteParam param = (J2KImageWriteParam) writer.getDefaultWriteParam();
             IIOImage ioimage = new IIOImage(bufferedImage, null, null);

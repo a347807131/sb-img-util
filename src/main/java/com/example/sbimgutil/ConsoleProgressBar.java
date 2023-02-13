@@ -1,7 +1,6 @@
 package com.example.sbimgutil;
 
 import java.text.DecimalFormat;
-import java.util.Date;
 import java.util.concurrent.atomic.AtomicInteger;
 
 //@Slf4j
@@ -10,7 +9,7 @@ public class ConsoleProgressBar {
     private static final DecimalFormat floatPercentFormater = new DecimalFormat("0.00%");
     private static final DecimalFormat floatFormater = new DecimalFormat("0.00");
     private final AtomicInteger currentValue = new AtomicInteger(0);
-    private volatile long currentSpeed = 1024*1000;
+    private volatile long currentSpeed = 1024 * 1000;
     char progressChar = '█';
     char waitChar = '#';
     private int total = 100;
@@ -28,10 +27,14 @@ public class ConsoleProgressBar {
 
     public synchronized void iterate() {
         int value = this.currentValue.addAndGet(1);
-        if(value==1){
-            this.startTime=System.currentTimeMillis();
+        if (value == 1) {
+            this.startTime = System.currentTimeMillis();
         }
         show(value);
+    }
+
+    public void showCurrent() {
+        show(0);
     }
 
 
@@ -49,14 +52,15 @@ public class ConsoleProgressBar {
         for (int i = 0; i < barLen - len; i++) {
             System.out.print(waitChar);
         }
-        float secondsTotalSpent = (System.currentTimeMillis() - startTime) / 1000f;
-        float speed = value==0? 0 : secondsTotalSpent / value;
-        int secondsLeft= (int) ((total-value)*speed);
+
+        float secondsTotalSpent = value == 0 ? 0 : (System.currentTimeMillis() - startTime) / 1000f;
+        float speed = value == 0 ? 0 : secondsTotalSpent / value;
+        int secondsLeft = (int) ((total - value) * speed);
 
         System.out.print(" |" + floatPercentFormater.format(rate));
-        System.out.print(" |"+floatFormater.format(speed)+"spi");
+        System.out.print(" |" + floatFormater.format(speed) + " avg spi");
         System.out.print(" |" + genHMS(secondsLeft));
-        System.out.print(" |" + (total-value)+" units left");
+        System.out.print(" |" + (total - value) + " units left");
 
         if (value == total)
             System.out.println();
