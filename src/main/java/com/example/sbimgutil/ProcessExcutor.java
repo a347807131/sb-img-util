@@ -24,13 +24,14 @@ public class ProcessExcutor {
     private File checkPointFile;
 
     public void excute() {
-        String baseDirPath = processConfig.getBaseDirPath();
-        File tifDir = new File(baseDirPath, Const.tifDirName);
-        TifFileFilter tifFileFilter = null;
+        File tifDir = new File(processConfig.getTifDirPath());
+        TifFileFilter tifFileFilter;
         try {
-            this.checkPointFile=new File(baseDirPath,"temp.txt");
-            if(!checkPointFile.exists()) checkPointFile.createNewFile();
-
+            this.checkPointFile=new File(processConfig.getBaseOutDirPath(),"temp.txt");
+            if(!checkPointFile.exists()) {
+                FileUtils.forceMkdirParent(checkPointFile);
+                checkPointFile.createNewFile();
+            }
             tifFileFilter = new TifFileFilter();
         } catch (IOException e) {
             throw new RuntimeException(e);
@@ -40,16 +41,13 @@ public class ProcessExcutor {
 
         if(bookDirs==null)
             throw new RuntimeException("目标tif文件夹无数据");
-        int tifFileCount =0;
-        for (File bookDir : bookDirs) {
-            int count = FileFetchUtils.countFileRecursively(bookDir, new FileFilter() {
-                @Override
-                public boolean accept(File file) {
-                    return file.isDirectory() || file.getName().endsWith("tif");
-                }
-            });
-            tifFileCount+=count;
-        }
+
+        int tifFileCount = FileFetchUtils.countFileRecursively(List.of(bookDirs),new FileFilter() {
+            @Override
+            public boolean accept(File file) {
+                return file.isDirectory() || file.getName().endsWith("tif");
+            }
+        });
 
         var processList= processConfig.getProcessList();
         if(processList.isEmpty()) {
@@ -57,14 +55,16 @@ public class ProcessExcutor {
             return;
         }
 
-        ArrayList<ProcessConfigItem> processConfigItems = new ArrayList<>();
+        List<ProcessConfigItem> processConfigItems = new ArrayList<>();
         for (Map<String, ProcessConfigItem> configItemMap : processList) {
             Set<Map.Entry<String, ProcessConfigItem>> entrySet = configItemMap.entrySet();
             Map.Entry<String, ProcessConfigItem> entry = entrySet.iterator().next();
             if(BookImageDirProcessTask.SUPORTTED_FORMATS.contains(entry.getKey())){
                 entry.getValue().setFormat(entry.getKey());
-                if(entry.getValue().isEnable())
+                if(entry.getValue().isEnable()) {
                     processConfigItems.add(entry.getValue());
+                    log.info("待处理流程项配置:{}",entry.getValue());
+                }
             }else {
                 log.warn("所配置的处理项格式{}不支持，目前支持格式如下:{}.",entry.getKey(),BookImageDirProcessTask.SUPORTTED_FORMATS);
             }
@@ -79,8 +79,9 @@ public class ProcessExcutor {
         log.info("共计{}本图书，{}张tif图片待处理.",bookDirs.length,tifFileCount);
         BookImageDirProcessTask.cpb = new ConsoleProgressBar(tifFileCount);
         BookImageDirProcessTask.cpb.showCurrent();
+        BookImageDirProcessTask.checkPointFile=checkPointFile;
 
-//        Scheduler scheduler = new Scheduler(8,tasks);
+//        Scheduler scheduler = new Scheduler(4,tasks);
 //        scheduler.start();
 //        scheduler.await();
         tasks.parallelStream().forEach(Runnable::run);

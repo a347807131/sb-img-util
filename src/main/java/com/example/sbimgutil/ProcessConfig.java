@@ -12,8 +12,9 @@ import java.util.Map;
 @Configuration
 @ConfigurationProperties(prefix = "app")
 public class ProcessConfig {
-    String baseDirPath;
+    String tifDirPath;
     String baseOutDirPath;
+    String pdfCataDirPath;
     String blurImagePath;
     List<Map<String,ProcessConfigItem>> processList;
 
@@ -26,4 +27,6 @@ class ProcessConfigItem{
     int compressLimit;
     String outDirPath;
     String format;
+    String resouceDirPath;
+    String fileNameReg;
 }

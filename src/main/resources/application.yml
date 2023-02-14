@@ -5,24 +5,29 @@ logging:
 
 
 app:
-  base-dir-path: C:\Users\Gatsby\datasets\1948-02
-  base-out-dir-path: ${app.base-dir-path}
+  tif-dir-path: C:\Users\Gatsby\datasets\图片处理模板\1 扫描原图（TIFF格式）
+  pdf-cata-dir-path: ${app.tif-dir-path}\..\5 目录
+  base-out-dir-path: C:\Users\Gatsby\datasets\output
   blur-image-path: C:\Users\Gatsby\IdeaProjects\sb-img-util\src\main\resources\blur.png
 
   process-list:
+  #无损jp2
   - jp2:
       enable: true
       with-blur: false
       compress-limit: 0 #单位kb
       blur-image-path: ${app.blur-image-path}
-      out-dir-path: ${app.base-out-dir-path}/2 拼图无损JPEG2000
+      out-dir-path: ${app.base-out-dir-path}/2 拼图无损JP2000
+
+  #有损jp2无水印
   - jp2:
       enable: false
       with-blur: true
       compress-limit: 500 #单位kb
       blur-image-path: ${app.blur-image-path}
-      out-dir-path: ${app.base-out-dir-path}/3 水印有损JPEG2000/无水印
+      out-dir-path: ${app.base-out-dir-path}/3 水印有损JP2000/无水印
 
+  #有损jp2有水印
   - jp2:
       enable: false
       with-blur: true
@@ -30,16 +35,32 @@ app:
       blur-image-path: ${app.blur-image-path}
       out-dir-path: ${app.base-out-dir-path}/3 水印有损JPEG2000/有水印
 
+  #封面
   - jpg:
       enable: false
-      with-blur: false
-      compress-limit: 0 #单位kb 0表示不压缩
-      blur-image-path: ${app.blur-image-path}
-      out-dir-path: ${app.base-out-dir-path}/无损JPEG
-
-  - pdf:
-      enbale: false
       with-blur: true
       compress-limit: 0 #单位kb 0表示不压缩
       blur-image-path: ${app.blur-image-path}
-      out-dir-path: ${app.base-out-dir-path}/PDF
+      out-dir-path: ${app.base-out-dir-path}/无损JPEG
+      file-name-regex: 0001.tif
+
+###################################
+  #pdf是书籍处理完成后的后置处理
+##################################
+  #pdf无水印
+  - pdf:
+      enbale: false
+      compress-limit: 0 #单位kb 0表示不压缩
+      with-blur: false
+      blur-image-path: ${app.blur-image-path}
+      out-dir-path: ${app.base-out-dir-path}/4 PDF/无水印
+      resource-dir-path: ${app.base-out-dir-path}/3 水印有损JPEG2000/无水印
+
+  #pdf带水印
+  - pdf:
+      enbale: false
+      compress-limit: 0 #单位kb 0表示不压缩
+      with-blur: true
+      blur-image-path: ${app.blur-image-path}
+      out-dir-path: ${app.base-out-dir-path}/4 PDF/有水印
+      resource-dir-path: ${app.base-out-dir-path}/3 水印有损JPEG2000/有水印

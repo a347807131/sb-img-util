@@ -21,8 +21,6 @@ import java.util.Set;
 @SpringBootApplication
 public class SbImgUtilApplication {
 
-
-
     public static void main(String[] args) {
         var ctx = new SpringApplicationBuilder(SbImgUtilApplication.class)
                 .headless(false).run(args);
