@@ -71,8 +71,9 @@ public class TifUtils {
             param.setLossless(true);
             param.setCompressionMode(J2KImageWriteParam.MODE_EXPLICIT);
             param.setCompressionType("JPEG2000");
-//        param.setCompressionQuality(0.01f);
-//            param.setEncodingRate(1.01);
+            param.setCompressionQuality(0.01f);
+            if(limit>0)
+                param.setEncodingRate(0.9);
             param.setFilter(J2KImageWriteParam.FILTER_53);
             writer.write(null, ioimage, param);
             writer.dispose();

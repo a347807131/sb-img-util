@@ -45,7 +45,7 @@ public class ProcessExcutor {
         int tifFileCount = FileFetchUtils.countFileRecursively(List.of(bookDirs),new FileFilter() {
             @Override
             public boolean accept(File file) {
-                return file.isDirectory() || file.getName().endsWith("tif");
+                return file.isDirectory() || file.getName().endsWith("tiff") || file.getName().endsWith("tif");
             }
         });
 
@@ -85,7 +85,7 @@ public class ProcessExcutor {
 //        scheduler.start();
 //        scheduler.await();
         tasks.parallelStream().forEach(Runnable::run);
-        log.debug("全部处理完成。");
+        log.info("全部处理完成。");
     }
 
     class TifFileFilter implements FileFilter{

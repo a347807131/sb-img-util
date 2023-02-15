@@ -39,8 +39,8 @@ public class BookImageDirProcessTask implements ITask {
     public void after() {
         log.debug("{}处理完成",bookDir);
         try {
-            FileUtils.writeStringToFile(checkPointFile,bookDir.getName()+"\n", Charset.defaultCharset(),true);
-        } catch (IOException e) {
+//            FileUtils.writeStringToFile(checkPointFile,bookDir.getName()+"\n", Charset.defaultCharset(),true);
+        } catch (Exception e) {
             throw new RuntimeException(e);
         }
     }
@@ -49,7 +49,9 @@ public class BookImageDirProcessTask implements ITask {
     public void doWork() {
         try {
             HashSet<File> files = new HashSet<>();
-            FileFilter fileFilter = file -> file.isDirectory()||file.getName().endsWith(".tif");
+            FileFilter fileFilter = file -> {
+                return file.isDirectory() || file.getName().endsWith(".tiff") || file.getName().endsWith(".tif");
+            };
             FileFetchUtils.fetchFileRecursively(files,bookDir,fileFilter);
             for (File oriTifFile : files) {
                 for (ProcessConfigItem configItem : processConfigItemList) {
