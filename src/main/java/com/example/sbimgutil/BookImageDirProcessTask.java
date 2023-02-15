@@ -131,7 +131,8 @@ public class BookImageDirProcessTask implements ITask {
         String fileAbsolutePath = oriTifFile.getAbsolutePath();
         String newFileAbsPath = fileAbsolutePath.replace(fitDir.getAbsolutePath(), outDirPath);
 
-        newFileAbsPath = newFileAbsPath.substring(0, newFileAbsPath.length() - 3)+format;
+        int pointIndex = newFileAbsPath.lastIndexOf(".");
+        newFileAbsPath=newFileAbsPath.substring(0,pointIndex+1)+format;
         File outFile = new File(newFileAbsPath);
         if(!outFile.getParentFile().exists())
             FileUtils.forceMkdir(outFile.getParentFile());
