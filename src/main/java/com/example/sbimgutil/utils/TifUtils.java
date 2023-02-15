@@ -46,7 +46,9 @@ public class TifUtils {
 
         long s = System.currentTimeMillis();
         if(limit>0){
-            byte[] bytes = PicCompressUtils.compressPicForScale(imageToBytes(bufferedImage),limit);
+            byte[] bytesOrigin = imageToBytes(bufferedImage);
+            byte[] bytes = PicCompressUtils.compressPicForScale(bytesOrigin,limit);
+            log.debug("压缩前后大小对比{}k:{}k",bytesOrigin.length/1024,bytes.length/1024);
             bufferedImage = bytesToImage(bytes);
         }
 

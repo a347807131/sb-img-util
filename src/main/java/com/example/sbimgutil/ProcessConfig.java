@@ -27,6 +27,6 @@ class ProcessConfigItem{
     int compressLimit;
     String outDirPath;
     String format;
-    String resouceDirPath;
+    String resourceDirPath;
     String fileNameReg;
 }

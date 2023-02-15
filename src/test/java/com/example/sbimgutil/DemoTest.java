@@ -119,4 +119,18 @@ public class DemoTest{
         boolean matches = s.matches("123123");
         System.out.println();
     }
+
+    @Test
+    public void test() throws IOException {
+        int compressLimit = 500;
+        File outFile = new File("demo");
+        BufferedImage blurBufferedImage = ImageIO.read(new File("C:\\Users\\Gatsby\\datasets\\图片处理模板\\1 扫描原图（TIFF格式）\\27030166\\0001\\0001.tif"));
+
+//        if (configItem.isWithBlur()) {
+//            BufferedImage blurBufferedImage = ImageIO.read(new File("C:\\Users\\Gatsby\\datasets\\图片处理模板\\1 扫描原图（TIFF格式）\\27030166\\0001\\0001.tif"));
+//            bufferedImageToSave = ImageIO.read(oriTifFile);
+//            TifUtils.drawBlurPic(bufferedImageToSave, blurBufferedImage);
+//        }
+            TifUtils.transformImgToJp2(blurBufferedImage, new FileOutputStream(outFile), compressLimit);
+    }
 }

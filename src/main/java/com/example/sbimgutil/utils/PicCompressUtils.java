@@ -27,7 +27,9 @@ public class PicCompressUtils {
     private static final Double ZERO_FOUR_FOUR = 0.44;
     private static final Double ZERO_FOUR = 0.4;
 
+
     /**
+     * fixme 压缩后的结果不对
      * 根据指定大小压缩图片
      *
      * @param imageBytes  源图片字节数组

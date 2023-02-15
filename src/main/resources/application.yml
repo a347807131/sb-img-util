@@ -1,7 +1,7 @@
 
 logging:
   level:
-    com.example: info
+    com.example: debug
 
 
 app:
@@ -13,7 +13,7 @@ app:
   process-list:
   #无损jp2
   - jp2:
-      enable: true
+      enable: false
       with-blur: false
       compress-limit: 0 #单位kb
       blur-image-path: ${app.blur-image-path}
@@ -21,8 +21,8 @@ app:
 
   #有损jp2无水印
   - jp2:
-      enable: false
-      with-blur: true
+      enable: true
+      with-blur: false
       compress-limit: 500 #单位kb
       blur-image-path: ${app.blur-image-path}
       out-dir-path: ${app.base-out-dir-path}/3 水印有损JP2000/无水印
@@ -33,7 +33,7 @@ app:
       with-blur: true
       compress-limit: 500 #单位kb
       blur-image-path: ${app.blur-image-path}
-      out-dir-path: ${app.base-out-dir-path}/3 水印有损JPEG2000/有水印
+      out-dir-path: ${app.base-out-dir-path}/3 水印有损JP2000/有水印
 
   #封面
   - jpg:
@@ -41,26 +41,27 @@ app:
       with-blur: true
       compress-limit: 0 #单位kb 0表示不压缩
       blur-image-path: ${app.blur-image-path}
-      out-dir-path: ${app.base-out-dir-path}/无损JPEG
-      file-name-regex: 0001.tif
+      out-dir-path: ${app.base-out-dir-path}\7 提交平台\封面
+      file-name-reg: 0001.tif
 
 ###################################
   #pdf是书籍处理完成后的后置处理
 ##################################
+
   #pdf无水印
   - pdf:
-      enbale: false
+      enable: false
       compress-limit: 0 #单位kb 0表示不压缩
       with-blur: false
       blur-image-path: ${app.blur-image-path}
       out-dir-path: ${app.base-out-dir-path}/4 PDF/无水印
-      resource-dir-path: ${app.base-out-dir-path}/3 水印有损JPEG2000/无水印
+      resource-dir-path: ${app.base-out-dir-path}/3 水印有损JP2000/无水印
 
   #pdf带水印
   - pdf:
-      enbale: false
+      enable: false
       compress-limit: 0 #单位kb 0表示不压缩
       with-blur: true
       blur-image-path: ${app.blur-image-path}
       out-dir-path: ${app.base-out-dir-path}/4 PDF/有水印
-      resource-dir-path: ${app.base-out-dir-path}/3 水印有损JPEG2000/有水印
+      resource-dir-path: ${app.base-out-dir-path}/3 水印有损JP2000/有水印
