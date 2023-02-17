@@ -46,6 +46,14 @@ app:
       out-dir-path: ${app.base-out-dir-path}\7 提交平台\封面
       file-name-reg: 0001.tif
 
+    #jpg无损
+  - jpg:
+      enable: true
+      with-blur: false
+      compress-limit: 0 #单位kb 0表示不压缩
+      blur-image-path: ${app.blur-image-path}
+      out-dir-path: ${app.base-out-dir-path}\JPG无损
+
 ###################################
   #pdf是书籍处理完成后的后置处理
 ###################################
