@@ -86,7 +86,7 @@ public class BookImageDirProcessTask implements ITask {
                     }
                 }
 
-                String dataToSave=bookDir.getAbsolutePath();
+                String dataToSave=sectionDir.getAbsolutePath();
                 try {
                     FileUtils.writeStringToFile(checkPointFile, dataToSave,
                             Charset.defaultCharset(), true
