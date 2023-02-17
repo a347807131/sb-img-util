@@ -226,5 +226,13 @@ public class DemoTest{
         File pdfFile = new File("demo.pdf");
         File cataFile = new File("0001.txt");
 
+        long s = System.currentTimeMillis();
+        float fsize=0.5f;
+        for (int i = 0; i < 1000000000; i++) {
+            float encoding = (float) (5.842e-06 * Math.pow(fsize, 2) - 0.002235 * fsize + 0.2732);
+        }
+        long c = System.currentTimeMillis() - s;
+        log.info(String.valueOf((c-s)/(1000f)));
+
     }
 }

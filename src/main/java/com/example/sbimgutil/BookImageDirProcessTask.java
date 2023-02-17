@@ -115,17 +115,22 @@ public class BookImageDirProcessTask implements ITask {
         switch (format) {
             case "jp2"->{
                 float fsize = oriTifFile.length() / (1024f * 1024);
-                float encoding = -0.001f * fsize + 0.227f;
+
+                float encoding = (float) (5.842e-06 * Math.pow(fsize, 2) - 0.002235 * fsize + 0.2732);
+//                float i = 5.842e-06 * fsize ^ 2 - 0.002235 * fsize + 0.2732;
+//                float encoding = -0.001f * fsize + 0.227f;
                 float limitM = compressLimit / 1024f;
                 if(limitM==0) {
                     TifUtils.transformImgToJp2(bufferedImageToSave, new FileOutputStream(outFile));
                     return;
                 }
+                int compressTime=1;
                 while ( fsize > limitM || fsize < limitM * 0.8){
                     TifUtils.transformImgToJp2(bufferedImageToSave, new FileOutputStream(outFile),0.5f,encoding);
                     fsize = outFile.length() /(1024*1024f);
-                    log.debug("输出文件大小{}m,原文件大小{}m,编码率{},文件名{}",
+                    log.debug("压缩次数{},输出文件大小{}m,原文件大小{}m,编码率{},文件名{}",compressTime,
                             fsize,oriTifFile.length()/1024,encoding,oriTifFile.getAbsolutePath());
+                    compressTime+=1;
                     if(fsize>limitM)
                         encoding=-encoding/10+encoding;
                     else if(fsize<limitM*0.8)
