@@ -12,7 +12,6 @@ import java.awt.image.BufferedImage;
 import java.io.*;
 import java.nio.charset.Charset;
 import java.util.*;
-import java.util.stream.Stream;
 
 @Slf4j
 public class BookImageDirProcessTask implements ITask {
@@ -37,41 +36,64 @@ public class BookImageDirProcessTask implements ITask {
 
     @Override
     public void after() {
-        log.debug("{}处理完成",bookDir);
-        try {
-//            FileUtils.writeStringToFile(checkPointFile,bookDir.getName()+"\n", Charset.defaultCharset(),true);
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
+        log.debug("书籍{}处理完成",bookDir);
     }
 
     @Override
     public void doWork() {
         try {
-            HashSet<File> files = new HashSet<>();
-            FileFilter fileFilter = file -> {
-                return file.isDirectory() || file.getName().endsWith(".tiff") || file.getName().endsWith(".tif");
-            };
-            FileFetchUtils.fetchFileRecursively(files,bookDir,fileFilter);
-            for (File oriTifFile : files) {
-                for (ProcessConfigItem configItem : processConfigItemList) {
-                    if(!configItem.isEnable() || configItem.getFormat().equals("pdf")) continue;
-                    if(configItem.fileNameReg!=null && !oriTifFile.getName().matches(configItem.getFileNameReg()))
-                        continue;
-                    String format = configItem.getFormat();
-                    if (!configItem.enable) continue;
-                    BufferedImage bufferedImage = ImageIO.read(oriTifFile);
-                    processOneItem(configItem,oriTifFile,format,bufferedImage);
-                }
-                cpb.iterate();
-            }
+
+            FileFilter fileFilter = file ->
+                    file.isDirectory() || file.getName().endsWith(".tiff") || file.getName().endsWith(".tif");
+            File[] sectionDirs = bookDir.listFiles(File::isDirectory);
+            if(sectionDirs==null) return;
+
+            //处理pdf合并任务
+            List<ProcessConfigItem> nonPdfConfigItems = processConfigItemList.stream().filter(
+                    e -> !"pdf".equals(e.getFormat())).toList();
             //处理pdf合并任务
             List<ProcessConfigItem> pdfConfigItems = processConfigItemList.stream().filter(
                     e -> "pdf".equals(e.getFormat())).toList();
-            //还需要处理目录
-            for (ProcessConfigItem pdfProcessConfigItem : pdfConfigItems) {
-                if(!pdfProcessConfigItem.isEnable()) continue;
-                doMergeIntoPdf(pdfProcessConfigItem);
+
+            sectionDirLoop:for (File sectionDir : sectionDirs) {
+                HashSet<File> files = new HashSet<>();
+                FileFetchUtils.fetchFileRecursively(files,sectionDir,fileFilter);
+
+                for (File oriTifFile : files) {
+                    for (ProcessConfigItem configItem : nonPdfConfigItems) {
+                        if(configItem.fileNameReg!=null && !oriTifFile.getName().matches(configItem.getFileNameReg()))
+                            continue;
+                        String format = configItem.getFormat();
+                        if (!configItem.enable) continue;
+                        try {
+                            BufferedImage bufferedImage = ImageIO.read(oriTifFile);
+                            processOneItem(configItem, oriTifFile, format, bufferedImage);
+                        }catch (IOException  e){
+                            log.error("{}文件读取错误，跳过该本书籍的该卷",oriTifFile,e);
+                            cpb.iterate();
+                           continue sectionDirLoop;
+                        }
+                    }
+                    cpb.iterate();
+                }
+                // FIXME: 2/16/2023 还需要处理目录
+                for (ProcessConfigItem pdfProcessConfigItem : pdfConfigItems) {
+                    try {
+                        if (!pdfProcessConfigItem.isEnable()) continue;
+                        doMergeIntoPdf(pdfProcessConfigItem,sectionDir);
+                    }catch (Exception e){
+                        log.error("{}目录书籍合并pdf出错",bookDir,e);
+                    }
+                }
+
+                String dataToSave=bookDir.getName() + "/"+sectionDir.getName()+"\n";
+                try {
+                    FileUtils.writeStringToFile(checkPointFile, dataToSave,
+                            Charset.defaultCharset(), true
+                    );
+                }catch (Exception e){
+                    log.warn("书籍{}处理进度保存失败",dataToSave,e);
+                }
             }
         }catch (Exception e){
             log.error("处理过程中出错",e);
@@ -80,50 +102,58 @@ public class BookImageDirProcessTask implements ITask {
     }
 
     void processOneItem(ProcessConfigItem configItem,File oriTifFile,String format,BufferedImage bufferedImage) throws IOException {
+        String outDirPath = configItem.getOutDirPath();
+        int compressLimit = configItem.getCompressLimit();
+        File outFile = genOutFile(oriTifFile, outDirPath, format);
+        var bufferedImageToSave = bufferedImage;
+        if (configItem.isWithBlur()) {
+            BufferedImage blurBufferedImage = ImageIO.read(new File(configItem.getBlurImagePath()));
+            bufferedImageToSave = ImageIO.read(oriTifFile);
+            float scale= bufferedImageToSave.getHeight()/(4f* blurBufferedImage.getHeight());
+            TifUtils.drawBlurPic(bufferedImageToSave, blurBufferedImage,scale);
+        }
         switch (format) {
-            case "jpg", "jp2" -> {
-                String outDirPath = configItem.getOutDirPath();
-                int compressLimit = configItem.getCompressLimit();
-                File outFile = genOutFile(oriTifFile, outDirPath, format);
-                var bufferedImageToSave = bufferedImage;
-                if (configItem.isWithBlur()) {
-                    BufferedImage blurBufferedImage = ImageIO.read(new File(configItem.getBlurImagePath()));
-                    bufferedImageToSave = ImageIO.read(oriTifFile);
-                    TifUtils.drawBlurPic(bufferedImageToSave, blurBufferedImage);
+            case "jp2"->{
+                float fsize = oriTifFile.length() / (1024f * 1024);
+                float encoding = -0.001f * fsize + 0.227f;
+                float limitM = compressLimit / 1024f;
+                if(limitM==0) {
+                    TifUtils.transformImgToJp2(bufferedImageToSave, new FileOutputStream(outFile));
+                    return;
                 }
-                if(format.equals("jpg")) {
-                    TifUtils.transformImgToJpg(bufferedImageToSave, new FileOutputStream(outFile), compressLimit);
-                }else {
-                    TifUtils.transformImgToJp2(bufferedImageToSave, new FileOutputStream(outFile), compressLimit);
+                while ( fsize > limitM || fsize < limitM * 0.8){
+                    TifUtils.transformImgToJp2(bufferedImageToSave, new FileOutputStream(outFile),0.5f,encoding);
+                    fsize = outFile.length() /(1024*1024f);
+                    log.debug("输出文件大小{}m,原文件大小{}m,编码率{},文件名{}",
+                            fsize,oriTifFile.length()/1024,encoding,oriTifFile.getAbsolutePath());
+                    if(fsize>limitM)
+                        encoding=-encoding/10+encoding;
+                    else if(fsize<limitM*0.8)
+                        encoding=encoding/10+encoding;
+                    else break;
                 }
             }
+            case "jpg" -> {
+                TifUtils.transformImgToJpg(bufferedImageToSave, new FileOutputStream(outFile), compressLimit);
+            }
             default -> {
+                break;
             }
         }
     }
 
-    public void doMergeIntoPdf(ProcessConfigItem configItem) throws IOException {
+    public void doMergeIntoPdf(ProcessConfigItem configItem, File sectionDir) throws IOException {
 
         log.debug("处理pdf整合流程");
-
-        File bookDirT = new File(configItem.getResourceDirPath(), bookDir.getName());
         String outDirPath = configItem.getOutDirPath();
-        File[] secionDirs = bookDirT.listFiles(File::isDirectory);
 
-        if(secionDirs==null){
-            log.warn("目标文件夹{}下没有东西,无法进行pdf合并操作，请检查配置",bookDirT);
-            return;
-        }
-
-        for (File secionDir : secionDirs) {
-            File pdfOutFile = new File(outDirPath, bookDir.getName()+"/"+secionDir.getName()+".pdf");
-            if(!pdfOutFile.getParentFile().exists())
-                FileUtils.forceMkdirParent(pdfOutFile);
-            LinkedList<File> imgFiles = new LinkedList<>();
-            //可能需要过滤
-            FileFetchUtils.fetchFileRecursively(imgFiles, secionDir);
-            TifUtils.mergeImgToPdf(imgFiles,new FileOutputStream(pdfOutFile));
-        }
+        File pdfOutFile = new File(outDirPath, bookDir.getName()+"/"+sectionDir.getName()+".pdf");
+        if(!pdfOutFile.getParentFile().exists())
+            FileUtils.forceMkdirParent(pdfOutFile);
+        LinkedList<File> imgFiles = new LinkedList<>();
+        //可能需要过滤
+        FileFetchUtils.fetchFileRecursively(imgFiles, sectionDir);
+        TifUtils.mergeImgToPdf(imgFiles,new FileOutputStream(pdfOutFile));
     }
 
     File genOutFile(File oriTifFile, String outDirPath, String format) throws IOException {

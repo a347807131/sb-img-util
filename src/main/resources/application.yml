@@ -9,11 +9,13 @@ app:
   pdf-cata-dir-path: ${app.tif-dir-path}\..\5 目录
   base-out-dir-path: C:\Users\Gatsby\datasets\output
   blur-image-path: C:\Users\Gatsby\IdeaProjects\sb-img-util\src\main\resources\blur.png
+  #处理线程数
+  worker-num: 8
 
   process-list:
   #无损jp2
   - jp2:
-      enable: false
+      enable: true
       with-blur: false
       compress-limit: 0 #单位kb
       blur-image-path: ${app.blur-image-path}
@@ -29,7 +31,7 @@ app:
 
   #有损jp2有水印
   - jp2:
-      enable: false
+      enable: true
       with-blur: true
       compress-limit: 500 #单位kb
       blur-image-path: ${app.blur-image-path}
@@ -37,7 +39,7 @@ app:
 
   #封面
   - jpg:
-      enable: false
+      enable: true
       with-blur: true
       compress-limit: 0 #单位kb 0表示不压缩
       blur-image-path: ${app.blur-image-path}
@@ -50,7 +52,7 @@ app:
 
   #pdf无水印
   - pdf:
-      enable: false
+      enable: true
       compress-limit: 0 #单位kb 0表示不压缩
       with-blur: false
       blur-image-path: ${app.blur-image-path}
@@ -59,7 +61,7 @@ app:
 
   #pdf带水印
   - pdf:
-      enable: false
+      enable: true
       compress-limit: 0 #单位kb 0表示不压缩
       with-blur: true
       blur-image-path: ${app.blur-image-path}

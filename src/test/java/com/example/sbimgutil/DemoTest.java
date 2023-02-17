@@ -111,7 +111,7 @@ public class DemoTest{
 
     @Test
     public void  main() throws FileNotFoundException {
-        File jpgDir = new File("C:\\Users\\Gatsby\\datasets\\1948-02\\无损JPEG\\2000302\\0001");
+        File jpgDir = new File("C:\\Users\\Gatsby\\datasets\\图片处理模板\\3 水印有损JP2000\\27030166\\有水印\\27030166\\0001");
         File outFile = new File("demo.pdf");
         LinkedList<File> files = new LinkedList<>();
         FileFetchUtils.fetchFileRecursively(files,jpgDir);
@@ -127,22 +127,68 @@ public class DemoTest{
 
     @Test
     public void test() throws IOException {
-        int compressLimit = 0;
-        File outFile = new File("demo");
-        BufferedImage blurBufferedImage = ImageIO.read(new File("C:\\Users\\Gatsby\\datasets\\图片处理模板\\1 扫描原图（TIFF格式）\\27030166\\0001\\0001.tif"));
-            TifUtils.transformImgToJp2(blurBufferedImage, new FileOutputStream(outFile), compressLimit);
-    }
-
-    public static void transformImgToJp2(BufferedImage bufferedImage, OutputStream outputStream, int limit){
-
-        long s = System.currentTimeMillis();
-        if(limit>0){
-            byte[] bytesOrigin = TifUtils.imageToBytes(bufferedImage);
-            byte[] bytes = PicCompressUtils.compressPicForScale(bytesOrigin,limit);
-            log.debug("压缩前后大小对比{}k:{}k",bytesOrigin.length/1024,bytes.length/1024);
-            bufferedImage = TifUtils.bytesToImage(bytes);
+        int compressLimit = 500;
+        File dir =  new File("C:\\Users\\Gatsby\\datasets/图片处理模板/samples");
+        List<String> fileNames = List.of(
+//                "67"//e0.16
+//                "79",//0.125
+                "83", //e 0.125
+                "85", //0.125
+                "98", //0.111
+                "103" //e0.11
+//                "142" ,//e=0.075
+//                "164" //e0.0625
+        );
+        float quality=0.5f;float encoding=0.5f;
+        for (String fileName : fileNames) {
+            File oriTifFile = new File(dir, fileName + ".tiff");
+            File outFile = new File(oriTifFile.getParentFile(),oriTifFile.getName()+".jp2");
+            BufferedImage bufferedImageToSave = ImageIO.read(oriTifFile);
+            float fsize = oriTifFile.length() / (1024f*1024);
+            float size=oriTifFile.length()/(1024f*1024);
+            encoding = -0.001f * fsize + 0.227f;
+            while (size>0.5f||size<0.4f){
+//                bufferedImageToSave = ImageIO.read(outFile);
+                transformImgToJp2(bufferedImageToSave, new FileOutputStream(outFile), quality,encoding);
+                size = outFile.length() /(1024*1024f);
+                log.info("输出文件大小{}m,原文件大小{}m",size,oriTifFile.length()/1024);
+                System.out.println(encoding);
+                if(size>0.5f)
+                    encoding=-encoding/10+encoding;
+                else
+                    encoding=encoding/10+encoding;
+            }
+            System.out.println("#########################");
         }
 
+    }
+    @Test
+    public void test1() throws IOException {
+        float quality=0.5f;
+        File dir =  new File("C:\\Users\\Gatsby\\datasets/图片处理模板/samples");
+        List<String> fileNames = List.of(
+//                "67"//e0.16
+//                "79",//0.125
+                "83", //e 0.125
+                "85", //0.125
+                "98", //0.111
+                "103" //e0.11
+//                "142" ,//e=0.075
+//                "164" //e0.0625
+        );
+
+        File oriTifFile = new File(dir, "103" + ".tiff");
+        File outFile = new File(oriTifFile.getParentFile(),oriTifFile.getName()+".jp2");
+
+        BufferedImage bufferedImageToSave = ImageIO.read(oriTifFile);
+        float fsize = oriTifFile.length() / (1024f*1024);
+        float encoding = -0.001f * fsize + 0.227f;
+        transformImgToJp2(bufferedImageToSave, new FileOutputStream(outFile), quality,encoding);
+        log.info("输出文件大小{}m,原文件大小{}m",outFile.length()/1024,oriTifFile.length()/1024);
+    }
+    public static void transformImgToJp2(BufferedImage bufferedImage, OutputStream outputStream,float quality,float encoding){
+
+        long s = System.currentTimeMillis();
         try (
                 ImageOutputStream ios = ImageIO.createImageOutputStream(outputStream);
         ){
@@ -156,15 +202,16 @@ public class DemoTest{
             writer.setOutput(ios);
             J2KImageWriteParam param = (J2KImageWriteParam) writer.getDefaultWriteParam();
             IIOImage ioimage = new IIOImage(bufferedImage, null, null);
-            param.setSOP(true);
-            param.setWriteCodeStreamOnly(true);
-            param.setProgressionType("layer");
-            param.setLossless(true);
+//            param.setSOP(true);
+//            param.setWriteCodeStreamOnly(true);
+//            param.setProgressionType("layer");
+//            param.setLossless(true);
             param.setCompressionMode(J2KImageWriteParam.MODE_EXPLICIT);
             param.setCompressionType("JPEG2000");
-            param.setCompressionQuality(0.01f);
-            param.setEncodingRate(1);
-            param.setFilter(J2KImageWriteParam.FILTER_53);
+
+            param.setCompressionQuality(quality);
+            param.setEncodingRate(encoding);
+
             writer.write(null, ioimage, param);
             writer.dispose();
             ios.flush();
@@ -172,6 +219,12 @@ public class DemoTest{
             throw new RuntimeException(e);
         }
         log.debug("压缩前大小，压缩后大小");
-        log.debug("转化为jp2，是否压缩:{}，并输出共耗时{}s",limit>0? "是":"否",(System.currentTimeMillis()-s)/1000f);
+        log.debug("转化为jp2，输出共耗时{}s",(System.currentTimeMillis()-s)/1000f);
+    }
+    @Test
+    public void addCata(){
+        File pdfFile = new File("demo.pdf");
+        File cataFile = new File("0001.txt");
+
     }
 }

@@ -1,5 +1,6 @@
 package com.example.sbimgutil;
 
+import com.example.sbimgutil.schedule.Scheduler;
 import com.example.sbimgutil.utils.ConsoleProgressBar;
 import com.example.sbimgutil.utils.Const;
 import com.example.sbimgutil.utils.FileFetchUtils;
@@ -13,6 +14,7 @@ import java.io.FileFilter;
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.util.*;
+import java.util.concurrent.ForkJoinPool;
 
 @Slf4j
 @Component
@@ -55,24 +57,11 @@ public class ProcessExcutor {
             return;
         }
 
-        List<ProcessConfigItem> processConfigItems = new ArrayList<>();
-        for (Map<String, ProcessConfigItem> configItemMap : processList) {
-            Set<Map.Entry<String, ProcessConfigItem>> entrySet = configItemMap.entrySet();
-            Map.Entry<String, ProcessConfigItem> entry = entrySet.iterator().next();
-            if(BookImageDirProcessTask.SUPORTTED_FORMATS.contains(entry.getKey())){
-                entry.getValue().setFormat(entry.getKey());
-                if(entry.getValue().isEnable()) {
-                    processConfigItems.add(entry.getValue());
-                    log.info("待处理流程项配置:{}",entry.getValue());
-                }
-            }else {
-                log.warn("所配置的处理项格式{}不支持，目前支持格式如下:{}.",entry.getKey(),BookImageDirProcessTask.SUPORTTED_FORMATS);
-            }
-        }
+        List<ProcessConfigItem> processCfgItems = processConfig.getProcessCfgItems();
 
         LinkedList<Runnable> tasks = new LinkedList<>();
         for (File bookDir : bookDirs) {
-            BookImageDirProcessTask bookImageDirProcessTask = new BookImageDirProcessTask(bookDir, processConfigItems);
+            BookImageDirProcessTask bookImageDirProcessTask = new BookImageDirProcessTask(bookDir, processCfgItems);
             tasks.add(bookImageDirProcessTask);
         }
 
@@ -81,10 +70,11 @@ public class ProcessExcutor {
         BookImageDirProcessTask.cpb.showCurrent();
         BookImageDirProcessTask.checkPointFile=checkPointFile;
 
-//        Scheduler scheduler = new Scheduler(4,tasks);
-//        scheduler.start();
-//        scheduler.await();
-        tasks.parallelStream().forEach(Runnable::run);
+        int workerNum = processConfig.getWorkerNum();
+        Scheduler scheduler = new Scheduler(workerNum, tasks);
+        scheduler.start();
+        scheduler.await();
+
         log.info("全部处理完成。");
     }
 
@@ -99,7 +89,8 @@ public class ProcessExcutor {
 
         @Override
         public boolean accept(File file) {
-            return file.isDirectory() && !finishedBookDirNames.contains(file.getName());
+            return file.isDirectory() ;
+                    //&& !finishedBookDirNames.contains(file.getName());
         }
     }
 }

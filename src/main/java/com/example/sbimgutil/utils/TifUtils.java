@@ -6,6 +6,7 @@ import com.itextpdf.text.Image;
 import com.itextpdf.text.PageSize;
 import com.itextpdf.text.pdf.PdfWriter;
 import lombok.extern.slf4j.Slf4j;
+import net.coobird.thumbnailator.Thumbnails;
 import org.apache.commons.io.IOUtils;
 
 import javax.imageio.IIOImage;
@@ -27,7 +28,11 @@ public class TifUtils {
         Graphics g = oriBufferedImage.getGraphics();
         g.drawImage(blurBufferedImage, point.x, point.y, null);
         g.dispose();
+    }
 
+    public static void drawBlurPic(BufferedImage oriBufferedImage, BufferedImage blurBufferedImage, float scale) throws IOException {
+        BufferedImage scaledBlurBufferedImage = Thumbnails.of(blurBufferedImage).scale(scale).asBufferedImage();
+        drawBlurPic(oriBufferedImage, scaledBlurBufferedImage);
     }
 
     public static void transformImgToJpg(BufferedImage bufferedImage, OutputStream outputStream, int limit) throws IOException {
@@ -42,16 +47,7 @@ public class TifUtils {
         log.debug("转化为jpg并输出共耗时{}s",(System.currentTimeMillis()-s)/1000f);
     }
 
-    public static void transformImgToJp2(BufferedImage bufferedImage, OutputStream outputStream, int limit){
-
-        long s = System.currentTimeMillis();
-        if(limit>0){
-            byte[] bytesOrigin = imageToBytes(bufferedImage);
-            byte[] bytes = PicCompressUtils.compressPicForScale(bytesOrigin,limit);
-            log.debug("压缩前后大小对比{}k:{}k",bytesOrigin.length/1024,bytes.length/1024);
-            bufferedImage = bytesToImage(bytes);
-        }
-
+    public static void transformImgToJp2(BufferedImage bufferedImage, OutputStream outputStream,float quality,float encodingRate){
         try (
                 ImageOutputStream ios = ImageIO.createImageOutputStream(outputStream);
             ){
@@ -65,24 +61,26 @@ public class TifUtils {
             writer.setOutput(ios);
             J2KImageWriteParam param = (J2KImageWriteParam) writer.getDefaultWriteParam();
             IIOImage ioimage = new IIOImage(bufferedImage, null, null);
-            param.setSOP(true);
-            param.setWriteCodeStreamOnly(true);
-            param.setProgressionType("layer");
-            param.setLossless(true);
+//            param.setSOP(true);
+//            param.setWriteCodeStreamOnly(true);
+//            param.setProgressionType("layer");
+//            param.setLossless(true);
             param.setCompressionMode(J2KImageWriteParam.MODE_EXPLICIT);
             param.setCompressionType("JPEG2000");
-            param.setCompressionQuality(0.01f);
-            if(limit>0)
-                param.setEncodingRate(0.9);
-            param.setFilter(J2KImageWriteParam.FILTER_53);
+            if(quality>0)
+                param.setCompressionQuality(quality);
+            if(encodingRate!=0){
+                param.setEncodingRate(encodingRate);
+            }
             writer.write(null, ioimage, param);
             writer.dispose();
             ios.flush();
         }catch (Exception e){
             throw new RuntimeException(e);
         }
-        log.debug("压缩前大小，压缩后大小");
-        log.debug("转化为jp2，是否压缩:{}，并输出共耗时{}s",limit>0? "是":"否",(System.currentTimeMillis()-s)/1000f);
+    }
+    public static void transformImgToJp2(BufferedImage bufferedImage, OutputStream outputStream) {
+        transformImgToJp2(bufferedImage,outputStream,0,0);
     }
 
     public static byte[] imageToBytes(BufferedImage bufferedImage){
