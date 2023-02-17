@@ -78,19 +78,20 @@ public class ProcessExcutor {
         log.info("全部处理完成。");
     }
 
+    // TODO: 2/17/2023
     class TifFileFilter implements FileFilter{
 
-        private final HashSet<String> finishedBookDirNames;
+        private final HashSet<String> finishedBookSeciontDirNames;
 
         TifFileFilter() throws IOException {
-            Collection<String> finishedBookDirNames = FileUtils.readLines(checkPointFile, Charset.defaultCharset());
-            this.finishedBookDirNames = new HashSet<>(finishedBookDirNames);
+            Collection<String> finishedBookSectionDirNames = FileUtils.readLines(checkPointFile, Charset.defaultCharset());
+            this.finishedBookSeciontDirNames = new HashSet<>(finishedBookSectionDirNames);
         }
 
         @Override
         public boolean accept(File file) {
-            return file.isDirectory() ;
-                    //&& !finishedBookDirNames.contains(file.getName());
+            return file.isDirectory()
+                    && !finishedBookSeciontDirNames.contains(file.getParentFile().getAbsolutePath());
         }
     }
 }
