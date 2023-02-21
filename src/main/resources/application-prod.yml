@@ -1,0 +1,7 @@
+app:
+  tif-dir-path: \\192.168.3.103\美斯齊共享文件\0 成都图书馆数字化\1.2 已裁拼版TIFF\格式转换成图2号
+  pdf-cata-dir-path: ${app.tif-dir-path}\..\5 目录
+  base-out-dir-path: H:\图像格式转换
+  blur-image-path: D:\service\sb-img-util\sb-img-util\src\main\resources\blur.png
+  #处理线程数
+  worker-num: 8

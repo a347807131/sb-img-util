@@ -63,21 +63,26 @@ public class BookImageDirProcessTask implements ITask {
                 FileFetchUtils.fetchFileRecursively(files,sectionDir);
 
                 for (File oriTifFile : files) {
-                    for (ProcessConfig.ProcessConfigItem configItem : nonPdfConfigItems) {
-                        if(configItem.getFileNameReg()!=null && !oriTifFile.getName().matches(configItem.getFileNameReg()))
-                            continue;
-                        String format = configItem.getFormat();
-                        if (!configItem.isEnable()) continue;
-                        try {
-                            BufferedImage bufferedImage = ImageIO.read(oriTifFile);
-                            processOneItem(configItem, oriTifFile, format, bufferedImage);
-                        }catch (IOException  e){
-                            log.error("{}文件读取错误，跳过该本书籍的该卷",oriTifFile,e);
-                            cpb.iterate();
-                           continue sectionDirLoop;
+                    //文件过滤（必须是tif类型）
+                    String substring = oriTifFile.getName().substring(oriTifFile.getName().lastIndexOf("."), oriTifFile.getName().length());
+                    if (".tif".equals(substring)){
+                        for (ProcessConfig.ProcessConfigItem configItem : nonPdfConfigItems) {
+                            if(configItem.getFileNameReg()!=null && !oriTifFile.getName().matches(configItem.getFileNameReg()))
+                                continue;
+                            String format = configItem.getFormat();
+                            if (!configItem.isEnable()) continue;
+                            try {
+                                BufferedImage bufferedImage = ImageIO.read(oriTifFile);
+                                processOneItem(configItem, oriTifFile, format, bufferedImage);
+                            }catch (IOException  e){
+                                log.error("{}文件读取错误，跳过该本书籍的该卷",oriTifFile,e);
+                                cpb.iterate();
+                                continue sectionDirLoop;
+                            }
                         }
+                        cpb.iterate();
                     }
-                    cpb.iterate();
+
                 }
                 // FIXME: 2/16/2023 还需要处理目录
                 for (ProcessConfig.ProcessConfigItem pdfProcessConfigItem : pdfConfigItems) {

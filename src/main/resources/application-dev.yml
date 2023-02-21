@@ -1,0 +1,7 @@
+app:
+  tif-dir-path: D:\工作文档\霖昊\发吴模板(2)\1 扫描原图（TIFF格式）
+  pdf-cata-dir-path: ${app.tif-dir-path}\..\5 目录
+  base-out-dir-path: D:\工作文档\霖昊\datasets\output
+  blur-image-path: D:\javaRun\idea_word\word_package\sb-img-util\src\main\resources\blur.png
+  #处理线程数
+  worker-num: 8
