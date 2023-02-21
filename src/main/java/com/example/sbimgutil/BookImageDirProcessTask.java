@@ -7,6 +7,7 @@ import com.example.sbimgutil.utils.ConsoleProgressBar;
 import com.example.sbimgutil.utils.FileFetchUtils;
 import com.example.sbimgutil.utils.TifUtils;
 import lombok.extern.slf4j.Slf4j;
+import lombok.var;
 import org.apache.commons.io.FileUtils;
 
 import javax.imageio.ImageIO;
@@ -14,6 +15,7 @@ import java.awt.image.BufferedImage;
 import java.io.*;
 import java.nio.charset.Charset;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Slf4j
 public class BookImageDirProcessTask implements ITask {
@@ -50,10 +52,10 @@ public class BookImageDirProcessTask implements ITask {
 
             //处理pdf合并任务
             List<ProcessConfig.ProcessConfigItem> nonPdfConfigItems = processConfigItemList.stream().filter(
-                    e -> !"pdf".equals(e.getFormat())).toList();
+                    e -> !"pdf".equals(e.getFormat())).collect(Collectors.toList());
             //处理pdf合并任务
             List<ProcessConfig.ProcessConfigItem> pdfConfigItems = processConfigItemList.stream().filter(
-                    e -> "pdf".equals(e.getFormat())).toList();
+                    e -> "pdf".equals(e.getFormat())).collect(Collectors.toList());
 
             sectionDirLoop:for (File sectionDir : sectionDirs) {
                 log.info("开始处理卷{}下的书籍.",sectionDir);
@@ -108,7 +110,7 @@ public class BookImageDirProcessTask implements ITask {
             TifUtils.drawBlurPic(bufferedImageToSave, blurBufferedImage,scale);
         }
         switch (format) {
-            case "jp2"->{
+            case "jp2" :{
                 float fsize = oriTifFile.length() / (1024f * 1024);
 
                 float encoding = (float) (5.842e-06 * Math.pow(fsize, 2) - 0.002235 * fsize + 0.2732);
@@ -132,11 +134,13 @@ public class BookImageDirProcessTask implements ITask {
                         encoding=encoding/10+encoding;
                     else break;
                 }
+                break;
             }
-            case "jpg" -> {
+            case "jpg" : {
                 TifUtils.transformImgToJpg(bufferedImageToSave, new FileOutputStream(outFile), compressLimit);
+                break;
             }
-            default -> {
+            default : {
                 break;
             }
         }
