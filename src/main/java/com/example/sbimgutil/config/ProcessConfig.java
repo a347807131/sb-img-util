@@ -1,5 +1,6 @@
-package com.example.sbimgutil;
+package com.example.sbimgutil.config;
 
+import com.example.sbimgutil.BookImageDirProcessTask;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.context.properties.ConfigurationProperties;
@@ -39,16 +40,15 @@ public class ProcessConfig {
         }
         return processConfigItems;
     }
-
-}
-@Data
-class ProcessConfigItem{
-    boolean enable;
-    boolean withBlur;
-    String blurImagePath;
-    int compressLimit;
-    String outDirPath;
-    String format;
-    String resourceDirPath;
-    String fileNameReg;
+    @Data
+    public static class ProcessConfigItem{
+        boolean enable;
+        boolean withBlur;
+        String blurImagePath;
+        int compressLimit;
+        String outDirPath;
+        String format;
+        String resourceDirPath;
+        String fileNameReg;
+    }
 }
