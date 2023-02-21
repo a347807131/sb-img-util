@@ -34,19 +34,22 @@ public class CheckPoint {
              @Override
              public boolean accept(File file) {
                  if(file.isDirectory()) return true;
+                 File sectionDir = file.getParentFile();
+                 String v = sectionDir.getParentFile().getName() + File.separator + sectionDir.getName();
                  return
                          (file.getName().endsWith("tiff")||file.getName().endsWith("tif"))
-                         && !finishedValues.contains(file.getParentFile().getAbsolutePath());
+                         && !finishedValues.contains(v);
 
              }
          };
 
         this.SectionDirFilter=new FileFilter() {
             @Override
-            public boolean accept(File file) {
+            public boolean accept(File sectionDir) {
+                String v = sectionDir.getParentFile().getName() + File.separator + sectionDir.getName();
                 return
-                        file.isDirectory() &&
-                        !finishedValues.contains(file.getAbsolutePath());
+                        sectionDir.isDirectory() &&
+                        !finishedValues.contains(v);
             }
         };
 
@@ -67,8 +70,9 @@ public class CheckPoint {
         this.finishedValues = new HashSet<>(finishedValues);
     }
 
-    public void saveCheckPoint(String dataToSave) {
+    public void saveCheckPoint(File sectionDir) {
         try {
+            String dataToSave = sectionDir.getParentFile().getName() + File.separator + sectionDir.getName();
             FileUtils.writeStringToFile(checkPointFile, dataToSave, true);
         } catch (IOException e) {
             log.error("保存检查点失败",e);

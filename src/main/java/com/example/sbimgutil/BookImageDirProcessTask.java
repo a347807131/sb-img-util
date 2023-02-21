@@ -88,7 +88,7 @@ public class BookImageDirProcessTask implements ITask {
                 }
 
                 String dataToSave=sectionDir.getAbsolutePath()+"\n";
-                ProcessExcutor.checkPoint.saveCheckPoint(dataToSave);
+                ProcessExcutor.checkPoint.saveCheckPoint(sectionDir);
             }
         }catch (Exception e){
             log.error("处理过程中出错",e);

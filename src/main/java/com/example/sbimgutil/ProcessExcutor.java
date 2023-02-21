@@ -23,8 +23,6 @@ public class ProcessExcutor {
     @Autowired
     ProcessConfig processConfig;
 
-    public static File checkPointFile;
-
     public static CheckPoint checkPoint;
 
     public void excute() throws IOException {
