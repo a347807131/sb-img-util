@@ -2,6 +2,7 @@ package com.example.sbimgutil.schedule;
 
 
 import lombok.extern.slf4j.Slf4j;
+import lombok.var;
 
 import java.util.Arrays;
 import java.util.LinkedList;

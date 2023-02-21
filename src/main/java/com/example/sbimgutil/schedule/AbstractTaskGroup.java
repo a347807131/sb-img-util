@@ -1,5 +1,7 @@
 package com.example.sbimgutil.schedule;
 
+import lombok.var;
+
 import java.util.Collection;
 import java.util.LinkedList;
 import java.util.concurrent.atomic.AtomicInteger;

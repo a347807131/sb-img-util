@@ -4,6 +4,7 @@ import com.example.sbimgutil.schedule.Scheduler;
 import com.example.sbimgutil.utils.Const;
 import com.example.sbimgutil.utils.FileFetchUtils;
 import lombok.extern.slf4j.Slf4j;
+import lombok.var;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
