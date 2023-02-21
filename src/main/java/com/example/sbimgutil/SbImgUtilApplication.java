@@ -14,13 +14,14 @@ import javax.imageio.ImageIO;
 import javax.imageio.ImageWriter;
 import java.io.File;
 import java.io.FileFilter;
+import java.io.IOException;
 import java.util.*;
 
 @Slf4j
 @SpringBootApplication
 public class SbImgUtilApplication {
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws IOException {
         var ctx = new SpringApplicationBuilder(SbImgUtilApplication.class)
                 .headless(false).run(args);
         ProcessExcutor bean = ctx.getBean(ProcessExcutor.class);
