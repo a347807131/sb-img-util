@@ -1,6 +1,6 @@
 package com.example.sbimgutil.config;
 
-import com.example.sbimgutil.BookImageDirProcessTask;
+import com.example.sbimgutil.context.VolumeDirProcessTask;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.context.properties.ConfigurationProperties;
@@ -15,7 +15,7 @@ import java.util.Set;
 @Data
 @Configuration
 @ConfigurationProperties(prefix = "app")
-public class ProcessConfig {
+public class AppConfig {
     int workerNum=4;
     String tifDirPath;
     String baseOutDirPath;
@@ -28,18 +28,19 @@ public class ProcessConfig {
         for (Map<String, ProcessConfigItem> configItemMap : processList) {
             Set<Map.Entry<String, ProcessConfigItem>> entrySet = configItemMap.entrySet();
             Map.Entry<String, ProcessConfigItem> entry = entrySet.iterator().next();
-            if(BookImageDirProcessTask.SUPORTTED_FORMATS.contains(entry.getKey())){
+            if(VolumeDirProcessTask.SUPORTTED_FORMATS.contains(entry.getKey())){
                 entry.getValue().setFormat(entry.getKey());
                 if(entry.getValue().isEnable()) {
                     processConfigItems.add(entry.getValue());
                     log.info("待处理流程项配置:{}",entry.getValue());
                 }
             }else {
-                log.warn("所配置的处理项格式{}不支持，目前支持格式如下:{}.",entry.getKey(),BookImageDirProcessTask.SUPORTTED_FORMATS);
+                log.warn("所配置的处理项格式{}不支持，目前支持格式如下:{}.",entry.getKey(), VolumeDirProcessTask.SUPORTTED_FORMATS);
             }
         }
         return processConfigItems;
     }
+
     @Data
     public static class ProcessConfigItem{
         boolean enable;

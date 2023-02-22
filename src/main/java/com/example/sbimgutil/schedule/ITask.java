@@ -29,11 +29,10 @@ public interface ITask extends Runnable {
         try {
             before();
             doWork();
+            after();
         } catch (Throwable e) {
             onError(e);
             throw new RuntimeException(e);
-        } finally {
-            after();
         }
     }
 }

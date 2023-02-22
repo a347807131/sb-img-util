@@ -29,6 +29,7 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.IntStream;
 
 @Slf4j
 public class DemoTest{
@@ -233,6 +234,8 @@ public class DemoTest{
         }
         long c = System.currentTimeMillis() - s;
         log.info(String.valueOf((c-s)/(1000f)));
+    }
 
+    public void testBar(){
     }
 }

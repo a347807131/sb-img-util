@@ -1,6 +1,5 @@
 package com.example.sbimgutil.utils;
 
-import com.example.sbimgutil.Bookmark;
 import com.itextpdf.text.Document;
 import com.itextpdf.text.pdf.*;
 import java.io.BufferedReader;

@@ -17,7 +17,7 @@ public class CheckPoint {
 
     private static File checkPointFile;
     private final FileFilter tifFileFilter;
-    private final FileFilter SectionDirFilter;
+    private final FileFilter volumeDirFilter;
     private Set<String> finishedValues=new HashSet<>();
 
 
@@ -43,7 +43,7 @@ public class CheckPoint {
              }
          };
 
-        this.SectionDirFilter=new FileFilter() {
+        this.volumeDirFilter=new FileFilter() {
             @Override
             public boolean accept(File sectionDir) {
                 String v = sectionDir.getParentFile().getName() + File.separator + sectionDir.getName();
@@ -56,24 +56,23 @@ public class CheckPoint {
     }
 
 
-
-    public FileFilter getSectionDirFilter() {
-        return SectionDirFilter;
+    public FileFilter getVolumeDirFilter() {
+        return volumeDirFilter;
     }
 
     public FileFilter getTifFileFilter() {
         return tifFileFilter;
     }
 
-    void getFinishedBookSectionDirNames() throws IOException {
+    void getFinishedBookvolumeDirNames() throws IOException {
         Collection<String> finishedValues = FileUtils.readLines(checkPointFile, Charset.defaultCharset());
         this.finishedValues = new HashSet<>(finishedValues);
     }
 
     public void saveCheckPoint(File sectionDir) {
         try {
-            String dataToSave = sectionDir.getParentFile().getName() + File.separator + sectionDir.getName();
-            FileUtils.writeStringToFile(checkPointFile, dataToSave+"\n", true);
+            String dataToSave = sectionDir.getParentFile().getName() + File.separator + sectionDir.getName()+"\n";
+            FileUtils.writeStringToFile(checkPointFile, dataToSave, true);
         } catch (IOException e) {
             log.error("保存检查点失败",e);
             throw new RuntimeException(e);

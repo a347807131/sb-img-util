@@ -36,15 +36,12 @@ public class TifUtils {
     }
 
     public static void transformImgToJpg(BufferedImage bufferedImage, OutputStream outputStream, int limit) throws IOException {
-        long s = System.currentTimeMillis();
         byte[] bytes =imageToBytes(bufferedImage);
         // 把图片读入到内存中
         if(limit>0){
             bytes = PicCompressUtils.compressPicForScale(bytes,limit);
         }
         IOUtils.write(bytes,outputStream);
-
-        log.debug("转化为jpg并输出共耗时{}s",(System.currentTimeMillis()-s)/1000f);
     }
 
     public static void transformImgToJp2(BufferedImage bufferedImage, OutputStream outputStream,float quality,float encodingRate){
@@ -127,18 +124,6 @@ public class TifUtils {
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
-    }
-
-    public static int getPercent(float h, float w) {
-        int p = 0;
-        float p2 = 0.0f;
-        if (h > w) {
-            p2 = 297 / h * 100;
-        } else {
-            p2 = 210 / w * 100;
-        }
-        p = Math.round(p2);
-        return p;
     }
 
     public static int getPercent2(float h, float w) {

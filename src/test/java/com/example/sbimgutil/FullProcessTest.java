@@ -1,6 +1,6 @@
 package com.example.sbimgutil;
 
-import com.example.sbimgutil.config.ProcessConfig;
+import com.example.sbimgutil.config.AppConfig;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
 import org.junit.jupiter.api.Test;
@@ -14,7 +14,7 @@ import java.io.IOException;
 @SpringBootTest
 public class FullProcessTest {
     @Autowired
-    ProcessConfig processConfig;
+    AppConfig appConfig;
 
     @Test
     public void t1() throws IOException {
