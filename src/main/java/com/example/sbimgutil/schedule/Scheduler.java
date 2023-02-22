@@ -48,9 +48,10 @@ public class Scheduler {
         return new Scheduler(nThrends, tasks);
     }
 
-    public static void scheduleNow(int nThrends, Collection<Runnable> tasks) {
+    public static Scheduler scheduleNow(int nThrends, Collection<Runnable> tasks) {
         Scheduler scheduler = schedule(nThrends, tasks);
         scheduler.start();
+        return scheduler;
     }
 
     /**

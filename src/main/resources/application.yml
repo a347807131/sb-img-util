@@ -1,7 +1,5 @@
 
 logging:
-  level:
-    com.example: debug
   file:
     name: ${app.base-out-dir-path}/log.txt
 

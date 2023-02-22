@@ -1,6 +1,7 @@
 package com.example.sbimgutil.context;
 
 import com.example.sbimgutil.config.AppConfig;
+import com.example.sbimgutil.schedule.Scheduler;
 import com.example.sbimgutil.utils.ConsoleProgressBar;
 import com.example.sbimgutil.utils.FileFetchUtils;
 import lombok.extern.slf4j.Slf4j;
@@ -23,6 +24,8 @@ public class ProcessExcutor {
     AppConfig appConfig;
 
     public static CheckPoint checkPoint;
+
+    public static ConsoleProgressBar consoleProgressBar;
 
     public void excute() throws IOException, ExecutionException, InterruptedException {
         File tifDir = new File(appConfig.getTifDirPath());
@@ -65,18 +68,21 @@ public class ProcessExcutor {
         }
 
         log.info("共计{}卷图书，{}张tif图片待处理.",sectionDriCount,tifFileCount);
-        VolumeDirProcessTask.cpb = new ConsoleProgressBar(tifFileCount);
-        VolumeDirProcessTask.cpb.showCurrent();
+        consoleProgressBar = new ConsoleProgressBar(tifFileCount);
+        consoleProgressBar.showCurrent();
 
         int workerNum = appConfig.getWorkerNum();
         if(workerNum>sectionDriCount){
             workerNum=sectionDriCount;
         }
-        ForkJoinPool pool = new ForkJoinPool(workerNum);
-        ForkJoinTask<?> forkJoinTask = pool.submit(() -> tasks.parallelStream().forEach(Runnable::run));
-
-        //阻塞
-        Object o = forkJoinTask.get();
+        if(workerNum>0){
+            ForkJoinPool pool = new ForkJoinPool(workerNum);
+            ForkJoinTask<?> forkJoinTask = pool.submit(() -> tasks.parallelStream().forEach(Runnable::run));
+            //阻塞
+            Object o = forkJoinTask.get();
+//            Scheduler scheduler = Scheduler.scheduleNow(workerNum, tasks);
+//            scheduler.await();
+        }
         log.info("全部处理完成。");
     }
 }

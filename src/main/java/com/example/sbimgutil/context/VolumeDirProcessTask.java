@@ -18,8 +18,6 @@ import java.util.stream.Collectors;
 @Slf4j
 public class VolumeDirProcessTask implements ITask {
 
-    static ConsoleProgressBar cpb = null;
-
     public static final Set<String> SUPORTTED_FORMATS = Set.of("pdf", "jp2", "jpg");
 
     private final File volumeDir;
@@ -43,50 +41,48 @@ public class VolumeDirProcessTask implements ITask {
 
     @Override
     public void doWork() {
-        try {
-            CheckPoint checkPoint = ProcessExcutor.checkPoint;
-            //处理pdf合并任务
-            List<AppConfig.ProcessConfigItem> nonPdfConfigItems = processConfigItemList.stream().filter(
-                    e -> !"pdf".equals(e.getFormat())).collect(Collectors.toList());
-            //处理pdf合并任务
-            List<AppConfig.ProcessConfigItem> pdfConfigItems = processConfigItemList.stream().filter(
-                    e -> "pdf".equals(e.getFormat())).collect(Collectors.toList());
 
-            List<File> files = new LinkedList<>();
-            FileFetchUtils.fetchFileRecursively(files, volumeDir, checkPoint.getTifFileFilter());
-            files.sort(Comparator.comparing(File::getName));
-            for (File oriTifFile : files) {
-                for (AppConfig.ProcessConfigItem configItem : nonPdfConfigItems) {
-                    if (!configItem.isEnable()) {
-                        continue;
-                    }
-                    if (configItem.getFileNameReg() != null && !oriTifFile.getName().matches(configItem.getFileNameReg())) {
-                        continue;
-                    }
-                    String format = configItem.getFormat();
-                    try {
-                        BufferedImage bufferedImage = ImageIO.read(oriTifFile);
-                        processOneItem(configItem, oriTifFile, format, bufferedImage);
-                    } catch (IOException e) {
-                        log.error("{}文件读取错误，跳过该本书籍的该卷", oriTifFile, e);
-                        cpb.iterate();
-                        throw new RuntimeException(volumeDir.getAbsolutePath()+"卷处理出错",e);
-                    }
+        final CheckPoint checkPoint = ProcessExcutor.checkPoint;
+        final ConsoleProgressBar cpb = ProcessExcutor.consoleProgressBar;
+        //处理pdf合并任务
+        List<AppConfig.ProcessConfigItem> nonPdfConfigItems = processConfigItemList.stream().filter(
+                e -> !"pdf".equals(e.getFormat())).collect(Collectors.toList());
+        //处理pdf合并任务
+        List<AppConfig.ProcessConfigItem> pdfConfigItems = processConfigItemList.stream().filter(
+                e -> "pdf".equals(e.getFormat())).collect(Collectors.toList());
+
+        List<File> files = new LinkedList<>();
+        FileFetchUtils.fetchFileRecursively(files, volumeDir, checkPoint.getTifFileFilter());
+        files.sort(Comparator.comparing(File::getName));
+        for (File oriTifFile : files) {
+            for (AppConfig.ProcessConfigItem configItem : nonPdfConfigItems) {
+                if (!configItem.isEnable()) {
+                    continue;
                 }
-                cpb.iterate();
-            }
-            // FIXME: 2/16/2023 还需要处理目录
-            for (AppConfig.ProcessConfigItem pdfProcessConfigItem : pdfConfigItems) {
+                if (configItem.getFileNameReg() != null && !oriTifFile.getName().matches(configItem.getFileNameReg())) {
+                    continue;
+                }
+                String format = configItem.getFormat();
                 try {
-                    if (!pdfProcessConfigItem.isEnable()) continue;
-                    doMergeIntoPdf(pdfProcessConfigItem, volumeDir);
-                } catch (Exception e) {
-                    log.error("{}目录书籍合并pdf出错", volumeDir, e);
+                    BufferedImage bufferedImage = ImageIO.read(oriTifFile);
+                    processOneItem(configItem, oriTifFile, format, bufferedImage);
+                } catch (IOException e) {
+                    log.error("{}文件读取错误，跳过该本书籍的该卷", oriTifFile, e);
+                    // TODO: 2/22/2023 出错情况下的进度条处理
+//                        cpb.iterate();
+                    throw new RuntimeException(volumeDir.getAbsolutePath()+"卷处理出错",e);
                 }
             }
-        } catch (Exception e) {
-            log.error("处理过程中出错", e);
-            throw new RuntimeException(e);
+            cpb.iterate();
+        }
+        // FIXME: 2/16/2023 还需要处理目录
+        for (AppConfig.ProcessConfigItem pdfProcessConfigItem : pdfConfigItems) {
+            try {
+                if (!pdfProcessConfigItem.isEnable()) continue;
+                doMergeIntoPdf(pdfProcessConfigItem, volumeDir);
+            } catch (Exception e) {
+                log.error("{}目录书籍合并pdf出错", volumeDir, e);
+            }
         }
     }
 
