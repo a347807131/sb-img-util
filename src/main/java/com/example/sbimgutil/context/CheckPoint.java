@@ -73,7 +73,7 @@ public class CheckPoint {
     public void saveCheckPoint(File sectionDir) {
         try {
             String dataToSave = sectionDir.getParentFile().getName() + File.separator + sectionDir.getName();
-            FileUtils.writeStringToFile(checkPointFile, dataToSave, true);
+            FileUtils.writeStringToFile(checkPointFile, dataToSave+"\n", true);
         } catch (IOException e) {
             log.error("保存检查点失败",e);
             throw new RuntimeException(e);

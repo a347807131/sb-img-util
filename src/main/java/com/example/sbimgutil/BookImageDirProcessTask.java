@@ -20,16 +20,16 @@ import java.util.stream.Collectors;
 @Slf4j
 public class BookImageDirProcessTask implements ITask {
 
-    static ConsoleProgressBar cpb =null;
+    static ConsoleProgressBar cpb = null;
 
-    public static final Set<String> SUPORTTED_FORMATS=Set.of("pdf","jp2","jpg");
+    public static final Set<String> SUPORTTED_FORMATS = Set.of("pdf", "jp2", "jpg");
 
     private final File bookDir;
     private final List<ProcessConfig.ProcessConfigItem> processConfigItemList;
 
-    public BookImageDirProcessTask(File bookDir,List<ProcessConfig.ProcessConfigItem> processConfigItemList){
-        this.bookDir=bookDir;
-        this.processConfigItemList=processConfigItemList;
+    public BookImageDirProcessTask(File bookDir, List<ProcessConfig.ProcessConfigItem> processConfigItemList) {
+        this.bookDir = bookDir;
+        this.processConfigItemList = processConfigItemList;
     }
 
     @Override
@@ -45,10 +45,10 @@ public class BookImageDirProcessTask implements ITask {
     @Override
     public void doWork() {
         try {
-            CheckPoint checkPoint=ProcessExcutor.checkPoint;
+            CheckPoint checkPoint = ProcessExcutor.checkPoint;
 
             File[] sectionDirs = bookDir.listFiles(checkPoint.getSectionDirFilter());
-            if(sectionDirs==null) return;
+            if (sectionDirs == null) return;
 
             //处理pdf合并任务
             List<ProcessConfig.ProcessConfigItem> nonPdfConfigItems = processConfigItemList.stream().filter(
@@ -57,25 +57,33 @@ public class BookImageDirProcessTask implements ITask {
             List<ProcessConfig.ProcessConfigItem> pdfConfigItems = processConfigItemList.stream().filter(
                     e -> "pdf".equals(e.getFormat())).collect(Collectors.toList());
 
-            sectionDirLoop:for (File sectionDir : sectionDirs) {
-                log.info("开始处理卷{}下的书籍.",sectionDir);
+            sectionDirLoop:
+            for (File sectionDir : sectionDirs) {
+                log.info("开始处理卷{}下的书籍.", sectionDir);
                 HashSet<File> files = new HashSet<>();
-                FileFetchUtils.fetchFileRecursively(files,sectionDir);
+                FileFetchUtils.fetchFileRecursively(files, sectionDir);
 
                 for (File oriTifFile : files) {
+                    if (oriTifFile.getAbsolutePath().equals("D:\\工作文档\\霖昊\\发吴模板(2)\\1 扫描原图（TIFF格式）\\27030166\\0001\\0005.tif")) {
+                        System.out.println("找到了问题图片");
+                    }
                     //文件过滤（必须是tif类型）
                     String substring = oriTifFile.getName().substring(oriTifFile.getName().lastIndexOf("."), oriTifFile.getName().length());
-                    if (".tif".equals(substring)){
+                    if (".tif".equals(substring)||".tiff".equals(substring)) {
                         for (ProcessConfig.ProcessConfigItem configItem : nonPdfConfigItems) {
-                            if(configItem.getFileNameReg()!=null && !oriTifFile.getName().matches(configItem.getFileNameReg()))
+                            if (configItem.getFileNameReg() != null && !oriTifFile.getName().matches(configItem.getFileNameReg())) {
                                 continue;
+                            }
                             String format = configItem.getFormat();
-                            if (!configItem.isEnable()) continue;
+                            if (!configItem.isEnable()) {
+                                System.out.println("跳过了当前文件:" + oriTifFile.getAbsolutePath());
+                                continue;
+                            }
                             try {
                                 BufferedImage bufferedImage = ImageIO.read(oriTifFile);
                                 processOneItem(configItem, oriTifFile, format, bufferedImage);
-                            }catch (IOException  e){
-                                log.error("{}文件读取错误，跳过该本书籍的该卷",oriTifFile,e);
+                            } catch (IOException e) {
+                                log.error("{}文件读取错误，跳过该本书籍的该卷", oriTifFile, e);
                                 cpb.iterate();
                                 continue sectionDirLoop;
                             }
@@ -88,22 +96,29 @@ public class BookImageDirProcessTask implements ITask {
                 for (ProcessConfig.ProcessConfigItem pdfProcessConfigItem : pdfConfigItems) {
                     try {
                         if (!pdfProcessConfigItem.isEnable()) continue;
-                        doMergeIntoPdf(pdfProcessConfigItem,sectionDir);
-                    }catch (Exception e){
-                        log.error("{}目录书籍合并pdf出错",bookDir,e);
+                        doMergeIntoPdf(pdfProcessConfigItem, sectionDir);
+                    } catch (Exception e) {
+                        log.error("{}目录书籍合并pdf出错", bookDir, e);
                     }
                 }
 
-                String dataToSave=sectionDir.getAbsolutePath()+"\n";
+                String dataToSave = sectionDir.getAbsolutePath() + "\n";
                 ProcessExcutor.checkPoint.saveCheckPoint(sectionDir);
             }
-        }catch (Exception e){
-            log.error("处理过程中出错",e);
+        } catch (Exception e) {
+            log.error("处理过程中出错", e);
             throw new RuntimeException(e);
         }
     }
 
-    void processOneItem(ProcessConfig.ProcessConfigItem configItem,File oriTifFile,String format,BufferedImage bufferedImage) throws IOException {
+    void processOneItem(ProcessConfig.ProcessConfigItem configItem, File oriTifFile, String format, BufferedImage bufferedImage) throws IOException {
+        System.out.println("path:" + oriTifFile.getAbsolutePath());
+        if (oriTifFile.getAbsolutePath().equals("D:\\工作文档\\霖昊\\发吴模板(2)\\1 扫描原图（TIFF格式）\\27030166\\0001\\0005.tif")) {
+            System.out.println("找到了问题图片");
+        }
+        if (oriTifFile.getAbsolutePath().equals("D:\\工作文档\\霖昊\\发吴模板(2)\\1 扫描原图（TIFF格式）\\27030166\\0001\\0001.tif")) {
+            System.out.println("找到了问题图片");
+        }
         String outDirPath = configItem.getOutDirPath();
         int compressLimit = configItem.getCompressLimit();
         File outFile = genOutFile(oriTifFile, outDirPath, format);
@@ -111,41 +126,41 @@ public class BookImageDirProcessTask implements ITask {
         if (configItem.isWithBlur()) {
             BufferedImage blurBufferedImage = ImageIO.read(new File(configItem.getBlurImagePath()));
             bufferedImageToSave = ImageIO.read(oriTifFile);
-            float scale= bufferedImageToSave.getHeight()/(4f* blurBufferedImage.getHeight());
-            TifUtils.drawBlurPic(bufferedImageToSave, blurBufferedImage,scale);
+            float scale = bufferedImageToSave.getHeight() / (4f * blurBufferedImage.getHeight());
+            TifUtils.drawBlurPic(bufferedImageToSave, blurBufferedImage, scale);
         }
         switch (format) {
-            case "jp2" :{
+            case "jp2": {
                 float fsize = oriTifFile.length() / (1024f * 1024);
 
                 float encoding = (float) (5.842e-06 * Math.pow(fsize, 2) - 0.002235 * fsize + 0.2732);
 //                float i = 5.842e-06 * fsize ^ 2 - 0.002235 * fsize + 0.2732;
 //                float encoding = -0.001f * fsize + 0.227f;
                 float limitM = compressLimit / 1024f;
-                if(limitM==0) {
+                if (limitM == 0) {
                     TifUtils.transformImgToJp2(bufferedImageToSave, new FileOutputStream(outFile));
                     return;
                 }
-                int compressTime=1;
-                while ( fsize > limitM || fsize < limitM * 0.8){
-                    TifUtils.transformImgToJp2(bufferedImageToSave, new FileOutputStream(outFile),0.5f,encoding);
-                    fsize = outFile.length() /(1024*1024f);
-                    log.debug("压缩次数{},输出文件大小{}m,原文件大小{}m,编码率{},文件名{}",compressTime,
-                            fsize,oriTifFile.length()/1024,encoding,oriTifFile.getAbsolutePath());
-                    compressTime+=1;
-                    if(fsize>limitM)
-                        encoding=-encoding/10+encoding;
-                    else if(fsize<limitM*0.8)
-                        encoding=encoding/10+encoding;
+                int compressTime = 1;
+                while (fsize > limitM || fsize < limitM * 0.8) {
+                    TifUtils.transformImgToJp2(bufferedImageToSave, new FileOutputStream(outFile), 0.5f, encoding);
+                    fsize = outFile.length() / (1024 * 1024f);
+                    log.debug("压缩次数{},输出文件大小{}m,原文件大小{}m,编码率{},文件名{}", compressTime,
+                            fsize, oriTifFile.length() / 1024, encoding, oriTifFile.getAbsolutePath());
+                    compressTime += 1;
+                    if (fsize > limitM)
+                        encoding = -encoding / 10 + encoding;
+                    else if (fsize < limitM * 0.8)
+                        encoding = encoding / 10 + encoding;
                     else break;
                 }
                 break;
             }
-            case "jpg" : {
+            case "jpg": {
                 TifUtils.transformImgToJpg(bufferedImageToSave, new FileOutputStream(outFile), compressLimit);
                 break;
             }
-            default : {
+            default: {
                 break;
             }
         }
@@ -156,13 +171,13 @@ public class BookImageDirProcessTask implements ITask {
         log.debug("处理pdf整合流程");
         String outDirPath = configItem.getOutDirPath();
 
-        File pdfOutFile = new File(outDirPath, bookDir.getName()+"/"+sectionDir.getName()+".pdf");
-        if(!pdfOutFile.getParentFile().exists())
+        File pdfOutFile = new File(outDirPath, bookDir.getName() + "/" + sectionDir.getName() + ".pdf");
+        if (!pdfOutFile.getParentFile().exists())
             FileUtils.forceMkdirParent(pdfOutFile);
         LinkedList<File> imgFiles = new LinkedList<>();
         //可能需要过滤
         FileFetchUtils.fetchFileRecursively(imgFiles, sectionDir);
-        TifUtils.mergeImgToPdf(imgFiles,new FileOutputStream(pdfOutFile));
+        TifUtils.mergeImgToPdf(imgFiles, new FileOutputStream(pdfOutFile));
     }
 
     File genOutFile(File oriTifFile, String outDirPath, String format) throws IOException {
@@ -171,9 +186,9 @@ public class BookImageDirProcessTask implements ITask {
         String newFileAbsPath = fileAbsolutePath.replace(fitDir.getAbsolutePath(), outDirPath);
 
         int pointIndex = newFileAbsPath.lastIndexOf(".");
-        newFileAbsPath=newFileAbsPath.substring(0,pointIndex+1)+format;
+        newFileAbsPath = newFileAbsPath.substring(0, pointIndex + 1) + format;
         File outFile = new File(newFileAbsPath);
-        if(!outFile.getParentFile().exists())
+        if (!outFile.getParentFile().exists())
             FileUtils.forceMkdir(outFile.getParentFile());
         return outFile;
     }
