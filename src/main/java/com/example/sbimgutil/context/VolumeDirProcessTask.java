@@ -140,7 +140,7 @@ public class VolumeDirProcessTask implements ITask {
 
         String outDirPath = configItem.getOutDirPath();
 
-        File pdfOutFile = new File(outDirPath, volumeDir.getName() + "/" + volumeDir.getName() + ".pdf");
+        File pdfOutFile = new File(outDirPath, volumeDir.getParentFile().getName()+"/"+volumeDir.getName() + "/" + volumeDir.getName() + ".pdf");
         if (!pdfOutFile.getParentFile().exists())
             FileUtils.forceMkdirParent(pdfOutFile);
         LinkedList<File> imgFiles = new LinkedList<>();
