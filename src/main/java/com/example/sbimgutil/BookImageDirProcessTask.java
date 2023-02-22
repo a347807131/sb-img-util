@@ -64,9 +64,6 @@ public class BookImageDirProcessTask implements ITask {
                 FileFetchUtils.fetchFileRecursively(files, sectionDir);
 
                 for (File oriTifFile : files) {
-                    if (oriTifFile.getAbsolutePath().equals("D:\\工作文档\\霖昊\\发吴模板(2)\\1 扫描原图（TIFF格式）\\27030166\\0001\\0005.tif")) {
-                        System.out.println("找到了问题图片");
-                    }
                     //文件过滤（必须是tif类型）
                     String substring = oriTifFile.getName().substring(oriTifFile.getName().lastIndexOf("."), oriTifFile.getName().length());
                     if (".tif".equals(substring)||".tiff".equals(substring)) {
@@ -76,7 +73,6 @@ public class BookImageDirProcessTask implements ITask {
                             }
                             String format = configItem.getFormat();
                             if (!configItem.isEnable()) {
-                                System.out.println("跳过了当前文件:" + oriTifFile.getAbsolutePath());
                                 continue;
                             }
                             try {
@@ -112,13 +108,6 @@ public class BookImageDirProcessTask implements ITask {
     }
 
     void processOneItem(ProcessConfig.ProcessConfigItem configItem, File oriTifFile, String format, BufferedImage bufferedImage) throws IOException {
-        System.out.println("path:" + oriTifFile.getAbsolutePath());
-        if (oriTifFile.getAbsolutePath().equals("D:\\工作文档\\霖昊\\发吴模板(2)\\1 扫描原图（TIFF格式）\\27030166\\0001\\0005.tif")) {
-            System.out.println("找到了问题图片");
-        }
-        if (oriTifFile.getAbsolutePath().equals("D:\\工作文档\\霖昊\\发吴模板(2)\\1 扫描原图（TIFF格式）\\27030166\\0001\\0001.tif")) {
-            System.out.println("找到了问题图片");
-        }
         String outDirPath = configItem.getOutDirPath();
         int compressLimit = configItem.getCompressLimit();
         File outFile = genOutFile(oriTifFile, outDirPath, format);
