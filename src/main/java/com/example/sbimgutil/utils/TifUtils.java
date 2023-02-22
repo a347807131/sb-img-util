@@ -1,10 +1,6 @@
 package com.example.sbimgutil.utils;
 
 import com.github.jaiimageio.jpeg2000.J2KImageWriteParam;
-import com.itextpdf.text.BadElementException;
-import com.itextpdf.text.Image;
-import com.itextpdf.text.PageSize;
-import com.itextpdf.text.pdf.PdfWriter;
 import lombok.extern.slf4j.Slf4j;
 import net.coobird.thumbnailator.Thumbnails;
 import org.apache.commons.io.IOUtils;
@@ -96,41 +92,5 @@ public class TifUtils {
         } catch (IOException e) {
             throw new RuntimeException();
         }
-    }
-
-    public static void mergeImgToPdf(List<File> imgFiles,OutputStream os) {
-        com.itextpdf.text.Document doc = new com.itextpdf.text.Document(PageSize.A4, 0, 0, 0, 0); //new一个pdf文档
-        try {
-            PdfWriter.getInstance(doc, os); //pdf写入
-            doc.open();//打开文档
-            for (File imgFile : imgFiles) {  //循环图片List，将图片加入到pdf中
-                doc.newPage();  //在pdf创建一页
-                Image img = null; //通过文件路径获取image
-                try {
-                    img = Image.getInstance(imgFile.getAbsolutePath());
-                } catch (BadElementException e) {
-                    throw new RuntimeException(e);
-                }
-                float heigth = img.getHeight();
-                float width = img.getWidth();
-                int percent =
-                    getPercent2(heigth, width);
-                img.setAlignment(Image.MIDDLE);
-                //试出来的
-                img.scalePercent(14);// 表示是原来图像的比例;
-                doc.add(img);
-            }
-            doc.close();
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    public static int getPercent2(float h, float w) {
-        int p = 0;
-        float p2 = 0.0f;
-        p2 = 530 / w * 100;
-        p = Math.round(p2);
-        return p;
     }
 }

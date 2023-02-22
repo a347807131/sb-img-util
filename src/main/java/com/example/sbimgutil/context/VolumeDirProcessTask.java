@@ -4,6 +4,7 @@ import com.example.sbimgutil.config.AppConfig;
 import com.example.sbimgutil.schedule.ITask;
 import com.example.sbimgutil.utils.ConsoleProgressBar;
 import com.example.sbimgutil.utils.FileFetchUtils;
+import com.example.sbimgutil.utils.PdfUtils;
 import com.example.sbimgutil.utils.TifUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
@@ -75,10 +76,10 @@ public class VolumeDirProcessTask implements ITask {
             }
             cpb.iterate();
         }
-        // FIXME: 2/16/2023 还需要处理目录
         for (AppConfig.ProcessConfigItem pdfProcessConfigItem : pdfConfigItems) {
             try {
                 if (!pdfProcessConfigItem.isEnable()) continue;
+                log.debug("处理pdf整合流程,volume{}",volumeDir);
                 doMergeIntoPdf(pdfProcessConfigItem, volumeDir);
             } catch (Exception e) {
                 log.error("{}目录书籍合并pdf出错", volumeDir, e);
@@ -135,9 +136,8 @@ public class VolumeDirProcessTask implements ITask {
         }
     }
 
-    public void doMergeIntoPdf(AppConfig.ProcessConfigItem configItem, File volumeDir) throws IOException {
+    public void doMergeIntoPdf(AppConfig.ProcessConfigItem configItem, File volumeDir) throws Exception {
 
-        log.debug("处理pdf整合流程,volume{}",volumeDir);
         String outDirPath = configItem.getOutDirPath();
 
         File pdfOutFile = new File(outDirPath, volumeDir.getName() + "/" + volumeDir.getName() + ".pdf");
@@ -146,7 +146,7 @@ public class VolumeDirProcessTask implements ITask {
         LinkedList<File> imgFiles = new LinkedList<>();
         //可能需要过滤
         FileFetchUtils.fetchFileRecursively(imgFiles, volumeDir);
-        TifUtils.mergeImgToPdf(imgFiles, Files.newOutputStream(pdfOutFile.toPath()));
+        PdfUtils.mergeIntoPdf(imgFiles, Files.newOutputStream(pdfOutFile.toPath()));
     }
 
     File genOutFile(File oriTifFile, String outDirPath, String format) throws IOException {
