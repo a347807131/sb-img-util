@@ -36,7 +36,24 @@ public class VolumeDirProcessTask implements ITask {
 
     @Override
     public void after() {
-        log.debug("书籍卷{}处理完成点.",volumeDir);
+
+        CheckPoint checkPoint = ProcessExcutor.checkPoint;
+        //处理pdf合并任务
+        List<AppConfig.ProcessConfigItem> pdfConfigItems = processConfigItemList.stream().filter(
+                e -> "pdf".equals(e.getFormat()) && !checkPoint.checkIfFinished(volumeDir, e)
+        ).collect(Collectors.toList());
+
+        for (AppConfig.ProcessConfigItem configItem : pdfConfigItems) {
+            try {
+                if (!configItem.isEnable()) continue;
+                log.debug("处理pdf整合流程,volume{}",volumeDir);
+                processPdfItem(configItem);
+            } catch (Exception e) {
+                log.error("{}目录书籍合并pdf出错", volumeDir, e);
+                throw new RuntimeException(volumeDir.getAbsolutePath()+"卷处理出错",e);
+            }
+            checkPoint.saveCheckPoint(volumeDir, configItem);
+        }
     }
 
     @Override
@@ -47,10 +64,6 @@ public class VolumeDirProcessTask implements ITask {
         //处理pdf合并任务
         List<AppConfig.ProcessConfigItem> nonPdfConfigItems = processConfigItemList.stream().filter(
                 e -> !"pdf".equals(e.getFormat()) && !checkPoint.checkIfFinished(volumeDir, e)
-        ).collect(Collectors.toList());
-        //处理pdf合并任务
-        List<AppConfig.ProcessConfigItem> pdfConfigItems = processConfigItemList.stream().filter(
-                e -> "pdf".equals(e.getFormat()) && !checkPoint.checkIfFinished(volumeDir, e)
         ).collect(Collectors.toList());
 
         List<File> files = new LinkedList<>();
@@ -81,20 +94,6 @@ public class VolumeDirProcessTask implements ITask {
                 if(i%nonPdfConfigItems.size()==0){
                     cpb.iterate();
                 }
-
-            }
-            checkPoint.saveCheckPoint(volumeDir, configItem);
-        }
-
-
-        for (AppConfig.ProcessConfigItem configItem : pdfConfigItems) {
-            try {
-                if (!configItem.isEnable()) continue;
-                log.debug("处理pdf整合流程,volume{}",volumeDir);
-                processPdfItem(configItem, volumeDir);
-            } catch (Exception e) {
-                log.error("{}目录书籍合并pdf出错", volumeDir, e);
-                throw new RuntimeException(volumeDir.getAbsolutePath()+"卷处理出错",e);
             }
             checkPoint.saveCheckPoint(volumeDir, configItem);
         }
@@ -149,7 +148,7 @@ public class VolumeDirProcessTask implements ITask {
         }
     }
 
-    public void processPdfItem(AppConfig.ProcessConfigItem configItem, File volumeDir) throws Exception {
+    public void processPdfItem(AppConfig.ProcessConfigItem configItem) throws Exception {
 
         File cataFile = new File(configItem.getCataDirPath(),volumeDir.getParentFile().getName()+"/"+volumeDir.getName()+".txt");
 
@@ -161,7 +160,7 @@ public class VolumeDirProcessTask implements ITask {
         File imgDir= new File(configItem.getResourceDirPath(), volumeDir.getParentFile().getName()+"/"+volumeDir.getName());
 
         LinkedList<File> imgFiles = new LinkedList<>();
-        //可能需要过滤
+        //可能需要过滤 todo
         FileFetchUtils.fetchFileRecursively(imgFiles, imgDir, (file) -> file.getName().endsWith(".jpg") || file.getName().endsWith(".jp2"));
         PDFUtils.mergeIntoPdf(imgFiles,cataFile, Files.newOutputStream(pdfOutFile.toPath()));
     }

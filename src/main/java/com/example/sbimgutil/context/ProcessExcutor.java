@@ -43,7 +43,6 @@ public class ProcessExcutor {
 
         List<AppConfig.ProcessConfigItem> processCfgItems = appConfig.getEnabledProcessCfgItems();
 
-
         List<File> volumeDirsToProcess = new ArrayList<>();
         for (File bookDir : bookDirs) {
             File[] volumeDirs = bookDir.listFiles(File::isDirectory);

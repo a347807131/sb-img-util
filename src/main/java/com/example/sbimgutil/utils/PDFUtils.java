@@ -11,6 +11,7 @@ import com.itextpdf.kernel.pdf.canvas.PdfCanvas;
 import com.itextpdf.kernel.pdf.navigation.PdfExplicitDestination;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
 
@@ -18,6 +19,7 @@ import java.io.*;
 import java.nio.charset.Charset;
 import java.util.*;
 
+@Slf4j
 public class PDFUtils {
 
     private PDFUtils(){
@@ -33,6 +35,8 @@ public class PDFUtils {
         if(cataFile!=null && cataFile.exists()) {
             Bookmark rootBookMark = parsePdfCatagory(cataFile);
             addCata(rootOutLines, rootBookMark);
+        }else {
+            log.warn("没有找到目录文件{}",cataFile);
         }
         for (File file : imgFiles) {
             ImageData imageData = ImageDataFactory.create(file.getAbsolutePath());
