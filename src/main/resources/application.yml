@@ -10,6 +10,7 @@ spring:
 app:
   tif-dir-path:
   base-out-dir-path:
+  pdf-cata-dir-path: ${app.tif-dir-path}/../5 目录
   blur-image-path:
   #处理线程数
   worker-num: 8
@@ -67,7 +68,7 @@ app:
       blur-image-path: ${app.blur-image-path}
       out-dir-path: ${app.base-out-dir-path}/4 PDF/无水印
       resource-dir-path: ${app.base-out-dir-path}/3 水印有损JP2000/无水印
-      cata-dir-path: ${app.tif-dir-path}/../5 目录
+      cata-dir-path: ${app.pdf-cata-dir-path}
 
   #pdf带水印
   - pdf:
@@ -77,4 +78,4 @@ app:
       blur-image-path: ${app.blur-image-path}
       out-dir-path: ${app.base-out-dir-path}/4 PDF/有水印
       resource-dir-path: ${app.base-out-dir-path}/3 水印有损JP2000/有水印
-      cata-dir-path: ${app.tif-dir-path}/../5 目录
+      cata-dir-path: ${app.pdf-cata-dir-path}
