@@ -35,10 +35,6 @@ public class ProcessExcutor {
         if(bookDirs==null)
             throw new RuntimeException("目标tif文件夹无数据");
 
-        int tifFileCount = FileFetchUtils.countFileRecursively(
-                List.of(bookDirs),
-                checkPoint.getTifFileFilter());
-
         var processList= appConfig.getProcessList();
         if(processList.isEmpty()) {
             log.warn("启动项配置中没有输出项的配置,请检查配置文件");
@@ -47,8 +43,8 @@ public class ProcessExcutor {
 
         List<AppConfig.ProcessConfigItem> processCfgItems = appConfig.getEnabledProcessCfgItems();
 
-        LinkedList<Runnable> tasks = new LinkedList<>();
 
+        List<File> volumeDirsToProcess = new ArrayList<>();
         for (File bookDir : bookDirs) {
             File[] volumeDirs = bookDir.listFiles(File::isDirectory);
             if(volumeDirs==null)
@@ -58,15 +54,19 @@ public class ProcessExcutor {
                 for (AppConfig.ProcessConfigItem processCfgItem : processCfgItems) {
                     boolean finished=checkPoint.checkIfFinished(volumeDir,processCfgItem);
                     if(!finished){
-                        VolumeDirProcessTask volumeDirProcessTask = new VolumeDirProcessTask(volumeDir, processCfgItems);
-                        tasks.add(volumeDirProcessTask);
+                        volumeDirsToProcess.add(volumeDir);
                         continue volumeDirsLool;
                     }
                 }
             }
         }
 
-        log.info("共计{}卷图书，{}张tif图片待处理.",tasks,tifFileCount);
+        int tifFileCount = FileFetchUtils.countFileRecursively(volumeDirsToProcess, checkPoint.getTifFileFilter());
+
+        Collection<Runnable> tasks = new LinkedList<>();
+        volumeDirsToProcess.forEach(e->tasks.add(new VolumeDirProcessTask(e,processCfgItems)));
+
+        log.info("共计{}卷图书，{}张tif图片待处理.",volumeDirsToProcess.size(),tifFileCount);
         consoleProgressBar = new ConsoleProgressBar(tifFileCount);
         consoleProgressBar.showCurrent();
 

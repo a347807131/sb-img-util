@@ -74,7 +74,7 @@ app:
   - pdf:
       enable: true
       compress-limit: 0 #单位kb 0表示不压缩
-      with-blur: true
+      with-blur: false
       blur-image-path: ${app.blur-image-path}
       out-dir-path: ${app.base-out-dir-path}/4 PDF/有水印
       resource-dir-path: ${app.base-out-dir-path}/3 水印有损JP2000/有水印
