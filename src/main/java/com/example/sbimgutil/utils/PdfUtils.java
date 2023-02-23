@@ -10,15 +10,14 @@ import com.itextpdf.kernel.pdf.PdfWriter;
 import com.itextpdf.kernel.pdf.action.PdfAction;
 import com.itextpdf.kernel.pdf.canvas.PdfCanvas;
 import com.itextpdf.kernel.pdf.navigation.PdfExplicitDestination;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
 
 import java.io.*;
 import java.nio.charset.Charset;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class PdfUtils {
@@ -32,6 +31,7 @@ public class PdfUtils {
         PdfWriter pdfWriter = new PdfWriter(os);
         PdfDocument doc = new PdfDocument(pdfWriter);
         PdfOutline rootOutLines = doc.getOutlines(false);
+
         if(cataFile!=null) {
             Bookmark rootBookMark = parsePdfCatagory(cataFile);
             addCata(rootOutLines, rootBookMark);
@@ -42,14 +42,13 @@ public class PdfUtils {
             PdfCanvas canvas = new PdfCanvas(page);
             canvas.addImage(ImageDataFactory.create(file.getAbsolutePath()), 0, 0, false);
         }
-
         doc.close();
     }
 
     private static void addCata(PdfOutline pdfOutline, Bookmark bookmark) {
         if(bookmark==null) return;
         PdfOutline pdfOutlineNextLevel = pdfOutline.addOutline(bookmark.getTitle());
-        pdfOutline.addDestination(PdfExplicitDestination.createFit(bookmark.getPage()));
+        pdfOutlineNextLevel.addDestination(PdfExplicitDestination.createFit(bookmark.getPage()));
         for (Bookmark child : bookmark.getChildren()) {
             addCata(pdfOutlineNextLevel,child);
         }
@@ -80,19 +79,83 @@ public class PdfUtils {
         for (int i = 1; i < bookmarks.size(); i++) {
             Bookmark bookmark = bookmarks.get(i);
             Bookmark previous = bookmarks.get(i - 1);
+            bookmark.order=i;
             Bookmark parent;
-            if (bookmark.getLevel() > previous.getLevel()) {
-                previous.addChild(bookmark);
+            int gap = bookmark.level.compareTo(previous.level);
+            if (gap>0) {
                 parent=previous;
-            } else if (bookmark.getLevel().equals(previous.getLevel())) {
-                previous.getParent().addChild(bookmark);
-                parent=previous.getParent();
+            } else if (gap==0) {
+                parent=previous.parent;
             } else {
-                previous.parent.parent.addChild(bookmark);
                 parent=previous.parent.parent;
             }
             bookmark.setParent(parent);
+            parent.addChild(bookmark);
         }
         return bookmarks.getFirst();
+    }
+}
+/**
+ * @desc 定义书签
+ */
+@NoArgsConstructor
+@Data
+class Bookmark implements Comparable<Bookmark> {
+    Integer page;
+    String title;
+    Integer level;
+    Bookmark parent;
+    Integer order;
+
+    Set<Bookmark> children = new TreeSet<>();
+
+    public Bookmark(int level, String title, String page) {
+        this.level = level;
+        this.title = title;
+        this.page = Integer.valueOf(page);
+    }
+
+    @Override
+    public int compareTo(Bookmark o) {
+        if(this.page.equals(o.page)) {
+            return this.order.compareTo(o.order);
+        }
+        else
+            return this.page.compareTo(o.page);
+    }
+
+    @Override
+    public String toString() {
+        return "Bookmark{" +
+                ", page=" + page +
+                ", title='" + title + '\'' +
+                ", level=" + level +
+//                ", parent=" + parent +
+//                ", children=" + children +
+                '}';
+    }
+
+    public void addChild(Bookmark bookmark) {
+        children.add(bookmark);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        Bookmark bookmark = (Bookmark) o;
+
+        if (!page.equals(bookmark.page)) return false;
+        if (!title.equals(bookmark.title)) return false;
+        return level.equals(bookmark.level);
+    }
+
+    @Override
+    public int hashCode() {
+        int result = page.hashCode();
+        result = 31 * result + title.hashCode();
+        result = 31 * result + level.hashCode();
+        return result;
     }
 }

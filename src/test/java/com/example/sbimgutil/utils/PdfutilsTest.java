@@ -1,4 +1,4 @@
-package com.example.sbimgutil;
+package com.example.sbimgutil.utils;
 
 import com.example.sbimgutil.utils.Bookmark;
 import com.example.sbimgutil.utils.FileFetchUtils;
@@ -8,8 +8,6 @@ import org.junit.jupiter.api.Test;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.util.LinkedList;
-import java.util.List;
-import java.util.Set;
 import java.util.TreeSet;
 
 public class PdfutilsTest {

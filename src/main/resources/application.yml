@@ -13,7 +13,7 @@ app:
   process-list:
   #无损jp2
   - jp2:
-      enable: true
+      enable: false
       with-blur: false
       compress-limit: 0 #单位kb
       blur-image-path: ${app.blur-image-path}
@@ -21,7 +21,7 @@ app:
 
   #有损jp2无水印
   - jp2:
-      enable: true
+      enable: false
       with-blur: false
       compress-limit: 500 #单位kb
       blur-image-path: ${app.blur-image-path}
@@ -29,7 +29,7 @@ app:
 
   #有损jp2有水印
   - jp2:
-      enable: true
+      enable: false
       with-blur: true
       compress-limit: 500 #单位kb
       blur-image-path: ${app.blur-image-path}
@@ -37,7 +37,7 @@ app:
 
   #封面
   - jpg:
-      enable: true
+      enable: false
       with-blur: true
       compress-limit: 0 #单位kb 0表示不压缩
       blur-image-path: ${app.blur-image-path}
@@ -46,7 +46,7 @@ app:
 
     #jpg无损
   - jpg:
-      enable: true
+      enable: false
       with-blur: false
       compress-limit: 0 #单位kb 0表示不压缩
       blur-image-path: ${app.blur-image-path}
@@ -58,18 +58,20 @@ app:
 
   #pdf无水印
   - pdf:
-      enable: false
+      enable: true
       compress-limit: 0 #单位kb 0表示不压缩
       with-blur: false
       blur-image-path: ${app.blur-image-path}
       out-dir-path: ${app.base-out-dir-path}/4 PDF/无水印
       resource-dir-path: ${app.base-out-dir-path}/3 水印有损JP2000/无水印
+      cata-dir-path: ${app.base-out-dir-path}/5 目录
 
   #pdf带水印
   - pdf:
-      enable: false
+      enable: true
       compress-limit: 0 #单位kb 0表示不压缩
       with-blur: true
       blur-image-path: ${app.blur-image-path}
       out-dir-path: ${app.base-out-dir-path}/4 PDF/有水印
       resource-dir-path: ${app.base-out-dir-path}/3 水印有损JP2000/有水印
+      cata-dir-path: ${app.base-out-dir-path}/5 目录
