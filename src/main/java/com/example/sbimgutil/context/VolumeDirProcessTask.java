@@ -162,6 +162,7 @@ public class VolumeDirProcessTask implements ITask {
         LinkedList<File> imgFiles = new LinkedList<>();
         //可能需要过滤 todo
         FileFetchUtils.fetchFileRecursively(imgFiles, imgDir, (file) -> file.getName().endsWith(".jpg") || file.getName().endsWith(".jp2"));
+        imgFiles.sort(Comparator.comparing(File::getName));
         PDFUtils.mergeIntoPdf(imgFiles,cataFile, Files.newOutputStream(pdfOutFile.toPath()));
     }
 
