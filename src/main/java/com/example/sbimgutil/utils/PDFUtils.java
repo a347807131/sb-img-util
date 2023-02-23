@@ -35,7 +35,6 @@ public class PDFUtils {
             addCata(rootOutLines, rootBookMark);
         }
         for (File file : imgFiles) {
-            System.out.println("add page:"+file.getAbsolutePath());
             ImageData imageData = ImageDataFactory.create(file.getAbsolutePath());
             PdfPage page = doc.addNewPage(new PageSize(imageData.getWidth(), imageData.getHeight()));
             PdfCanvas canvas = new PdfCanvas(page);

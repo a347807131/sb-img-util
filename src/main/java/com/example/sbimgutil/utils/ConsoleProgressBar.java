@@ -67,7 +67,7 @@ public class ConsoleProgressBar {
         System.out.println(sb);
     }
 
-    String genHMS(long second) {
+    static String genHMS(long second) {
 
         String str = "00:00:00";
         if (second < 0) {

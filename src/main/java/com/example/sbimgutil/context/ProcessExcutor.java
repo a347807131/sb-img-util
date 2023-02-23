@@ -45,35 +45,36 @@ public class ProcessExcutor {
             return;
         }
 
-        List<AppConfig.ProcessConfigItem> processCfgItems = appConfig.getProcessCfgItems();
+        List<AppConfig.ProcessConfigItem> processCfgItems = appConfig.getEnabledProcessCfgItems();
 
         LinkedList<Runnable> tasks = new LinkedList<>();
+
         for (File bookDir : bookDirs) {
-            File[] sectionDirs = bookDir.listFiles(checkPoint.getVolumeDirFilter());
-            if(sectionDirs==null)
+            File[] volumeDirs = bookDir.listFiles(File::isDirectory);
+            if(volumeDirs==null)
                 continue;
-            for (File sectionDir : sectionDirs) {
-                VolumeDirProcessTask volumeDirProcessTask = new VolumeDirProcessTask(sectionDir, processCfgItems);
-                tasks.add(volumeDirProcessTask);
+            volumeDirsLool:
+            for (File volumeDir : volumeDirs) {
+                for (AppConfig.ProcessConfigItem processCfgItem : processCfgItems) {
+                    boolean finished=checkPoint.checkIfFinished(volumeDir,processCfgItem);
+                    if(!finished){
+                        VolumeDirProcessTask volumeDirProcessTask = new VolumeDirProcessTask(volumeDir, processCfgItems);
+                        tasks.add(volumeDirProcessTask);
+                        continue volumeDirsLool;
+                    }
+                }
             }
         }
 
-        int sectionDriCount=0;
-        for (File bookDir : bookDirs) {
-            sectionDriCount+=FileFetchUtils.countDir(
-                    bookDir,
-                    checkPoint.getVolumeDirFilter()
-            );
-        }
-
-        log.info("共计{}卷图书，{}张tif图片待处理.",sectionDriCount,tifFileCount);
+        log.info("共计{}卷图书，{}张tif图片待处理.",tasks,tifFileCount);
         consoleProgressBar = new ConsoleProgressBar(tifFileCount);
         consoleProgressBar.showCurrent();
 
         int workerNum = appConfig.getWorkerNum();
-        if(workerNum>sectionDriCount){
-            workerNum=sectionDriCount;
+        if (workerNum> tasks.size()) {
+            workerNum = tasks.size();
         }
+
         if(workerNum>0){
 //            ForkJoinPool pool = new ForkJoinPool(workerNum);
 //            ForkJoinTask<?> forkJoinTask = pool.submit(() -> tasks.parallelStream().forEach(Runnable::run));
@@ -83,6 +84,6 @@ public class ProcessExcutor {
             Scheduler scheduler = Scheduler.scheduleNow(workerNum, tasks);
             scheduler.await();
         }
-        log.info("全部处理完成。");
+        log.info("处理结束。");
     }
 }

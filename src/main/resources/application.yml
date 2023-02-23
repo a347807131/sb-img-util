@@ -17,7 +17,7 @@ app:
   process-list:
   #无损jp2
   - jp2:
-      enable: true
+      enable: false
       with-blur: false
       compress-limit: 0 #单位kb
       blur-image-path: ${app.blur-image-path}
@@ -25,7 +25,7 @@ app:
 
   #有损jp2无水印
   - jp2:
-      enable: true
+      enable: false
       with-blur: false
       compress-limit: 500 #单位kb
       blur-image-path: ${app.blur-image-path}
@@ -33,7 +33,7 @@ app:
 
   #有损jp2有水印
   - jp2:
-      enable: true
+      enable: false
       with-blur: true
       compress-limit: 500 #单位kb
       blur-image-path: ${app.blur-image-path}
@@ -41,7 +41,7 @@ app:
 
   #封面
   - jpg:
-      enable: true
+      enable: false
       with-blur: true
       compress-limit: 0 #单位kb 0表示不压缩
       blur-image-path: ${app.blur-image-path}
@@ -50,7 +50,7 @@ app:
 
     #jpg无损
   - jpg:
-      enable: true
+      enable: false
       with-blur: false
       compress-limit: 0 #单位kb 0表示不压缩
       blur-image-path: ${app.blur-image-path}

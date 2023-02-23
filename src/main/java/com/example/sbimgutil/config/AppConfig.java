@@ -22,7 +22,7 @@ public class AppConfig {
     String blurImagePath;
     List<Map<String,ProcessConfigItem>> processList;
 
-    public List<ProcessConfigItem> getProcessCfgItems(){
+    public List<ProcessConfigItem> getEnabledProcessCfgItems(){
         List<ProcessConfigItem> processConfigItems = new ArrayList<>();
         for (Map<String, ProcessConfigItem> configItemMap : processList) {
             Set<Map.Entry<String, ProcessConfigItem>> entrySet = configItemMap.entrySet();
