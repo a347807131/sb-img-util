@@ -2,6 +2,7 @@ package com.example.sbimgutil.utils;
 
 import com.itextpdf.io.image.ImageData;
 import com.itextpdf.io.image.ImageDataFactory;
+import com.itextpdf.io.util.FileUtil;
 import com.itextpdf.kernel.geom.PageSize;
 import com.itextpdf.kernel.pdf.PdfDocument;
 import com.itextpdf.kernel.pdf.PdfOutline;
@@ -17,6 +18,7 @@ import org.apache.commons.lang.StringUtils;
 
 import java.io.*;
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.*;
 
 @Slf4j
@@ -61,7 +63,10 @@ public class PDFUtils {
     }
 
     public static Bookmark parsePdfCatagory(File cataTxtFile) throws IOException {
-        List<String> lines = FileUtils.readLines(cataTxtFile, Charset.defaultCharset());
+        List<String> lines = FileUtils.readLines(cataTxtFile, StandardCharsets.UTF_8);
+        for (String line : lines) {
+            log.debug(line);
+        }
 
         String sepreator = "     ";
 
