@@ -8,12 +8,15 @@ spring:
     active: dev
 
 app:
+  tif-dir-path:
+  base-out-dir-path:
+  blur-image-path:
   #处理线程数
   worker-num: 8
   process-list:
   #无损jp2
   - jp2:
-      enable: false
+      enable: true
       with-blur: false
       compress-limit: 0 #单位kb
       blur-image-path: ${app.blur-image-path}
@@ -21,7 +24,7 @@ app:
 
   #有损jp2无水印
   - jp2:
-      enable: false
+      enable: true
       with-blur: false
       compress-limit: 500 #单位kb
       blur-image-path: ${app.blur-image-path}
@@ -29,7 +32,7 @@ app:
 
   #有损jp2有水印
   - jp2:
-      enable: false
+      enable: true
       with-blur: true
       compress-limit: 500 #单位kb
       blur-image-path: ${app.blur-image-path}
@@ -37,7 +40,7 @@ app:
 
   #封面
   - jpg:
-      enable: false
+      enable: true
       with-blur: true
       compress-limit: 0 #单位kb 0表示不压缩
       blur-image-path: ${app.blur-image-path}
@@ -46,7 +49,7 @@ app:
 
     #jpg无损
   - jpg:
-      enable: false
+      enable: true
       with-blur: false
       compress-limit: 0 #单位kb 0表示不压缩
       blur-image-path: ${app.blur-image-path}
@@ -64,7 +67,7 @@ app:
       blur-image-path: ${app.blur-image-path}
       out-dir-path: ${app.base-out-dir-path}/4 PDF/无水印
       resource-dir-path: ${app.base-out-dir-path}/3 水印有损JP2000/无水印
-      cata-dir-path: ${app.base-out-dir-path}/5 目录
+      cata-dir-path: ${app.tif-dir-path}/../5 目录
 
   #pdf带水印
   - pdf:
@@ -74,4 +77,4 @@ app:
       blur-image-path: ${app.blur-image-path}
       out-dir-path: ${app.base-out-dir-path}/4 PDF/有水印
       resource-dir-path: ${app.base-out-dir-path}/3 水印有损JP2000/有水印
-      cata-dir-path: ${app.base-out-dir-path}/5 目录
+      cata-dir-path: ${app.tif-dir-path}/../5 目录

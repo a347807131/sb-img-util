@@ -1,8 +1,5 @@
 package com.example.sbimgutil.utils;
 
-import com.example.sbimgutil.utils.Bookmark;
-import com.example.sbimgutil.utils.FileFetchUtils;
-import com.example.sbimgutil.utils.PdfUtils;
 import org.junit.jupiter.api.Test;
 
 import java.io.File;
@@ -13,11 +10,26 @@ import java.util.TreeSet;
 public class PdfutilsTest {
     @Test
     public void testPdfMerge() throws Exception {
+        String jpgDirpath="C:/Users/Gatsby/datasets/图片处理模板/3 水印有损JP2000/27030166/有水印/27030166/0001";
+        String cataPath="C:/Users/Gatsby/datasets/图片处理模板/1 扫描原图（TIFF格式）/../5 目录/27030166/0001.txt";
+        File jpgDir = new File(jpgDirpath);
+        File outFile = new File("demo.pdf");
+        File cataFile = new File(cataPath);
+        LinkedList<File> files = new LinkedList<>();
+        FileFetchUtils.fetchFileRecursively(files, jpgDir);
+        PDFUtils.mergeIntoPdf(
+                files,
+                cataFile,
+                new FileOutputStream(outFile)
+        );
+    }
+    @Test
+    public void testPdfMerge1() throws Exception {
         File jpgDir = new File("C:/Users/Gatsby/datasets/图片处理模板/3 水印有损JP2000/27030166/有水印/27030166/0001");
         File outFile = new File("demo.pdf");
         LinkedList<File> files = new LinkedList<>();
         FileFetchUtils.fetchFileRecursively(files, jpgDir);
-        PdfUtils.mergeIntoPdf(
+        PDFUtils.mergeIntoPdf(
                 files,
                 new File("C:/Users/Gatsby/datasets/图片处理模板/4 PDF/无水印/27030166/0001.txt"),
                 new FileOutputStream(outFile));
@@ -26,7 +38,7 @@ public class PdfutilsTest {
     @Test
     public void testParseCataTxtFile() throws Exception {
         File file=new File("C:/Users/Gatsby/datasets/图片处理模板/4 PDF/无水印/27030166/0002.txt");
-        Bookmark bookmarks = PdfUtils.parsePdfCatagory(file);
+        Bookmark bookmarks = PDFUtils.parsePdfCatagory(file);
         System.out.println(bookmarks);
     }
 

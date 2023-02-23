@@ -19,7 +19,6 @@ public class AppConfig {
     int workerNum=4;
     String tifDirPath;
     String baseOutDirPath;
-    String pdfCataDirPath;
     String blurImagePath;
     List<Map<String,ProcessConfigItem>> processList;
 
@@ -51,5 +50,6 @@ public class AppConfig {
         String format;
         String resourceDirPath;
         String fileNameReg;
+        String cataDirPath;
     }
 }

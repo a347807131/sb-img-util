@@ -75,12 +75,13 @@ public class ProcessExcutor {
             workerNum=sectionDriCount;
         }
         if(workerNum>0){
-            ForkJoinPool pool = new ForkJoinPool(workerNum);
-            ForkJoinTask<?> forkJoinTask = pool.submit(() -> tasks.parallelStream().forEach(Runnable::run));
-            //阻塞
-            Object o = forkJoinTask.get();
-//            Scheduler scheduler = Scheduler.scheduleNow(workerNum, tasks);
-//            scheduler.await();
+//            ForkJoinPool pool = new ForkJoinPool(workerNum);
+//            ForkJoinTask<?> forkJoinTask = pool.submit(() -> tasks.parallelStream().forEach(Runnable::run));
+//            //阻塞
+//            Object o = forkJoinTask.get();
+//            pool.shutdown();
+            Scheduler scheduler = Scheduler.scheduleNow(workerNum, tasks);
+            scheduler.await();
         }
         log.info("全部处理完成。");
     }

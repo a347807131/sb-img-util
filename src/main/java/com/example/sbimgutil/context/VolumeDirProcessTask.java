@@ -4,7 +4,7 @@ import com.example.sbimgutil.config.AppConfig;
 import com.example.sbimgutil.schedule.ITask;
 import com.example.sbimgutil.utils.ConsoleProgressBar;
 import com.example.sbimgutil.utils.FileFetchUtils;
-import com.example.sbimgutil.utils.PdfUtils;
+import com.example.sbimgutil.utils.PDFUtils;
 import com.example.sbimgutil.utils.TifUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
@@ -80,9 +80,10 @@ public class VolumeDirProcessTask implements ITask {
             try {
                 if (!pdfProcessConfigItem.isEnable()) continue;
                 log.debug("处理pdf整合流程,volume{}",volumeDir);
-                doMergeIntoPdf(pdfProcessConfigItem, volumeDir);
+                processPdfItem(pdfProcessConfigItem, volumeDir);
             } catch (Exception e) {
                 log.error("{}目录书籍合并pdf出错", volumeDir, e);
+                throw new RuntimeException(volumeDir.getAbsolutePath()+"卷处理出错",e);
             }
         }
     }
@@ -136,17 +137,21 @@ public class VolumeDirProcessTask implements ITask {
         }
     }
 
-    public void doMergeIntoPdf(AppConfig.ProcessConfigItem configItem, File volumeDir) throws Exception {
+    public void processPdfItem(AppConfig.ProcessConfigItem configItem, File volumeDir) throws Exception {
+
+        File cataFile = new File(configItem.getCataDirPath(),volumeDir.getParentFile().getName()+"/"+volumeDir.getName()+".txt");
 
         String outDirPath = configItem.getOutDirPath();
-
         File pdfOutFile = new File(outDirPath, volumeDir.getParentFile().getName()+"/"+volumeDir.getName() + "/" + volumeDir.getName() + ".pdf");
         if (!pdfOutFile.getParentFile().exists())
             FileUtils.forceMkdirParent(pdfOutFile);
+
+        File imgDir= new File(configItem.getResourceDirPath(), volumeDir.getParentFile().getName()+"/"+volumeDir.getName());
+
         LinkedList<File> imgFiles = new LinkedList<>();
         //可能需要过滤
-        FileFetchUtils.fetchFileRecursively(imgFiles, volumeDir);
-        PdfUtils.mergeIntoPdf(imgFiles, Files.newOutputStream(pdfOutFile.toPath()));
+        FileFetchUtils.fetchFileRecursively(imgFiles, imgDir, (file) -> file.getName().endsWith(".jpg") || file.getName().endsWith(".jp2"));
+        PDFUtils.mergeIntoPdf(imgFiles,cataFile, Files.newOutputStream(pdfOutFile.toPath()));
     }
 
     File genOutFile(File oriTifFile, String outDirPath, String format) throws IOException {

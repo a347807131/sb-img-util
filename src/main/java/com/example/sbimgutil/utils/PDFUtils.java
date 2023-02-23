@@ -7,7 +7,6 @@ import com.itextpdf.kernel.pdf.PdfDocument;
 import com.itextpdf.kernel.pdf.PdfOutline;
 import com.itextpdf.kernel.pdf.PdfPage;
 import com.itextpdf.kernel.pdf.PdfWriter;
-import com.itextpdf.kernel.pdf.action.PdfAction;
 import com.itextpdf.kernel.pdf.canvas.PdfCanvas;
 import com.itextpdf.kernel.pdf.navigation.PdfExplicitDestination;
 import lombok.Data;
@@ -18,11 +17,10 @@ import org.apache.commons.lang.StringUtils;
 import java.io.*;
 import java.nio.charset.Charset;
 import java.util.*;
-import java.util.stream.Collectors;
 
-public class PdfUtils {
+public class PDFUtils {
 
-    private PdfUtils(){
+    private PDFUtils(){
 
     }
 
@@ -32,11 +30,12 @@ public class PdfUtils {
         PdfDocument doc = new PdfDocument(pdfWriter);
         PdfOutline rootOutLines = doc.getOutlines(false);
 
-        if(cataFile!=null) {
+        if(cataFile!=null && cataFile.exists()) {
             Bookmark rootBookMark = parsePdfCatagory(cataFile);
             addCata(rootOutLines, rootBookMark);
         }
         for (File file : imgFiles) {
+            System.out.println("add page:"+file.getAbsolutePath());
             ImageData imageData = ImageDataFactory.create(file.getAbsolutePath());
             PdfPage page = doc.addNewPage(new PageSize(imageData.getWidth(), imageData.getHeight()));
             PdfCanvas canvas = new PdfCanvas(page);
