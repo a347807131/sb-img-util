@@ -11,6 +11,7 @@ import javax.imageio.ImageWriter;
 import javax.imageio.stream.ImageOutputStream;
 import java.awt.*;
 import java.awt.image.BufferedImage;
+import java.awt.image.RenderedImage;
 import java.io.*;
 import java.util.Iterator;
 import java.util.List;
@@ -92,5 +93,10 @@ public class TifUtils {
         } catch (IOException e) {
             throw new RuntimeException();
         }
+    }
+
+    public static void tranformImgToTiff(BufferedImage bufferedImage, OutputStream outputStream) throws IOException {
+        // TODO
+
     }
 }
