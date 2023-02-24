@@ -1,12 +1,15 @@
 package com.example.sbimgutil.utils;
 
+import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Test;
 
 import java.io.File;
 import java.io.FileOutputStream;
+import java.net.URL;
 import java.util.LinkedList;
 import java.util.TreeSet;
 
+@Slf4j
 public class PdfutilsTest {
     @Test
     public void testPdfMerge() throws Exception {
@@ -36,10 +39,24 @@ public class PdfutilsTest {
     }
 
     @Test
-    public void testParseCataTxtFile() throws Exception {
-        File file=new File("C:/Users/Gatsby/datasets/图片处理模板/4 PDF/无水印/27030166/0002.txt");
-        Bookmark bookmarks = PDFUtils.parsePdfCatagory(file);
-        System.out.println(bookmarks);
+    public void testParseCataTxtFile()  {
+
+        URL resource = this.getClass().getResource("/");
+        LinkedList<File> files = new LinkedList<>();
+        FileFetchUtils.fetchFileRecursively(files, new File(resource.getPath(),
+                        "5 目录")
+                , f -> f.getName().startsWith("0001") || (f.isDirectory() && f.getName().endsWith("154"))
+        );
+        for (File f : files) {
+            System.out.println(f);
+            PdfBookmark bookmark = null;
+            try {
+                bookmark = CataParser.parseTxt(f);
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+            log.debug("this :{} parent:{}",bookmark,bookmark.parent);
+        }
     }
 
     @Test

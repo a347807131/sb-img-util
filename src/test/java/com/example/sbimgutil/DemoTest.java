@@ -132,4 +132,14 @@ public class DemoTest {
         log.debug("转化为jp2，输出共耗时{}s", (System.currentTimeMillis() - s) / 1000f);
     }
 
+    @Test
+    public void test2(){
+        String s="     五行本體受病相傳為病     第五章 18";
+        String[] splits = s.split(" ");
+        boolean matches = splits[splits.length - 1].matches("^[0-9]*");
+        System.out.println();
+
+
+    }
+
 }

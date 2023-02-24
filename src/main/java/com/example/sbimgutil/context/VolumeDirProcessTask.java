@@ -40,7 +40,7 @@ public class VolumeDirProcessTask implements ITask {
         CheckPoint checkPoint = ProcessExcutor.checkPoint;
         //处理pdf合并任务
         List<AppConfig.ProcessConfigItem> pdfConfigItems = processConfigItemList.stream().filter(
-                e -> "pdf".equals(e.getFormat()) && !checkPoint.checkIfFinished(volumeDir, e)
+                e -> "pdf".equals(e.getFormat()) && !checkPoint.checkIfFinished(volumeDir, e.hashCode())
         ).collect(Collectors.toList());
 
         for (AppConfig.ProcessConfigItem configItem : pdfConfigItems) {
@@ -48,11 +48,11 @@ public class VolumeDirProcessTask implements ITask {
                 if (!configItem.isEnable()) continue;
                 log.debug("处理pdf整合流程,volume{}",volumeDir);
                 processPdfItem(configItem);
+                checkPoint.saveCheckPoint(volumeDir, configItem.hashCode());
             } catch (Exception e) {
                 log.error("{}目录书籍合并pdf出错", volumeDir, e);
                 throw new RuntimeException(volumeDir.getAbsolutePath()+"卷处理出错",e);
             }
-            checkPoint.saveCheckPoint(volumeDir, configItem);
         }
     }
 
@@ -63,7 +63,7 @@ public class VolumeDirProcessTask implements ITask {
         final ConsoleProgressBar cpb = ProcessExcutor.consoleProgressBar;
         //处理pdf合并任务
         List<AppConfig.ProcessConfigItem> nonPdfConfigItems = processConfigItemList.stream().filter(
-                e -> !"pdf".equals(e.getFormat()) && !checkPoint.checkIfFinished(volumeDir, e)
+                e -> !"pdf".equals(e.getFormat()) && !checkPoint.checkIfFinished(volumeDir, e.hashCode())
         ).collect(Collectors.toList());
 
         List<File> files = new LinkedList<>();
@@ -95,7 +95,7 @@ public class VolumeDirProcessTask implements ITask {
                     cpb.iterate();
                 }
             }
-            checkPoint.saveCheckPoint(volumeDir, configItem);
+            checkPoint.saveCheckPoint(volumeDir, configItem.hashCode());
         }
     }
 
@@ -117,16 +117,22 @@ public class VolumeDirProcessTask implements ITask {
 //                float encoding = -0.001f * fsize + 0.227f;
                 float limitM = compressLimit / 1024f;
                 if (limitM == 0) {
+                    long s = System.currentTimeMillis();
                     TifUtils.transformImgToJp2(bufferedImageToSave, Files.newOutputStream(outFile.toPath()));
+                    log.debug("转换jp2无损耗时{}s,文件名{}", (System.currentTimeMillis() - s)/1000f, oriTifFile.getAbsolutePath());
                     return;
                 }
                 int compressTime = 1;
                 long oriFileSizeM = oriTifFile.length() / (1024 * 1024);
                 while (fsize > limitM || fsize < limitM * 0.8) {
+                    long s = System.currentTimeMillis();
                     TifUtils.transformImgToJp2(bufferedImageToSave, Files.newOutputStream(outFile.toPath()), 0.5f, encoding);
                     fsize = outFile.length() / (1024 * 1024f);
-                    log.debug("压缩次数{},输出文件大小{}m,原文件大小{}m,编码率{},文件名{}", compressTime,
-                            fsize,oriFileSizeM , encoding, oriTifFile.getAbsolutePath());
+                    log.debug("压缩次数{},输出文件大小{}m,原文件大小{}m,编码率{},耗时{}s,文件名{}", compressTime,
+                        fsize,oriFileSizeM , encoding,
+                        (System.currentTimeMillis() - s)/1000f,
+                        oriTifFile.getAbsolutePath()
+                    );
                     compressTime += 1;
                     if (fsize > limitM)
                         encoding *=0.9;
@@ -153,17 +159,21 @@ public class VolumeDirProcessTask implements ITask {
         File cataFile = new File(configItem.getCataDirPath(),volumeDir.getParentFile().getName()+"/"+volumeDir.getName()+".txt");
 
         String outDirPath = configItem.getOutDirPath();
-        File pdfOutFile = new File(outDirPath, volumeDir.getParentFile().getName()+"/"+volumeDir.getName() + "/" + volumeDir.getName() + ".pdf");
+        File pdfOutFile = new File(outDirPath, volumeDir.getParentFile().getName()+"/" + "/" + volumeDir.getName() + ".pdf");
         if (!pdfOutFile.getParentFile().exists())
             FileUtils.forceMkdirParent(pdfOutFile);
 
         File imgDir= new File(configItem.getResourceDirPath(), volumeDir.getParentFile().getName()+"/"+volumeDir.getName());
 
         LinkedList<File> imgFiles = new LinkedList<>();
-        //可能需要过滤 todo
-        FileFetchUtils.fetchFileRecursively(imgFiles, imgDir, (file) -> file.getName().endsWith(".jpg") || file.getName().endsWith(".jp2"));
+        FileFetchUtils.fetchFileRecursively(imgFiles, imgDir, (file) ->
+                (file.getName().endsWith(".jpg") ||
+                    file.getName().endsWith(".jp2"))
+                && !file.getName().startsWith("seka")
+        );
         imgFiles.sort(Comparator.comparing(File::getName));
         PDFUtils.mergeIntoPdf(imgFiles,cataFile, Files.newOutputStream(pdfOutFile.toPath()));
+        FileUtils.copyFileToDirectory(cataFile,pdfOutFile.getParentFile());
     }
 
     File genOutFile(File oriTifFile, String outDirPath, String format) throws IOException {

@@ -45,6 +45,7 @@ public class FileFetchUtils {
             else
                 count++;
         }
+
         return count;
     }
 

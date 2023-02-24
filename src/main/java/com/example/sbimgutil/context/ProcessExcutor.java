@@ -51,7 +51,7 @@ public class ProcessExcutor {
             volumeDirsLool:
             for (File volumeDir : volumeDirs) {
                 for (AppConfig.ProcessConfigItem processCfgItem : processCfgItems) {
-                    boolean finished=checkPoint.checkIfFinished(volumeDir,processCfgItem);
+                    boolean finished=checkPoint.checkIfFinished(volumeDir,processCfgItem.hashCode());
                     if(!finished){
                         volumeDirsToProcess.add(volumeDir);
                         continue volumeDirsLool;
@@ -75,13 +75,12 @@ public class ProcessExcutor {
         }
 
         if(workerNum>0){
-//            ForkJoinPool pool = new ForkJoinPool(workerNum);
-//            ForkJoinTask<?> forkJoinTask = pool.submit(() -> tasks.parallelStream().forEach(Runnable::run));
-//            //阻塞
-//            Object o = forkJoinTask.get();
-//            pool.shutdown();
-            Scheduler scheduler = Scheduler.scheduleNow(workerNum, tasks);
-            scheduler.await();
+            ForkJoinPool pool = new ForkJoinPool(workerNum);
+            ForkJoinTask<?> forkJoinTask = pool.submit(() -> tasks.parallelStream().forEach(Runnable::run));
+            //阻塞
+            Object o = forkJoinTask.get();
+//            Scheduler scheduler = Scheduler.scheduleNow(workerNum, tasks);
+//            scheduler.await();
         }
         log.info("处理结束。");
     }

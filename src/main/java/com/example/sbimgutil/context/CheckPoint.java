@@ -57,17 +57,12 @@ public class CheckPoint {
         return tifFileFilter;
     }
 
-    void getFinishedBookvolumeDirNames() throws IOException {
-        Collection<String> finishedValues = FileUtils.readLines(checkPointFile, UTF_8);
-        this.finishedValues = new HashSet<>(finishedValues);
-    }
-
-    public void saveCheckPoint(File volumeDir, AppConfig.ProcessConfigItem configItem) {
+    public void saveCheckPoint(File volumeDir,int code) {
         try {
             String dataToSave = String.format("%s/%s,%s\n",
                     volumeDir.getParentFile().getName(),
                     volumeDir.getName(),
-                    configItem.hashCode()
+                    code
             );
             FileUtils.writeStringToFile(checkPointFile, dataToSave, UTF_8,true);
         } catch (IOException e) {
@@ -76,11 +71,11 @@ public class CheckPoint {
         }
     }
 
-    public boolean checkIfFinished(File volumeDir, AppConfig.ProcessConfigItem configItem) {
+    public boolean checkIfFinished(File volumeDir, int code) {
         String v = String.format("%s/%s,%s",
                 volumeDir.getParentFile().getName(),
                 volumeDir.getName(),
-                configItem.hashCode()
+                code
         );
         return finishedValues.contains(v);
     }
