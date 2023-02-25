@@ -10,6 +10,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
 
 import javax.imageio.ImageIO;
+import javax.imageio.ImageWriter;
 import java.awt.image.BufferedImage;
 import java.io.*;
 import java.nio.file.Files;
@@ -19,14 +20,26 @@ import java.util.stream.Collectors;
 @Slf4j
 public class VolumeDirProcessTask implements ITask {
 
+    static {
+        Iterator<ImageWriter> writers = ImageIO.getImageWritersByFormatName("jpeg2000");
+        ImageWriter writer = writers.next();
+    }
+
     public static final Set<String> SUPORTTED_FORMATS = Set.of("pdf", "jp2", "jpg","tif","tiff");
 
-    private final File volumeDir;
-    private final List<AppConfig.ProcessItem> ProcessItemList;
+    public static final FileFilter supported_file_filter = file -> {
+        if (file.isDirectory())
+            return true;
+        String lowerCasedName = file.getName().toLowerCase();
+        return SUPORTTED_FORMATS.stream().anyMatch(lowerCasedName::endsWith);
+    };
 
-    public VolumeDirProcessTask(File volumeDir, List<AppConfig.ProcessItem> ProcessItemList) {
+    private final File volumeDir;
+    private final List<AppConfig.ProcessItem> processitemlist;
+
+    public VolumeDirProcessTask(File volumeDir, List<AppConfig.ProcessItem> processitemlist) {
         this.volumeDir = volumeDir;
-        this.ProcessItemList = ProcessItemList;
+        this.processitemlist = processitemlist;
     }
 
     @Override
@@ -39,7 +52,7 @@ public class VolumeDirProcessTask implements ITask {
 
         CheckPoint checkPoint = ProcessExcutor.checkPoint;
         //处理pdf合并任务
-        List<AppConfig.ProcessItem> pdfprocessItems = ProcessItemList.stream().filter(
+        List<AppConfig.ProcessItem> pdfprocessItems = processitemlist.stream().filter(
                 e -> "pdf".equals(e.getFormat())
         ).collect(Collectors.toList());
 
@@ -62,17 +75,13 @@ public class VolumeDirProcessTask implements ITask {
         final CheckPoint checkPoint = ProcessExcutor.checkPoint;
         final ConsoleProgressBar cpb = ProcessExcutor.consoleProgressBar;
         //处理pdf合并任务
-        List<AppConfig.ProcessItem> nonPdfprocessItems = ProcessItemList.stream().filter(
-                e -> !"pdf".equals(e.getFormat()) && !checkPoint.checkIfFinished(volumeDir, e.hashCode())
+        List<AppConfig.ProcessItem> nonPdfprocessItems = processitemlist.stream().filter(
+                e -> !"pdf".equals(e.getFormat())
         ).collect(Collectors.toList());
 
         List<File> files = new LinkedList<>();
         FileFetchUtils.fetchFileRecursively(files, volumeDir
-                , e-> {
-                    String name = e.getName();
-                    var postFix= name.substring(name.lastIndexOf(".")+1,name.length()-1);
-                    return SUPORTTED_FORMATS.contains(postFix);
-                }
+                ,supported_file_filter
         );
         files.sort(Comparator.comparing(File::getName));
         for (AppConfig.ProcessItem processItem : nonPdfprocessItems) {

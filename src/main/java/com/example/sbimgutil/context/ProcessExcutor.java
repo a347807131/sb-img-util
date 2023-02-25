@@ -26,12 +26,6 @@ public class ProcessExcutor {
 
     public static ConsoleProgressBar consoleProgressBar;
 
-    public static FileFilter tifFileFilter = file -> {
-        if (file.isDirectory())
-            return true;
-        String lowerCasedName = file.getName().toLowerCase();
-        return lowerCasedName.endsWith(".tif") || lowerCasedName.endsWith(".tiff");
-    };
 
     public ProcessExcutor(AppConfig appConfig) {
         this.appConfig = appConfig;
@@ -74,10 +68,9 @@ public class ProcessExcutor {
             }
         }
 
-        // FIXME: 2023/2/25 非tif文件的处理
         int tifFileCount = FileFetchUtils.countFileRecursively(
                 volumeDirsToProcess,
-                tifFileFilter
+                VolumeDirProcessTask.supported_file_filter
         );
 
 

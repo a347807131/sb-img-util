@@ -19,7 +19,6 @@ import java.util.Objects;
 
 @Slf4j
 public class TifUtils {
-
     public static void drawBlurPic(BufferedImage oriBufferedImage, BufferedImage blurBufferedImage){
         Point point = new Point((oriBufferedImage.getWidth() - blurBufferedImage.getWidth()) / 2, (oriBufferedImage.getHeight() - blurBufferedImage.getHeight()) / 2);
         Graphics g = oriBufferedImage.getGraphics();
