@@ -11,6 +11,7 @@ app:
   tif-dir-path:
   base-out-dir-path:
   blur-image-path:
+  cata-dir-path: ${app.tif-dir-path}/../5 目录
   #处理线程数
   worker-num: 8
   process-items:
@@ -56,12 +57,12 @@ app:
     out-dir-path: ${app.base-out-dir-path}\JPG无损
 
   #jpg转回tif，处理流程与上述不同
-  - format: tif
-    enable: false
-    with-blur: false
-    compress-limit: 0 #单位kb 0表示不压缩
-    blur-image-path: ${app.blur-image-path}
-    out-dir-path: ${app.base-out-dir-path}\TIF无损
+#  - format: tif
+#    enable: false
+#    with-blur: false
+#    compress-limit: 0 #单位kb 0表示不压缩
+#    blur-image-path: ${app.blur-image-path}
+#    out-dir-path: ${app.base-out-dir-path}\TIF无损
 
 ###################################
   #pdf是书籍处理完成后的后置处理
@@ -75,7 +76,7 @@ app:
 #      blur-image-path: ${app.blur-image-path}
     out-dir-path: ${app.base-out-dir-path}/4 PDF/无水印
     resource-dir-path: ${app.base-out-dir-path}/3 水印有损JP2000/无水印
-    cata-dir-path: ${app.tif-dir-path}/../5 目录
+    cata-dir-path: ${app.cata-dir-path}
     file-name-regex: ^0001.*$ #已0001开头的文件名
 
   #pdf带水印
@@ -86,5 +87,5 @@ app:
 #      blur-image-path: ${app.blur-image-path}
     out-dir-path: ${app.base-out-dir-path}/4 PDF/有水印
     resource-dir-path: ${app.base-out-dir-path}/3 水印有损JP2000/有水印
-    cata-dir-path: ${app.tif-dir-path}/../5 目录
-    file-name-regex: ^(?!seka).* #不以seka开头的文件名
+    cata-dir-path: ${app.cata-dir-path}
+    file-name-regex: ^(?!seka).*$ #不以seka开头的文件名

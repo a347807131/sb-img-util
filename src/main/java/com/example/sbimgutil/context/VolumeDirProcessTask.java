@@ -40,7 +40,7 @@ public class VolumeDirProcessTask implements ITask {
         CheckPoint checkPoint = ProcessExcutor.checkPoint;
         //处理pdf合并任务
         List<AppConfig.ProcessItem> pdfprocessItems = ProcessItemList.stream().filter(
-                e -> "pdf".equals(e.getFormat()) && !checkPoint.checkIfFinished(volumeDir, e.hashCode())
+                e -> "pdf".equals(e.getFormat())
         ).collect(Collectors.toList());
 
         for (AppConfig.ProcessItem processItem : pdfprocessItems) {
@@ -48,7 +48,7 @@ public class VolumeDirProcessTask implements ITask {
                 if (!processItem.isEnable()) continue;
                 log.debug("处理pdf整合流程,volume{}",volumeDir);
                 processPdfItem(processItem);
-                checkPoint.saveCheckPoint(volumeDir, processItem.hashCode());
+                checkPoint.save(volumeDir, processItem.hashCode());
             } catch (Exception e) {
                 log.error("{}目录书籍合并pdf出错", volumeDir, e);
                 throw new RuntimeException(volumeDir.getAbsolutePath()+"卷处理出错",e);
@@ -67,10 +67,14 @@ public class VolumeDirProcessTask implements ITask {
         ).collect(Collectors.toList());
 
         List<File> files = new LinkedList<>();
-        // TODO: 2/23/2023 后续对于非tif文件也可处理
-        FileFetchUtils.fetchFileRecursively(files, volumeDir,e->e.getName().endsWith("tif")||e.getName().endsWith("tiff"));
+        FileFetchUtils.fetchFileRecursively(files, volumeDir
+                , e-> {
+                    String name = e.getName();
+                    var postFix= name.substring(name.lastIndexOf(".")+1,name.length()-1);
+                    return SUPORTTED_FORMATS.contains(postFix);
+                }
+        );
         files.sort(Comparator.comparing(File::getName));
-
         for (AppConfig.ProcessItem processItem : nonPdfprocessItems) {
             int i=0;
             for (File oriTifFile : files) {
@@ -96,7 +100,7 @@ public class VolumeDirProcessTask implements ITask {
                     cpb.iterate();
                 }
             }
-            checkPoint.saveCheckPoint(volumeDir, processItem.hashCode());
+            checkPoint.save(volumeDir, processItem.hashCode());
         }
     }
 
@@ -180,10 +184,11 @@ public class VolumeDirProcessTask implements ITask {
         FileUtils.copyFileToDirectory(cataFile,pdfOutFile.getParentFile());
     }
 
-    File genOutFile(File oriTifFile, String outDirPath, String format) throws IOException {
-        File tifDir = volumeDir.getParentFile().getParentFile();
-        String fileAbsolutePath = oriTifFile.getAbsolutePath();
-        String newFileAbsPath = fileAbsolutePath.replace(tifDir.getAbsolutePath(), outDirPath);
+    File genOutFile(File oriFile, String outDirPath, String format) throws IOException {
+        //${base}/book/volume/xxxfile
+        File oriFilePrefixFile = oriFile.getParentFile().getParentFile().getParentFile();
+        String fileAbsolutePath = oriFile.getAbsolutePath();
+        String newFileAbsPath = fileAbsolutePath.replace(oriFilePrefixFile.getAbsolutePath(), outDirPath);
 
         int pointIndex = newFileAbsPath.lastIndexOf(".");
         newFileAbsPath = newFileAbsPath.substring(0, pointIndex + 1) + format;

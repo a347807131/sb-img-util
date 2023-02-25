@@ -74,6 +74,7 @@ public class ProcessExcutor {
             }
         }
 
+        // FIXME: 2023/2/25 非tif文件的处理
         int tifFileCount = FileFetchUtils.countFileRecursively(
                 volumeDirsToProcess,
                 tifFileFilter

@@ -46,7 +46,7 @@ public class PDFUtils {
             ImageData imageData;
             try {
                 imageData = ImageDataFactory.create(file.getAbsolutePath());
-            }catch (Exception e) {
+            }catch (IOException e) {
                 throw new IOException("图片文件无法解析"+file,e);
             }
             PdfPage page = doc.addNewPage(new PageSize(imageData.getWidth(), imageData.getHeight()));

@@ -38,7 +38,7 @@ public class CataParser {
             Matcher numberMatcher = Pattern.compile("^[0-9]*").matcher(pageRawStr);
             if (!numberMatcher.find()) {
                 log.error("目录文件{}格式不正确,数据为{}", cataTxtFile, line);
-                throw new RuntimeException("目录文件格式不正确" + cataTxtFile);
+                throw new Exception("目录文件格式不正确" + cataTxtFile);
             }
             pageRawStr = numberMatcher.group();
             if (StringUtils.isBlank(pageRawStr)) {
@@ -55,15 +55,18 @@ public class CataParser {
         return parseBookmarks(bookmarks);
     }
 
+    /**
+     * 解析目录结构
+     * return 根目录
+     */
     public static PdfBookmark parseBookmarks(List<PdfBookmark> bookmarks) {
         for (int i = 1; i < bookmarks.size(); i++) {
             PdfBookmark bookmark = bookmarks.get(i);
             PdfBookmark previous = bookmarks.get(i - 1);
             bookmark.order = i;
-            PdfBookmark parent;
+            PdfBookmark parent=previous;
             //这里的gap在目录结构下只会是1,0和小于0的三种情况
             int gap = bookmark.level-previous.level;
-            parent=previous;
             for (int j = gap; j <1; j++) {
                 parent = parent.parent;
             }

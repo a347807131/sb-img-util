@@ -42,7 +42,7 @@ public class CheckPoint {
 
     }
 
-    public void saveCheckPoint(File volumeDir,int code) {
+    public void save(File volumeDir,int code) {
         try {
             String dataToSave = String.format("%s/%s,%s\n",
                     volumeDir.getParentFile().getName(),
