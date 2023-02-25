@@ -7,6 +7,7 @@ import org.apache.commons.io.IOUtils;
 
 import javax.imageio.IIOImage;
 import javax.imageio.ImageIO;
+import javax.imageio.ImageWriteParam;
 import javax.imageio.ImageWriter;
 import javax.imageio.stream.ImageOutputStream;
 import java.awt.*;
@@ -59,7 +60,7 @@ public class TifUtils {
 //            param.setProgressionType("layer");
 //            param.setLossless(true);
             param.setCompressionMode(J2KImageWriteParam.MODE_EXPLICIT);
-            param.setCompressionType("JPEG2000");
+//            param.setCompressionType("JPEG2000");
             if(quality>0)
                 param.setCompressionQuality(quality);
             if(encodingRate!=0){
@@ -92,10 +93,5 @@ public class TifUtils {
         } catch (IOException e) {
             throw new RuntimeException();
         }
-    }
-
-    public static void tranformImgToTiff(BufferedImage bufferedImage, OutputStream outputStream) throws IOException {
-        // TODO
-
     }
 }

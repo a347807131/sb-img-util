@@ -1,11 +1,11 @@
 package com.example.sbimgutil.context;
 
 import com.example.sbimgutil.config.AppConfig;
-import com.example.sbimgutil.schedule.ITask;
 import com.example.sbimgutil.utils.ConsoleProgressBar;
 import com.example.sbimgutil.utils.FileFetchUtils;
 import com.example.sbimgutil.utils.PDFUtils;
 import com.example.sbimgutil.utils.TifUtils;
+import fun.gatsby.commons.schedule.ITask;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
 
@@ -86,10 +86,10 @@ public class VolumeDirProcessTask implements ITask {
         files.sort(Comparator.comparing(File::getName));
         for (AppConfig.ProcessItem processItem : nonPdfprocessItems) {
             int i=0;
+            if (!processItem.isEnable()) {
+                continue;
+            }
             for (File oriTifFile : files) {
-                if (!processItem.isEnable()) {
-                    continue;
-                }
                 if (processItem.getFileNameRegex() != null) {
                     if (!oriTifFile.getName().matches(processItem.getFileNameRegex()))
                         continue;

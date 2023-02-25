@@ -1,7 +1,6 @@
 package com.example.sbimgutil.context;
 
 import com.example.sbimgutil.config.AppConfig;
-import com.example.sbimgutil.schedule.Scheduler;
 import com.example.sbimgutil.utils.ConsoleProgressBar;
 import com.example.sbimgutil.utils.FileFetchUtils;
 import lombok.extern.slf4j.Slf4j;

@@ -1,5 +1,7 @@
 package com.example.sbimgutil;
 
+import cn.hutool.core.date.LocalDateTimeUtil;
+import com.example.sbimgutil.utils.TifUtils;
 import com.github.jaiimageio.jpeg2000.J2KImageWriteParam;
 //import com.itextpdf.text.BadElementException;
 //import com.itextpdf.text.Image;
@@ -20,6 +22,10 @@ import javax.imageio.ImageWriter;
 import javax.imageio.stream.ImageOutputStream;
 import java.awt.image.BufferedImage;
 import java.io.*;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.Period;
+import java.time.temporal.ChronoUnit;
 import java.util.*;
 
 @Slf4j
@@ -57,7 +63,7 @@ public class DemoTest {
             encoding = -0.001f * fsize + 0.227f;
             while (size > 0.5f || size < 0.4f) {
 //                bufferedImageToSave = ImageIO.read(outFile);
-                transformImgToJp2(bufferedImageToSave, new FileOutputStream(outFile), quality, encoding);
+                TifUtils.transformImgToJp2(bufferedImageToSave, new FileOutputStream(outFile), quality, encoding);
                 size = outFile.length() / (1024 * 1024f);
                 log.info("输出文件大小{}m,原文件大小{}m", size, oriTifFile.length() / 1024);
                 System.out.println(encoding);
@@ -86,51 +92,16 @@ public class DemoTest {
 //                "164" //e0.0625
         );
 
-        File oriTifFile = new File(dir, "103" + ".tiff");
-        File outFile = new File(oriTifFile.getParentFile(), oriTifFile.getName() + ".jp2");
+        File oriTifFile = new File("/Users/gatsby/IdeaProjects/sb-img-util/src/main/resources/demo.tif");
+        File outFile = new File( oriTifFile.getName() + ".jp2");
 
         BufferedImage bufferedImageToSave = ImageIO.read(oriTifFile);
         float fsize = oriTifFile.length() / (1024f * 1024);
         float encoding = -0.001f * fsize + 0.227f;
-        transformImgToJp2(bufferedImageToSave, new FileOutputStream(outFile), quality, encoding);
+        TifUtils.transformImgToJp2(bufferedImageToSave, new FileOutputStream(outFile), quality, encoding);
         log.info("输出文件大小{}m,原文件大小{}m", outFile.length() / 1024, oriTifFile.length() / 1024);
     }
 
-    public static void transformImgToJp2(BufferedImage bufferedImage, OutputStream outputStream, float quality, float encoding) {
-
-        long s = System.currentTimeMillis();
-        try (
-                ImageOutputStream ios = ImageIO.createImageOutputStream(outputStream);
-        ) {
-            String name = null;
-            ImageWriter writer = null;
-            Iterator<ImageWriter> writers = ImageIO.getImageWritersByFormatName("JPEG2000");
-            while (!Objects.equals(name, "com.github.jaiimageio.jpeg2000.impl.J2KImageWriter")) {
-                writer = writers.next();
-                name = writer.getClass().getName();
-            }
-            writer.setOutput(ios);
-            J2KImageWriteParam param = (J2KImageWriteParam) writer.getDefaultWriteParam();
-            IIOImage ioimage = new IIOImage(bufferedImage, null, null);
-//            param.setSOP(true);
-//            param.setWriteCodeStreamOnly(true);
-//            param.setProgressionType("layer");
-//            param.setLossless(true);
-            param.setCompressionMode(J2KImageWriteParam.MODE_EXPLICIT);
-            param.setCompressionType("JPEG2000");
-
-            param.setCompressionQuality(quality);
-            param.setEncodingRate(encoding);
-
-            writer.write(null, ioimage, param);
-            writer.dispose();
-            ios.flush();
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-        log.debug("压缩前大小，压缩后大小");
-        log.debug("转化为jp2，输出共耗时{}s", (System.currentTimeMillis() - s) / 1000f);
-    }
 
     @Test
     public void test2(){
@@ -144,6 +115,23 @@ public class DemoTest {
 
         boolean matches3 = s.matches(".*");
         System.out.println();
+    }
+
+    @Test
+    public void test3() throws InterruptedException {
+        LocalDateTime now = LocalDateTime.now();
+        Thread.sleep(2200);
+        long between = LocalDateTimeUtil.between(now, LocalDateTime.now(), ChronoUnit.SECONDS);
+        System.out.println("任务执行时间：" + between + "秒");
+    }
+    @Test
+    public void test4() throws IOException {
+        String file = this.getClass().getResource("/demo.tif").getFile();
+        File file1 = new File(file);
+
+        BufferedImage bufferedImage = ImageIO.read(new File(file));
+        ImageIO.write(bufferedImage, "jpeg2000", new File("demo.jp2"));
+//        ImageIO.getImageWriters(file1, "jp2");
     }
 
 }

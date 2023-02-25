@@ -26,7 +26,7 @@ public class TifUtilsTest {
             TifUtils.transformImgToJpg(read, new FileOutputStream(outF),0);
             log.info("转换jpg后文件大小,{}",outF.length()/(1024*1024f));
             read = ImageIO.read(new File("test"));
-            ImageIO.write(read,"tiff",new File("test"));
+            ImageIO.write(read,"JPEG2000",new File("test"));
             log.info("转换tiff后文件大小,{}",outF.length()/(1024*1024f));
         }
     }
