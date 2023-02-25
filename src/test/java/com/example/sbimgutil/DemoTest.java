@@ -139,7 +139,11 @@ public class DemoTest {
         boolean matches = splits[splits.length - 1].matches("^[0-9]*");
         System.out.println();
 
+        boolean matches1 = s.matches(" ^((?!第五章).)*$");
+        boolean matches2 = s.matches("^(?!seka).*$");
 
+        boolean matches3 = s.matches(".*");
+        System.out.println();
     }
 
 }

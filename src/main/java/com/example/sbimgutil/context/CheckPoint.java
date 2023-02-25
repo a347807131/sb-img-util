@@ -17,7 +17,6 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 public class CheckPoint {
 
     private static File checkPointFile;
-    private final FileFilter tifFileFilter;
     private final FileFilter volumeDirFilter;
     private Set<String> finishedValues=new HashSet<>();
 
@@ -31,16 +30,6 @@ public class CheckPoint {
         }
 
         finishedValues.addAll(FileUtils.readLines(checkPointFile));
-         this.tifFileFilter= new FileFilter() {
-             @Override
-             public boolean accept(File file) {
-                 if(file.isDirectory()) return true;
-                 return
-                         (file.getName().endsWith("tiff")||file.getName().endsWith("tif"));
-
-             }
-         };
-
         this.volumeDirFilter=new FileFilter() {
             @Override
             public boolean accept(File sectionDir) {
@@ -51,10 +40,6 @@ public class CheckPoint {
             }
         };
 
-    }
-
-    public FileFilter getTifFileFilter() {
-        return tifFileFilter;
     }
 
     public void saveCheckPoint(File volumeDir,int code) {

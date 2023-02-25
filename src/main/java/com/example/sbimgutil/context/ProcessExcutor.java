@@ -9,22 +9,33 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.io.File;
+import java.io.FileFilter;
 import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ForkJoinPool;
 import java.util.concurrent.ForkJoinTask;
+import java.util.stream.Collectors;
 
 @Slf4j
-@Component
 public class ProcessExcutor {
 
-    @Autowired
-    AppConfig appConfig;
+    final AppConfig appConfig;
 
     public static CheckPoint checkPoint;
 
     public static ConsoleProgressBar consoleProgressBar;
+
+    public static FileFilter tifFileFilter = file -> {
+        if (file.isDirectory())
+            return true;
+        String lowerCasedName = file.getName().toLowerCase();
+        return lowerCasedName.endsWith(".tif") || lowerCasedName.endsWith(".tiff");
+    };
+
+    public ProcessExcutor(AppConfig appConfig) {
+        this.appConfig = appConfig;
+    }
 
     public void excute() throws IOException, ExecutionException, InterruptedException {
         File tifDir = new File(appConfig.getTifDirPath());
@@ -35,35 +46,39 @@ public class ProcessExcutor {
         if(bookDirs==null)
             throw new RuntimeException("目标tif文件夹无数据");
 
-        var processList= appConfig.getProcessList();
+        var processList= appConfig.getProcessItems();
         if(processList.isEmpty()) {
             log.warn("启动项配置中没有输出项的配置,请检查配置文件");
             return;
         }
 
-        List<AppConfig.ProcessConfigItem> processCfgItems = appConfig.getEnabledProcessCfgItems();
+        List<AppConfig.ProcessItem> processItems = appConfig.getEnabledProcessItems();
+        log.info("启动项配置中输出项的配置:{}",processItems);
 
+        List<Runnable> tasks = new LinkedList<>();
         List<File> volumeDirsToProcess = new ArrayList<>();
         for (File bookDir : bookDirs) {
             File[] volumeDirs = bookDir.listFiles(File::isDirectory);
             if(volumeDirs==null)
                 continue;
-            volumeDirsLool:
             for (File volumeDir : volumeDirs) {
-                for (AppConfig.ProcessConfigItem processCfgItem : processCfgItems) {
-                    boolean finished=checkPoint.checkIfFinished(volumeDir,processCfgItem.hashCode());
-                    if(!finished){
-                        volumeDirsToProcess.add(volumeDir);
-                        continue volumeDirsLool;
-                    }
+                List<AppConfig.ProcessItem> items = processItems.stream().filter(
+                        processItem ->
+                                !checkPoint.checkIfFinished(volumeDir, processItem.hashCode())
+                        )
+                    .collect(Collectors.toList());
+                if(!items.isEmpty()){
+                    tasks.add(new VolumeDirProcessTask(volumeDir,items));
+                    volumeDirsToProcess.add(volumeDir);
                 }
             }
         }
 
-        int tifFileCount = FileFetchUtils.countFileRecursively(volumeDirsToProcess, checkPoint.getTifFileFilter());
+        int tifFileCount = FileFetchUtils.countFileRecursively(
+                volumeDirsToProcess,
+                tifFileFilter
+        );
 
-        Collection<Runnable> tasks = new LinkedList<>();
-        volumeDirsToProcess.forEach(e->tasks.add(new VolumeDirProcessTask(e,processCfgItems)));
 
         log.info("共计{}卷图书，{}张tif图片待处理.",volumeDirsToProcess.size(),tifFileCount);
         consoleProgressBar = new ConsoleProgressBar(tifFileCount);
