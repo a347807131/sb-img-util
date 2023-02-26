@@ -17,28 +17,31 @@ public class ImageTransformTask extends BaseTask{
 
 
     public static final Set<String> SUPORTTED_FORMATS = Set.of("pdf", "jp2", "jpg","tif","tiff");
+    private final File inFile;
+    private final File outFile;
+    private final String format;
 
 
-    private final AppConfig.ProcessTask processItem;
-
-    public ImageTransformTask(AppConfig.ProcessTask processItem) {
-        this.processItem = processItem;
+    public ImageTransformTask(File inFile,File outFile,String format) {
+        this.inFile = inFile;
+        this.outFile = outFile;
+        this.format = format;
     }
 
     @Override
     public void doWork() {
-        List<File> files = new LinkedList<>();
-        FileFetchUtils.fetchFileRecursively(files, new File(processItem.getInDirPath())
-                ,supported_file_filter
-        );
-        files.sort(Comparator.comparing(File::getName));
-        for (File oriFile : files) {
-            String format = processItem.getFormat();
-            if (processItem.getFileNameRegex() != null) {
-                if (!oriFile.getName().matches(processItem.getFileNameRegex()))
-                    continue;
-//                BufferedImage bufferedImage = ImageIO.read(oriFile);
-//                pricessOneFile(oriFile, bufferedImage);
+        switch (format){
+            case "jp2":
+            case "jpg":
+            case "tif":
+            case "tiff":{
+                try {
+                    BufferedImage bufferedImage = ImageIO.read(inFile);
+                    ImageIO.write(bufferedImage,format,outFile);
+                }catch (Exception e){
+                    throw new RuntimeException(e);
+                }
+                break;
             }
         }
     }

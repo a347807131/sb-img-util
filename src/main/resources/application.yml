@@ -18,45 +18,45 @@ app:
     IT1:
       task-type: IMAGE-TRANSFORM
       enable: true
-      out-dir-path: ${app.base-out-dir-path}/4 PDF/有水印
-      in-dir-path: ${app.base-out-dir-path}/3 水印有损JP2000/有水印
+      out-dir-path: ${app.base-out-dir-path}/2 JP2000无损
+      in-dir-path: ${app.tif-dir-path}
       file-name-regex: ^(?!seka).*$ #不以seka开头的文件名
       format: jpg
       depend-on:
 
-    DB1:
-      task-type: DRAW-BLUR
-      enable: true
-      out-dir-path: ${app.base-out-dir-path}/4 PDF/有水印
-      in-dir-path: ${app.base-out-dir-path}/3 水印有损JP2000/有水印
-      file-name-regex: ^(?!seka).*$ #不以seka开头的文件名
-      blur-image-path: ${app.blur-image-path}
-      depend-on: 1
-
-    IC1:
-      task-type: IMAGE-COMPRESS
-      enable: true
-      out-dir-path: ${app.base-out-dir-path}/4 PDF/有水印
-      in-dir-path: ${app.base-out-dir-path}/3 水印有损JP2000/有水印
-      file-name-regex: ^(?!seka).*$ #不以seka开头的文件名
-      compress-limit: 500
-      depend-on: 2
-
-    IC2:
-      task-type: IMAGE-COMPRESS
-      enable: true
-      out-dir-path: ${app.base-out-dir-path}/4 PDF/有水印
-      in-dir-path: ${app.base-out-dir-path}/3 水印有损JP2000/有水印
-      file-name-regex: ^(?!seka).*$ #不以seka开头的文件名
-      compress-limit: 500
-      depend-on: 2
-
-    PM1:
-      task-type: PDF-MERGE
-      enable: true
-      out-dir-path: ${app.base-out-dir-path}/4 PDF/有水印
-      in-dir-path: ${app.base-out-dir-path}/3 水印有损JP2000/有水印
-      file-name-regex: ^(?!seka).*$ #不以seka开头的文件名
-      cata-dir-path: ${app.cata-dir-path}
-      depend-on: 2
+#    DB1:
+#      task-type: DRAW-BLUR
+#      enable: true
+#      out-dir-path: ${app.base-out-dir-path}/4 PDF/有水印
+#      in-dir-path: ${app.base-out-dir-path}/3 水印有损JP2000/有水印
+#      file-name-regex: ^(?!seka).*$ #不以seka开头的文件名
+#      blur-image-path: ${app.blur-image-path}
+#      depend-on: 1
+#
+#    IC1:
+#      task-type: IMAGE-COMPRESS
+#      enable: true
+#      out-dir-path: ${app.base-out-dir-path}/4 PDF/有水印
+#      in-dir-path: ${app.base-out-dir-path}/3 水印有损JP2000/有水印
+#      file-name-regex: ^(?!seka).*$ #不以seka开头的文件名
+#      compress-limit: 500
+#      depend-on: 2
+#
+#    IC2:
+#      task-type: IMAGE-COMPRESS
+#      enable: true
+#      out-dir-path: ${app.base-out-dir-path}/4 PDF/有水印
+#      in-dir-path: ${app.base-out-dir-path}/3 水印有损JP2000/有水印
+#      file-name-regex: ^(?!seka).*$ #不以seka开头的文件名
+#      compress-limit: 500
+#      depend-on: 2
+#
+#    PM1:
+#      task-type: PDF-MERGE
+#      enable: true
+#      out-dir-path: ${app.base-out-dir-path}/4 PDF/有水印
+#      in-dir-path: ${app.base-out-dir-path}/3 水印有损JP2000/有水印
+#      file-name-regex: ^(?!seka).*$ #不以seka开头的文件名
+#      cata-dir-path: ${app.cata-dir-path}
+#      depend-on: 2
 

@@ -85,6 +85,18 @@ public class ProcessExcutor {
         if(workerNum>0){
             ForkJoinPool pool = new ForkJoinPool(workerNum);
             ForkJoinTask<?> forkJoinTask = pool.submit(() -> tasks.parallelStream().forEach(Runnable::run));
+            for (Runnable task : tasks) {
+                pool.submit(new Runnable() {
+                    @Override
+                    public void run() {
+//                        // preTask=task.getBeforeTask();
+//                        if(pretask.isruning()){
+//                            pool.submit(this);
+//                        }else
+//                            task.run();
+                    }
+                });
+            }
             //阻塞
             Object o = forkJoinTask.get();
 //            Scheduler scheduler = Scheduler.scheduleNow(workerNum, tasks);
