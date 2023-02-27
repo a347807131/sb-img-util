@@ -194,11 +194,8 @@ public class VolumeDirProcessTask implements ITask {
     }
 
     File genOutFile(File oriFile, String outDirPath, String format) throws IOException {
-        //${base}/book/volume/xxxfile
-        File oriFilePrefixFile = oriFile.getParentFile().getParentFile().getParentFile();
         String fileAbsolutePath = oriFile.getAbsolutePath();
-        String newFileAbsPath = fileAbsolutePath.replace(oriFilePrefixFile.getAbsolutePath(), outDirPath);
-
+        String newFileAbsPath = fileAbsolutePath.replace(volumeDir.getAbsolutePath(), outDirPath);
         int pointIndex = newFileAbsPath.lastIndexOf(".");
         newFileAbsPath = newFileAbsPath.substring(0, pointIndex + 1) + format;
         File outFile = new File(newFileAbsPath);

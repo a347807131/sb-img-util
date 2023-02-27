@@ -37,5 +37,21 @@ public class AppConfig {
         String resourceDirPath;
         String fileNameRegex;
         String cataDirPath;
+
+        @Override
+        public String toString() {
+            return "ProcessItem{" +
+                    "enable=" + enable +
+                    ", withBlur=" + withBlur +
+                    ", blurImagePath='" + blurImagePath + '\'' +
+                    ", compressLimit=" + compressLimit +
+                    ", outDirPath='" + outDirPath + '\'' +
+                    ", format='" + format + '\'' +
+                    ", resourceDirPath='" + resourceDirPath + '\'' +
+                    ", fileNameRegex='" + fileNameRegex + '\'' +
+                    ", cataDirPath='" + cataDirPath + '\'' +
+                    ",hashCode="+hashCode()+
+                    '}';
+        }
     }
 }
