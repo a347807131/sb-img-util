@@ -99,7 +99,7 @@ public class VolumeDirProcessTask implements ITask {
                     BufferedImage bufferedImage = ImageIO.read(oriTifFile);
                     processOneItem(processItem, oriTifFile, format, bufferedImage);
                 } catch (IOException e) {
-                    log.error("{}文件读取错误，跳过该本书籍的该卷", oriTifFile, e);
+                    log.error("{}文件处理错误，跳过该本书籍的该卷", oriTifFile, e);
                     // TODO: 2/22/2023 出错情况下的进度条处理
                     cpb.iterate();
                     throw new RuntimeException(volumeDir.getAbsolutePath()+"卷处理出错",e);
@@ -124,15 +124,17 @@ public class VolumeDirProcessTask implements ITask {
             float scale = bufferedImageToSave.getHeight() / (4f * blurBufferedImage.getHeight());
             TifUtils.drawBlurPic(bufferedImageToSave, blurBufferedImage, scale);
         }
+        OutputStream os = Files.newOutputStream(outFile.toPath());
         switch (format) {
             case "jp2": {
                 float fsize = oriTifFile.length() / (1024f * 1024);
+                // FIXME: 2/27/2023 该公式需要重新计算
                 float encoding = (float) (5.842e-6 * Math.pow(fsize, 2) - 0.002235 * fsize + 0.2732);
 //                float encoding = -0.001f * fsize + 0.227f;
                 float limitM = compressLimit / 1024f;
                 if (limitM == 0) {
                     long s = System.currentTimeMillis();
-                    TifUtils.transformImgToJp2(bufferedImageToSave, Files.newOutputStream(outFile.toPath()));
+                    TifUtils.transformImgToJp2(bufferedImageToSave,os);
                     log.debug("转换jp2无损耗时{}s,文件名{}", (System.currentTimeMillis() - s)/1000f, oriTifFile.getAbsolutePath());
                     return;
                 }
@@ -140,7 +142,7 @@ public class VolumeDirProcessTask implements ITask {
                 long oriFileSizeM = oriTifFile.length() / (1024 * 1024);
                 while (fsize > limitM || fsize < limitM * 0.8) {
                     long s = System.currentTimeMillis();
-                    TifUtils.transformImgToJp2(bufferedImageToSave, Files.newOutputStream(outFile.toPath()), 0.5f, encoding);
+                    TifUtils.transformImgToJp2(bufferedImageToSave, os, 0.5f, encoding);
                     fsize = outFile.length() / (1024 * 1024f);
                     log.debug("压缩次数{},输出文件大小{}m,原文件大小{}m,编码率{},耗时{}s,文件名{}", compressTime,
                             fsize,oriFileSizeM , encoding,
@@ -153,12 +155,13 @@ public class VolumeDirProcessTask implements ITask {
                     else if (fsize < limitM * 0.8)
                         encoding *= 1.1;
                     else break;
+                    System.gc();
                 }
                 break;
             }
             case "jpg": {
                 long s = System.currentTimeMillis();
-                TifUtils.transformImgToJpg(bufferedImageToSave, Files.newOutputStream(outFile.toPath()), compressLimit);
+                TifUtils.transformImgToJpg(bufferedImageToSave, os, compressLimit);
                 log.debug("{}转化为jpg并输出共耗时{}s",oriTifFile,(System.currentTimeMillis()-s)/1000f);
                 break;
             }
@@ -166,6 +169,8 @@ public class VolumeDirProcessTask implements ITask {
                 break;
             }
         }
+        if(os!=null)
+            os.close();
     }
 
     public void processPdfItem(AppConfig.ProcessItem processItem) throws Exception {
