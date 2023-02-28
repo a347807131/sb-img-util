@@ -3,4 +3,4 @@ app:
   base-out-dir-path: H:\图像格式转换
   blur-image-path: D:\service\sb-img-util\sb-img-util\src\main\resources\blur.png
   #处理线程数
-  worker-num: 8
+  max-worker-num: 8

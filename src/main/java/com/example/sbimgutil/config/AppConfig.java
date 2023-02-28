@@ -16,7 +16,7 @@ import java.util.stream.Collectors;
 @Configuration
 @ConfigurationProperties(prefix = "app")
 public class AppConfig {
-    int workerNum=4;
+    int maxWorkerNum=4;
     String tifDirPath;
     String baseOutDirPath;
     String blurImagePath;

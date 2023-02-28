@@ -10,8 +10,8 @@ public class ConsoleProgressBar {
     private static final DecimalFormat floatFormater = new DecimalFormat("0.00");
     private final AtomicInteger currentValue = new AtomicInteger(0);
     private volatile long currentSpeed = 1024 * 1000;
-    char progressChar = '█';
-    char waitChar = '#';
+    char progressChar = '#';
+    char waitChar = '-';
     private final AtomicInteger total = new AtomicInteger(100);
 
     private int barLen = 50;
@@ -42,8 +42,8 @@ public class ConsoleProgressBar {
     synchronized void show(int value) {
         last=value;
         int totalV=total.get();
-        System.out.print('\r');
-        System.out.print(ColorEnum.RED.value);
+//        System.out.print('\r');
+//        System.out.print(ColorEnum.RED.value);
         // 比例
         float rate = value * 1f / totalV;
 

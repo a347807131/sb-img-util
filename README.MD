@@ -1,23 +1,35 @@
+使用说明:
+
+
+
+程序的配置文件为程序目录下的`aolication.yml`文件，已配有8项任务，开关为enable值,false或者true，
+
+将配置文件中的tif-dir-path变更为目标tif文件书籍所在的目录即可，默认输出为该目录的上级目录，也可自行修改，其配置为`base-out-dir-path`。
+
+程序支持断点运行，保存的颗粒度为书的卷，只有在一个书卷完整处理后才会保存进度，未保存的会在下次运行时重新处理。
+
+```yml
 
 logging:
   file:
     name: ${app.base-out-dir-path}/log.txt
 
-spring:
-  profiles:
-    active: dev
-
 app:
+#tif文件目录
   tif-dir-path:
+  #输出位置
   base-out-dir-path:
+  #水印文件位置
   blur-image-path:
   cata-dir-path: ${app.tif-dir-path}/../5 目录
-  #处理线程数
+  #处理最大线程数
   max-worker-num: 8
   process-items:
   #无损jp2
   - format: jp2
+  	#开关
     enable: false
+    #是否带水印
     with-blur: false
     compress-limit: 0 #单位kb
     blur-image-path: ${app.blur-image-path}
@@ -33,8 +45,8 @@ app:
 
   #有损jp2有水印
   - format: jp2
-    enable: true
-    with-blur: false
+    enable: false
+    with-blur: true
     compress-limit: 500 #单位kb
     blur-image-path: ${app.blur-image-path}
     out-dir-path: ${app.base-out-dir-path}/3 水印有损JP2000/有水印
@@ -56,21 +68,13 @@ app:
     blur-image-path: ${app.blur-image-path}
     out-dir-path: ${app.base-out-dir-path}\JPG无损
 
-  #jpg转回tif，处理流程与上述不同
-#  - format: tif
-#    enable: false
-#    with-blur: false
-#    compress-limit: 0 #单位kb 0表示不压缩
-#    blur-image-path: ${app.blur-image-path}
-#    out-dir-path: ${app.base-out-dir-path}\TIF无损
-
 ###################################
   #pdf是书籍处理完成后的后置处理
 ###################################
 
   #pdf无水印
   - format: pdf
-    enable: true
+    enable: false
 #      compress-limit: 0 #单位kb 0表示不压缩
 #      with-blur: false
 #      blur-image-path: ${app.blur-image-path}
@@ -89,3 +93,5 @@ app:
     resource-dir-path: ${app.base-out-dir-path}/3 水印有损JP2000/有水印
     cata-dir-path: ${app.cata-dir-path}
     file-name-regex: ^(?!seka).*$ #不以seka开头的文件名
+```
+

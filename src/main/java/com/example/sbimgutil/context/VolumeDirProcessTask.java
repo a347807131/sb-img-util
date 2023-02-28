@@ -39,9 +39,14 @@ public class VolumeDirProcessTask implements ITask {
 
     private final File volumeDir;
     private final List<AppConfig.ProcessItem> processitemlist;
+    /**
+     * 相对于out文件夹的输出文件所在的文件夹的路径
+     */
+    private final String relativePath;
 
-    public VolumeDirProcessTask(File volumeDir, List<AppConfig.ProcessItem> processitemlist) {
+    public VolumeDirProcessTask(File volumeDir, String relativePath, List<AppConfig.ProcessItem> processitemlist) {
         this.volumeDir = volumeDir;
+        this.relativePath = relativePath;
         this.processitemlist = processitemlist;
     }
 
@@ -150,6 +155,7 @@ public class VolumeDirProcessTask implements ITask {
 
     public void processPdfItem(AppConfig.ProcessItem processItem) throws Exception {
 
+        //pdf的输出文件单独处理
         File cataFile = new File(processItem.getCataDirPath(),volumeDir.getParentFile().getName()+"/"+volumeDir.getName()+".txt");
 
         String outDirPath = processItem.getOutDirPath();
@@ -173,12 +179,12 @@ public class VolumeDirProcessTask implements ITask {
         FileUtils.copyFileToDirectory(cataFile,pdfOutFile.getParentFile());
     }
 
-    File genOutFile(File oriFile, String outDirPath, String format) throws IOException {
-        String fileAbsolutePath = oriFile.getAbsolutePath();
-        String newFileAbsPath = fileAbsolutePath.replace(volumeDir.getAbsolutePath(), outDirPath);
-        int pointIndex = newFileAbsPath.lastIndexOf(".");
-        newFileAbsPath = newFileAbsPath.substring(0, pointIndex + 1) + format;
-        File outFile = new File(newFileAbsPath);
+    File genOutFile(File inFile, String outDirPath, String format) throws IOException {
+        String inFileName = inFile.getName();
+        File outFileDir = new File(outDirPath, relativePath);
+        int pointIndex = inFileName.lastIndexOf(".");
+        String outFileName = inFileName.substring(0, pointIndex + 1) + format;
+        File outFile = new File(outFileDir,outFileName);
         if (!outFile.getParentFile().exists())
             FileUtils.forceMkdir(outFile.getParentFile());
         return outFile;

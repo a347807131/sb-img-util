@@ -62,7 +62,8 @@ public class ProcessExcutor {
                         )
                     .collect(Collectors.toList());
                 if(!items.isEmpty()){
-                    tasks.add(new VolumeDirProcessTask(volumeDir,items));
+                    String relativePath = volumeDir.getAbsolutePath().substring(tifDir.getAbsolutePath().length());
+                    tasks.add(new VolumeDirProcessTask(volumeDir,relativePath,items));
                     volumeDirsToProcess.add(volumeDir);
                 }
             }
@@ -78,7 +79,7 @@ public class ProcessExcutor {
         consoleProgressBar = new ConsoleProgressBar(tifFileCount);
         consoleProgressBar.showCurrent();
 
-        int workerNum = appConfig.getWorkerNum();
+        int workerNum = appConfig.getMaxWorkerNum();
         if (workerNum> tasks.size()) {
             workerNum = tasks.size();
         }
