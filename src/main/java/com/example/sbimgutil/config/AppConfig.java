@@ -50,7 +50,7 @@ public class AppConfig {
                     ", resourceDirPath='" + resourceDirPath + '\'' +
                     ", fileNameRegex='" + fileNameRegex + '\'' +
                     ", cataDirPath='" + cataDirPath + '\'' +
-                    ",hashCode="+hashCode()+
+                    ", hashCode='"+hashCode()+ '\''+
                     '}';
         }
     }

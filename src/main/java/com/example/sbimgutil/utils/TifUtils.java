@@ -13,6 +13,8 @@ import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.awt.image.RenderedImage;
 import java.io.*;
+import java.nio.file.Files;
+import java.rmi.server.ExportException;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Objects;
@@ -38,6 +40,47 @@ public class TifUtils {
             bytes = PicCompressUtils.compressPicForScale(bytes,limit);
         }
         IOUtils.write(bytes,outputStream);
+    }
+    
+    public static void transformImgToJp2(BufferedImage bufferedImage, File outFile, int limit) throws IOException {
+        float fsize = bufferedImage.getData().getDataBuffer().getSize()/(1024*1024f);
+        float oriFileSizeM=fsize;
+        float encoding = (float) (5.842e-6 * Math.pow(fsize, 2) - 0.002235 * fsize + 0.2732);
+        float limitM = limit / 1024f;
+        if (limitM == 0) {
+            OutputStream os = Files.newOutputStream(outFile.toPath());
+            ImageIO.write(bufferedImage, "JPG2000", os);
+            os.close();
+            return;
+        }
+        int compressTime = 0;
+        while (fsize > limitM || fsize < limitM * 0.8) {
+            compressTime += 1;
+            OutputStream os = Files.newOutputStream(outFile.toPath());
+            long s = System.currentTimeMillis();
+            TifUtils.transformImgToJp2(bufferedImage, os, 0.5f, encoding);
+            os.close();
+            fsize = outFile.length() / (1024 * 1024f);
+            log.debug("压缩次数{},输出文件大小{}m,原文件大小{}m,编码率{},耗时{}s,文件名{}",
+                    compressTime,
+                    fsize,
+                    oriFileSizeM ,
+                    encoding,
+                    (System.currentTimeMillis() - s)/1000f,
+                    outFile.getAbsolutePath()
+            );
+            if(compressTime<2)
+                encoding= (limitM*0.95f)/fsize*encoding;
+            else if(compressTime<5){
+                System.gc();
+                if (fsize > limitM)
+                    encoding *=0.9;
+                else if (fsize < limitM * 0.8)
+                    encoding *= 1.1;
+                else break;
+            }else
+                throw new IOException("压缩次数过多，为防爆内存，异常推出");
+        }
     }
 
     public static void transformImgToJp2(BufferedImage bufferedImage, OutputStream outputStream,float quality,float encodingRate){
@@ -92,10 +135,5 @@ public class TifUtils {
         } catch (IOException e) {
             throw new RuntimeException();
         }
-    }
-
-    public static void tranformImgToTiff(BufferedImage bufferedImage, OutputStream outputStream) throws IOException {
-        // TODO
-
     }
 }
