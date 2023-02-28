@@ -13,79 +13,50 @@ app:
   blur-image-path:
   cata-dir-path: ${app.tif-dir-path}/../5 目录
   #处理线程数
-  max-worker-num: 8
-  process-items:
-  #无损jp2
-  - format: jp2
-    enable: false
-    with-blur: false
-    compress-limit: 0 #单位kb
-    blur-image-path: ${app.blur-image-path}
-    out-dir-path: ${app.base-out-dir-path}/2 拼图无损JP2000
+  worker-num: 8
+  process-tasks:
+    IT1:
+      task-type: IMAGE-TRANSFORM
+      enable: true
+      out-dir-path: ${app.base-out-dir-path}/2 JP2000无损
+      in-dir-path: ${app.tif-dir-path}
+      file-name-regex: ^(?!seka).*$ #不以seka开头的文件名
+      format: jpg
+      depend-on:
 
-  #有损jp2无水印
-  - format: jp2
-    enable: false
-    with-blur: false
-    compress-limit: 500 #单位kb
-    blur-image-path: ${app.blur-image-path}
-    out-dir-path: ${app.base-out-dir-path}/3 水印有损JP2000/无水印
-
-  #有损jp2有水印
-  - format: jp2
-    enable: false
-    with-blur: false
-    compress-limit: 500 #单位kb
-    blur-image-path: ${app.blur-image-path}
-    out-dir-path: ${app.base-out-dir-path}/3 水印有损JP2000/有水印
-
-  #封面
-  - format: jpg
-    enable: false
-    with-blur: true
-    compress-limit: 0 #单位kb 0表示不压缩
-    blur-image-path: ${app.blur-image-path}
-    out-dir-path: ${app.base-out-dir-path}\7 提交平台\封面
-    file-name-regex: ^0001.*$ #已0001开头的文件名
-
-    #jpg无损
-  - format:  jpg
-    enable: false
-    with-blur: false
-    compress-limit: 0 #单位kb 0表示不压缩
-    blur-image-path: ${app.blur-image-path}
-    out-dir-path: ${app.base-out-dir-path}\JPG无损
-
-  #jpg转回tif，处理流程与上述不同
-#  - format: tif
-#    enable: false
-#    with-blur: false
-#    compress-limit: 0 #单位kb 0表示不压缩
-#    blur-image-path: ${app.blur-image-path}
-#    out-dir-path: ${app.base-out-dir-path}\TIF无损
-
-###################################
-  #pdf是书籍处理完成后的后置处理
-###################################
-
-  #pdf无水印
-  - format: pdf
-    enable: true
-#      compress-limit: 0 #单位kb 0表示不压缩
-#      with-blur: false
+#    DB1:
+#      task-type: DRAW-BLUR
+#      enable: true
+#      out-dir-path: ${app.base-out-dir-path}/4 PDF/有水印
+#      in-dir-path: ${app.base-out-dir-path}/3 水印有损JP2000/有水印
+#      file-name-regex: ^(?!seka).*$ #不以seka开头的文件名
 #      blur-image-path: ${app.blur-image-path}
-    out-dir-path: ${app.base-out-dir-path}/4 PDF/无水印
-    resource-dir-path: ${app.base-out-dir-path}/3 水印有损JP2000/无水印
-    cata-dir-path: ${app.cata-dir-path}
-    file-name-regex: ^(?!seka).*$ #不以seka开头的文件名
+#      depend-on: 1
+#
+#    IC1:
+#      task-type: IMAGE-COMPRESS
+#      enable: true
+#      out-dir-path: ${app.base-out-dir-path}/4 PDF/有水印
+#      in-dir-path: ${app.base-out-dir-path}/3 水印有损JP2000/有水印
+#      file-name-regex: ^(?!seka).*$ #不以seka开头的文件名
+#      compress-limit: 500
+#      depend-on: 2
+#
+#    IC2:
+#      task-type: IMAGE-COMPRESS
+#      enable: true
+#      out-dir-path: ${app.base-out-dir-path}/4 PDF/有水印
+#      in-dir-path: ${app.base-out-dir-path}/3 水印有损JP2000/有水印
+#      file-name-regex: ^(?!seka).*$ #不以seka开头的文件名
+#      compress-limit: 500
+#      depend-on: 2
+#
+#    PM1:
+#      task-type: PDF-MERGE
+#      enable: true
+#      out-dir-path: ${app.base-out-dir-path}/4 PDF/有水印
+#      in-dir-path: ${app.base-out-dir-path}/3 水印有损JP2000/有水印
+#      file-name-regex: ^(?!seka).*$ #不以seka开头的文件名
+#      cata-dir-path: ${app.cata-dir-path}
+#      depend-on: 2
 
-  #pdf带水印
-  - format: pdf
-    enable: false
-#      compress-limit: 0 #单位kb 0表示不压缩
-#      with-blur: false
-#      blur-image-path: ${app.blur-image-path}
-    out-dir-path: ${app.base-out-dir-path}/4 PDF/有水印
-    resource-dir-path: ${app.base-out-dir-path}/3 水印有损JP2000/有水印
-    cata-dir-path: ${app.cata-dir-path}
-    file-name-regex: ^(?!seka).*$ #不以seka开头的文件名
