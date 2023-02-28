@@ -58,6 +58,7 @@ app:
     compress-limit: 0 #单位kb 0表示不压缩
     blur-image-path: ${app.blur-image-path}
     out-dir-path: ${app.base-out-dir-path}\7 提交平台\封面
+    #文件名匹配的正则表达式
     file-name-regex: ^0001.*$ #已0001开头的文件名
 
     #jpg无损

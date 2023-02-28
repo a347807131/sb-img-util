@@ -25,7 +25,7 @@ app:
 
   #有损jp2无水印
   - format: jp2
-    enable: true
+    enable: false
     with-blur: false
     compress-limit: 500 #单位kb
     blur-image-path: ${app.blur-image-path}
@@ -33,7 +33,7 @@ app:
 
   #有损jp2有水印
   - format: jp2
-    enable: true
+    enable: false
     with-blur: false
     compress-limit: 500 #单位kb
     blur-image-path: ${app.blur-image-path}
@@ -77,7 +77,7 @@ app:
     out-dir-path: ${app.base-out-dir-path}/4 PDF/无水印
     resource-dir-path: ${app.base-out-dir-path}/3 水印有损JP2000/无水印
     cata-dir-path: ${app.cata-dir-path}
-    file-name-regex: ^0001.*$ #已0001开头的文件名
+    file-name-regex: ^(?!seka).*$ #不以seka开头的文件名
 
   #pdf带水印
   - format: pdf
