@@ -49,7 +49,7 @@ public class TifUtils {
         float limitM = limit / 1024f;
         if (limitM == 0) {
             OutputStream os = Files.newOutputStream(outFile.toPath());
-            ImageIO.write(bufferedImage, "JPG2000", os);
+            transformImgToJp2(bufferedImage, os);
             os.close();
             return;
         }

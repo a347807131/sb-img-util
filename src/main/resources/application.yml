@@ -17,7 +17,7 @@ app:
   process-items:
   #无损jp2
   - format: jp2
-    enable: false
+    enable: true
     with-blur: false
     compress-limit: 0 #单位kb
     blur-image-path: ${app.blur-image-path}
@@ -70,7 +70,7 @@ app:
 
   #pdf无水印
   - format: pdf
-    enable: true
+    enable: false
 #      compress-limit: 0 #单位kb 0表示不压缩
 #      with-blur: false
 #      blur-image-path: ${app.blur-image-path}
