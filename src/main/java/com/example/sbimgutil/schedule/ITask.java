@@ -20,7 +20,7 @@ public interface ITask extends Runnable {
     /**
      * 工作逻辑
      */
-    void doWork();
+    void doWork() throws InterruptedException;
 
     /**
      * 入口
@@ -32,7 +32,6 @@ public interface ITask extends Runnable {
             after();
         } catch (Throwable e) {
             onError(e);
-            throw new RuntimeException(e);
         }
     }
 }

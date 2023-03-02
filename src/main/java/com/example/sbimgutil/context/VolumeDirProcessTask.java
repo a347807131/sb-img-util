@@ -61,9 +61,14 @@ public class VolumeDirProcessTask implements ITask {
     }
 
     @Override
-    public void doWork() {
+    public void onError(Throwable e) {
+        log.error("处理书籍卷{}时出错.",volumeDir,e);
+    }
 
-        final CheckPoint checkPoint = ProcessExcutor.checkPoint;
+    @Override
+    public void doWork(){
+        final CheckPoint checkPoint=ProcessExcutor.checkPoint;
+
         final ConsoleProgressBar cpb = ProcessExcutor.consoleProgressBar;
         //处理pdf合并任务
         List<AppConfig.ProcessItem> nonPdfprocessItems = processitemlist.stream().filter(
@@ -87,8 +92,7 @@ public class VolumeDirProcessTask implements ITask {
                 }
                 String format = processItem.getFormat();
                 try {
-                    BufferedImage bufferedImage = ImageIO.read(oriTifFile);
-                    processOneItem(processItem, oriTifFile, format, bufferedImage);
+                    processOneItem(processItem, oriTifFile, format, ImageIO.read(oriTifFile));
                 } catch (IOException e) {
                     log.error("{}文件处理错误，跳过该本书籍的该卷", oriTifFile, e);
                     // TODO: 2/22/2023 出错情况下的进度条处理
@@ -122,10 +126,24 @@ public class VolumeDirProcessTask implements ITask {
     }
 
     void processOneItem(AppConfig.ProcessItem processItem, File oriTifFile, String format, BufferedImage bufferedImage) throws IOException {
+        if(bufferedImage==null){
+            log.error("文件{}读取失败，请检查文件",oriTifFile);
+            throw new IOException("文件读取失败");
+        }
         LocalDateTime sTime = LocalDateTime.now();
         String outDirPath = processItem.getOutDirPath();
         int compressLimit = processItem.getCompressLimit();
         File outFile = genOutFile(oriTifFile, outDirPath, format);
+        if(outFile.exists()){
+            log.debug("目标输出文件{}已存在，跳过",outFile);
+            return;
+        }
+        File tempOutFile = new File(outFile.getAbsolutePath() + ".tmp");
+        if(tempOutFile.exists()){
+            tempOutFile.delete();
+        }else if(outFile.exists() && outFile.length()==0){
+            outFile.delete();
+        }
         BufferedImage bufferedImageToSave = bufferedImage;
         if (processItem.isWithBlur()) {
             BufferedImage blurBufferedImage = ImageIO.read(new File(processItem.getBlurImagePath()));
@@ -133,10 +151,10 @@ public class VolumeDirProcessTask implements ITask {
             float scale = bufferedImageToSave.getHeight() / (4f * blurBufferedImage.getHeight());
             TifUtils.drawBlurPic(bufferedImageToSave, blurBufferedImage, scale);
         }
-        OutputStream os = Files.newOutputStream(outFile.toPath());
+        OutputStream os = Files.newOutputStream(tempOutFile.toPath());
         switch (format) {
             case "jp2": {
-                TifUtils.transformImgToJp2(bufferedImageToSave, outFile, compressLimit);
+                TifUtils.transformImgToJp2(bufferedImageToSave, tempOutFile, compressLimit);
                 break;
             }
             case "jpg": {
@@ -149,6 +167,7 @@ public class VolumeDirProcessTask implements ITask {
         }
         if(os!=null)
             os.close();
+        boolean b = tempOutFile.renameTo(outFile);
         long between = LocalDateTimeUtil.between(sTime, LocalDateTime.now(), ChronoUnit.SECONDS);
         log.debug("处理{}文件共计耗时 {} s,是否压缩:{}", oriTifFile, between, compressLimit > 0);
     }

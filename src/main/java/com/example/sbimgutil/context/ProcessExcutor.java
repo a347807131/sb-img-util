@@ -52,9 +52,11 @@ public class ProcessExcutor {
         List<Runnable> tasks = new LinkedList<>();
         List<File> volumeDirsToProcess = new ArrayList<>();
         for (File bookDir : bookDirs) {
-            File[] volumeDirs = bookDir.listFiles(File::isDirectory);
-            if(volumeDirs==null)
+            File[] volumeDirArr = bookDir.listFiles(File::isDirectory);
+            if(volumeDirArr==null)
                 continue;
+            var volumeDirs = new ArrayList<>(List.of(volumeDirArr));
+            volumeDirs.sort(Comparator.comparing(File::getName));
             for (File volumeDir : volumeDirs) {
                 List<AppConfig.ProcessItem> items = processItems.stream().filter(
                         processItem ->
@@ -89,7 +91,8 @@ public class ProcessExcutor {
             ForkJoinTask<?> forkJoinTask = pool.submit(() -> tasks.parallelStream().forEach(Runnable::run));
             //阻塞
             Object o = forkJoinTask.get();
-//            Scheduler scheduler = Scheduler.scheduleNow(workerNum, tasks);
+//            Scheduler scheduler = Scheduler.schedule(workerNum, tasks);
+//            scheduler.start();
 //            scheduler.await();
         }
         log.info("本次处理处理结束，点击enter键推出......");
