@@ -92,6 +92,8 @@ public class ProcessExcutor {
 //            Scheduler scheduler = Scheduler.scheduleNow(workerNum, tasks);
 //            scheduler.await();
         }
-        log.info("处理结束。");
+        log.info("本次处理处理结束，点击enter键推出......");
+        Scanner scanner = new Scanner(System.in);
+        scanner.nextLine();
     }
 }

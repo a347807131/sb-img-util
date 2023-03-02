@@ -158,6 +158,10 @@ public class VolumeDirProcessTask implements ITask {
         //pdf的输出文件单独处理
         File cataFile = new File(processItem.getCataDirPath(),volumeDir.getParentFile().getName()+"/"+volumeDir.getName()+".txt");
 
+        if(!cataFile.exists()){
+            log.error("卷{}下没有目录文件",cataFile.getAbsolutePath());
+            throw new IOException(cataFile.getAbsolutePath()+"下没有目录文件");
+        }
         String outDirPath = processItem.getOutDirPath();
         File pdfOutFile = new File(outDirPath, volumeDir.getParentFile().getName() + "/" + volumeDir.getName() + ".pdf");
         if (!pdfOutFile.getParentFile().exists())

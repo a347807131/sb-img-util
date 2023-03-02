@@ -45,11 +45,12 @@ public class TifUtils {
     public static void transformImgToJp2(BufferedImage bufferedImage, File outFile, int limit) throws IOException {
         float fsize = bufferedImage.getData().getDataBuffer().getSize()/(1024*1024f);
         float oriFileSizeM=fsize;
-        float encoding = (float) (5.842e-6 * Math.pow(fsize, 2) - 0.002235 * fsize + 0.2732);
+        float x=fsize;
+        float encoding = (float) (1.395e-9*Math.pow(x,3) +5.408e-6* Math.pow(x,2)- 2.187e-3 * x+0.2709);
         float limitM = limit / 1024f;
         if (limitM == 0) {
             OutputStream os = Files.newOutputStream(outFile.toPath());
-            transformImgToJp2(bufferedImage, os);
+            ImageIO.write(bufferedImage, "JPEG2000", os);
             os.close();
             return;
         }
@@ -74,9 +75,9 @@ public class TifUtils {
             else if(compressTime<5){
                 System.gc();
                 if (fsize > limitM)
-                    encoding *=0.9;
+                    encoding *=0.95;
                 else if (fsize < limitM * 0.8)
-                    encoding *= 1.1;
+                    encoding *= 1.05;
                 else break;
             }else
                 throw new IOException("压缩次数过多，为防爆内存，异常推出");
