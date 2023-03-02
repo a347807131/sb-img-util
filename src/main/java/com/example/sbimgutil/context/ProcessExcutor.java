@@ -52,9 +52,11 @@ public class ProcessExcutor {
         List<Runnable> tasks = new LinkedList<>();
         List<File> volumeDirsToProcess = new ArrayList<>();
         for (File bookDir : bookDirs) {
-            File[] volumeDirs = bookDir.listFiles(File::isDirectory);
-            if(volumeDirs==null)
+            File[] volumeDirArr = bookDir.listFiles(File::isDirectory);
+            if(volumeDirArr==null)
                 continue;
+            var volumeDirs = new ArrayList<>(List.of(volumeDirArr));
+            volumeDirs.sort(Comparator.comparing(File::getName));
             for (File volumeDir : volumeDirs) {
                 List<AppConfig.ProcessItem> items = processItems.stream().filter(
                         processItem ->

@@ -1,6 +1,8 @@
 package com.example.sbimgutil.utils;
 
 import java.text.DecimalFormat;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.concurrent.atomic.AtomicInteger;
 
 //@Slf4j
@@ -42,13 +44,17 @@ public class ConsoleProgressBar {
     synchronized void show(int value) {
         last=value;
         int totalV=total.get();
-//        System.out.print('\r');
+        System.out.print('\r');
 //        System.out.print(ColorEnum.RED.value);
+
+        String timestamp = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+        System.out.print(timestamp );
+
         // 比例
         float rate = value * 1f / totalV;
 
         int len = (int) (rate * barLen);
-        StringBuilder sb = new StringBuilder("Progress: ");
+        StringBuilder sb = new StringBuilder(" Progress: ");
         for (int i = 0; i < len; i++) {
             sb.append(progressChar);
         }
