@@ -2,7 +2,7 @@ package com.example.sbimgutil.task;
 
 
 import cn.hutool.core.date.LocalDateTimeUtil;
-import fun.gatsby.commons.schedule.ITask;
+import com.example.sbimgutil.schedule.ITask;
 import lombok.Data;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
