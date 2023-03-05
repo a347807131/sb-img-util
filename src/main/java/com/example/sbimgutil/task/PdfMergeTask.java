@@ -1,4 +1,9 @@
 package com.example.sbimgutil.task;
 
-public class PdfMergeTask {
+import java.io.File;
+import java.util.List;
+
+public class PdfMergeTask extends BaseTask {
+    public PdfMergeTask(List<File> files, File outFile, String format) {
+    }
 }

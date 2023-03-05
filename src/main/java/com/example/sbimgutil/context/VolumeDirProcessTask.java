@@ -1,11 +1,11 @@
 package com.example.sbimgutil.context;
 
 import com.example.sbimgutil.config.AppConfig;
+import com.example.sbimgutil.schedule.ITask;
 import com.example.sbimgutil.utils.ConsoleProgressBar;
 import com.example.sbimgutil.utils.FileFetchUtils;
 import com.example.sbimgutil.utils.PDFUtils;
 import com.example.sbimgutil.utils.TifUtils;
-import fun.gatsby.commons.schedule.ITask;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
 
@@ -25,7 +25,7 @@ public class VolumeDirProcessTask implements ITask {
         ImageWriter writer = writers.next();
     }
 
-    public static final Set<String> SUPORTTED_FORMATS = Set.of("pdf", "jp2", "jpg","tif","tiff");
+    public static final Set<String> SUPORTTED_FORMATS = Set.of("png","pdf", "jp2", "jpg","tif","tiff");
 
     public static final FileFilter supported_file_filter = file -> {
         if (file.isDirectory())
@@ -37,7 +37,7 @@ public class VolumeDirProcessTask implements ITask {
     private final File volumeDir;
     private final List<AppConfig.ProcessItem> processitemlist;
 
-    public VolumeDirProcessTask(File volumeDir, List<AppConfig.ProcessItem> processitemlist) {
+    public VolumeDirProcessTask(File volumeDir, String relativePath, List<AppConfig.ProcessItem> processitemlist) {
         this.volumeDir = volumeDir;
         this.processitemlist = processitemlist;
     }

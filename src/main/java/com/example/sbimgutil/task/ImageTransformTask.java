@@ -37,7 +37,7 @@ public class ImageTransformTask extends BaseTask{
             case "tiff":{
                 try {
                     BufferedImage bufferedImage = ImageIO.read(inFile);
-                    ImageIO.write(bufferedImage,format,outFile);
+                    ImageIO.write(bufferedImage,"jpeg",outFile);
                 }catch (Exception e){
                     throw new RuntimeException(e);
                 }

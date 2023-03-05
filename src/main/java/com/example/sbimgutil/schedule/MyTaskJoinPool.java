@@ -41,8 +41,8 @@ public class MyTaskJoinPool extends ForkJoinPool {
             node.state = TaskStateEnum.RUNNING;
             //不会阻塞
             ForkJoinTask<?> forkJoinTask = runTaskGroup(node.childrens);
-            if (node.denpendOnLast)
-                forkJoinTask.get();
+//            if (node.denpendOnLast)
+            forkJoinTask.get();
             node.state = TaskStateEnum.FINISHED;
         }
     }

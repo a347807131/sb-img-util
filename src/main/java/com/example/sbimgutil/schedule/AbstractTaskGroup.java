@@ -2,9 +2,10 @@ package com.example.sbimgutil.schedule;
 
 import java.util.Collection;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
-public abstract class AbstractTaskGroup extends LinkedList<Runnable> {
+public abstract class AbstractTaskGroup<R> extends LinkedList<Runnable> {
 
     protected volatile TaskStateEnum state = TaskStateEnum.NEW;
 
@@ -74,5 +75,9 @@ public abstract class AbstractTaskGroup extends LinkedList<Runnable> {
      */
     protected Runnable wrapTask(Runnable task) {
         return task;
+    }
+
+    public List<Runnable> toList(){
+        return this;
     }
 }

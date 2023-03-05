@@ -31,78 +31,78 @@ public class ProcessExcutor {
     }
 
     public void excute() throws IOException, ExecutionException, InterruptedException {
-        File tifDir = new File(appConfig.getTifDirPath());
-        checkPoint = new CheckPoint(new File(appConfig.getBaseOutDirPath()));
-
-        File[] bookDirs = tifDir.listFiles(File::isDirectory);
-
-        if(bookDirs==null)
-            throw new RuntimeException("目标tif文件夹无数据");
-
-        var processList= appConfig.getProcessItems();
-        if(processList.isEmpty()) {
-            log.warn("启动项配置中没有输出项的配置,请检查配置文件");
-            return;
-        }
-
-        List<AppConfig.ProcessItem> processItems = appConfig.getEnabledProcessItems();
-        log.info("启动项配置中输出项的配置:{}",processItems);
-
-        List<Runnable> tasks = new LinkedList<>();
-        List<File> volumeDirsToProcess = new ArrayList<>();
-        for (File bookDir : bookDirs) {
-            File[] volumeDirs = bookDir.listFiles(File::isDirectory);
-            if(volumeDirs==null)
-                continue;
-            for (File volumeDir : volumeDirs) {
-                List<AppConfig.ProcessItem> items = processItems.stream().filter(
-                        processItem ->
-                                !checkPoint.checkIfFinished(volumeDir, processItem.hashCode())
-                        )
-                    .collect(Collectors.toList());
-                if(!items.isEmpty()){
-                    String relativePath = volumeDir.getAbsolutePath().substring(tifDir.getAbsolutePath().length());
-                    tasks.add(new VolumeDirProcessTask(volumeDir,relativePath,items));
-                    volumeDirsToProcess.add(volumeDir);
-                }
-            }
-        }
-
-        int tifFileCount = FileFetchUtils.countFileRecursively(
-                volumeDirsToProcess,
-                VolumeDirProcessTask.supported_file_filter
-        );
-
-
-        log.info("共计{}卷图书，{}张tif图片待处理.",volumeDirsToProcess.size(),tifFileCount);
-        consoleProgressBar = new ConsoleProgressBar(tifFileCount);
-        consoleProgressBar.showCurrent();
-
-        int workerNum = appConfig.getMaxWorkerNum();
-        if (workerNum> tasks.size()) {
-            workerNum = tasks.size();
-        }
-
-        if(workerNum>0){
-            ForkJoinPool pool = new ForkJoinPool(workerNum);
-            ForkJoinTask<?> forkJoinTask = pool.submit(() -> tasks.parallelStream().forEach(Runnable::run));
-            for (Runnable task : tasks) {
-                pool.submit(new Runnable() {
-                    @Override
-                    public void run() {
-//                        // preTask=task.getBeforeTask();
-//                        if(pretask.isruning()){
-//                            pool.submit(this);
-//                        }else
-//                            task.run();
-                    }
-                });
-            }
-            //阻塞
-            Object o = forkJoinTask.get();
-//            Scheduler scheduler = Scheduler.scheduleNow(workerNum, tasks);
-//            scheduler.await();
-        }
-        log.info("处理结束。");
+//        File tifDir = new File(appConfig.getTifDirPath());
+//        checkPoint = new CheckPoint(new File(appConfig.getBaseOutDirPath()));
+//
+//        File[] bookDirs = tifDir.listFiles(File::isDirectory);
+//
+//        if(bookDirs==null)
+//            throw new RuntimeException("目标tif文件夹无数据");
+//
+//        var processList= appConfig.getProcessItems();
+//        if(processList.isEmpty()) {
+//            log.warn("启动项配置中没有输出项的配置,请检查配置文件");
+//            return;
+//        }
+//
+//        List<AppConfig.ProcessItem> processItems = appConfig.getEnabledProcessItems();
+//        log.info("启动项配置中输出项的配置:{}",processItems);
+//
+//        List<Runnable> tasks = new LinkedList<>();
+//        List<File> volumeDirsToProcess = new ArrayList<>();
+//        for (File bookDir : bookDirs) {
+//            File[] volumeDirs = bookDir.listFiles(File::isDirectory);
+//            if(volumeDirs==null)
+//                continue;
+//            for (File volumeDir : volumeDirs) {
+//                List<AppConfig.ProcessItem> items = processItems.stream().filter(
+//                        processItem ->
+//                                !checkPoint.checkIfFinished(volumeDir, processItem.hashCode())
+//                        )
+//                    .collect(Collectors.toList());
+//                if(!items.isEmpty()){
+//                    String relativePath = volumeDir.getAbsolutePath().substring(tifDir.getAbsolutePath().length());
+//                    tasks.add(new VolumeDirProcessTask(volumeDir,relativePath,items));
+//                    volumeDirsToProcess.add(volumeDir);
+//                }
+//            }
+//        }
+//
+//        int tifFileCount = FileFetchUtils.countFileRecursively(
+//                volumeDirsToProcess,
+//                VolumeDirProcessTask.supported_file_filter
+//        );
+//
+//
+//        log.info("共计{}卷图书，{}张tif图片待处理.",volumeDirsToProcess.size(),tifFileCount);
+//        consoleProgressBar = new ConsoleProgressBar(tifFileCount);
+//        consoleProgressBar.showCurrent();
+//
+//        int workerNum = appConfig.getMaxWorkerNum();
+//        if (workerNum> tasks.size()) {
+//            workerNum = tasks.size();
+//        }
+//
+//        if(workerNum>0){
+//            ForkJoinPool pool = new ForkJoinPool(workerNum);
+//            ForkJoinTask<?> forkJoinTask = pool.submit(() -> tasks.parallelStream().forEach(Runnable::run));
+//            for (Runnable task : tasks) {
+//                pool.submit(new Runnable() {
+//                    @Override
+//                    public void run() {
+////                        // preTask=task.getBeforeTask();
+////                        if(pretask.isruning()){
+////                            pool.submit(this);
+////                        }else
+////                            task.run();
+//                    }
+//                });
+//            }
+//            //阻塞
+//            Object o = forkJoinTask.get();
+////            Scheduler scheduler = Scheduler.scheduleNow(workerNum, tasks);
+////            scheduler.await();
+//        }
+//        log.info("处理结束。");
     }
 }

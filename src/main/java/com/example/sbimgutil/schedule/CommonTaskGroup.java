@@ -1,7 +1,6 @@
 package com.example.sbimgutil.schedule;
 
-import fun.gatsby.commons.schedule.AbstractTaskGroup;
 
-public class CommonTaskGroup extends AbstractTaskGroup {
+public class CommonTaskGroup extends AbstractTaskGroup<Runnable> {
 
 }

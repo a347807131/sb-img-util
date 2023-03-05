@@ -17,16 +17,11 @@ import java.util.stream.Collectors;
 @Configuration
 @ConfigurationProperties(prefix = "app")
 public class AppConfig {
-    int maxWorkerNum=4;
-    String tifDirPath;
+    int maxWorkerNum;
+    String baseInDirPath;
     String baseOutDirPath;
     String blurImagePath;
-    List<ProcessItem> processItems=null;
     Map<String,ProcessTask> processTasks;
-
-    public List<ProcessItem> getEnabledProcessItems(){
-        return processItems.stream().filter(ProcessItem::isEnable).collect(Collectors.toList());
-    }
 
     public List<ProcessTask> getEnabledProcessTaskConfigs(){
         List<ProcessTask> enbaledTasks = processTasks.values().stream().filter(ProcessTask::isEnable).collect(Collectors.toList());

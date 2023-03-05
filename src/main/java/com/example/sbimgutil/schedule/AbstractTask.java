@@ -1,6 +1,5 @@
 package com.example.sbimgutil.schedule;
 
-import fun.gatsby.commons.schedule.ITask;
 
 public abstract class AbstractTask implements ITask {
     /**
