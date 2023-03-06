@@ -7,7 +7,7 @@ public interface ITask extends Runnable {
     /**
      * 执行前
      */
-    default void before() {
+    default void before() throws IOException {
     }
 
     /**

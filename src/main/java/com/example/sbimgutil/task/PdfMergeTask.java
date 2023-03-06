@@ -11,7 +11,6 @@ import java.util.List;
 public class PdfMergeTask extends BaseTask {
 
     private final List<File> inFiles;
-    private final File outFile;
     private File cataFile=null;
 
     public PdfMergeTask(List<File> inFiles, File outFile, File cataFile) {

@@ -31,14 +31,13 @@ public class ImageTransformTask extends BaseTask{
     };
 
     private final File inFile;
-    private final File outFile;
     private final String format;
 
 
     public ImageTransformTask(File inFile,File outFile,String format) {
         this.inFile = inFile;
-        this.outFile = outFile;
         this.format = format;
+        this.outFile=outFile;
         taskName= "格式转换: "+inFile.getName()+" to "+outFile.getAbsolutePath();
     }
 

@@ -4,8 +4,8 @@ import com.example.sbimgutil.config.AppConfig;
 import com.example.sbimgutil.schedule.MyTaskJoinPool;
 import com.example.sbimgutil.schedule.TaskGroup;
 import com.example.sbimgutil.task.*;
+import com.example.sbimgutil.utils.ConsoleProgressBar;
 import com.example.sbimgutil.utils.FileFetchUtils;
-import org.apache.commons.io.FileUtils;
 
 import java.io.File;
 import java.io.IOException;
@@ -18,6 +18,8 @@ public class TaskExcutor {
     private final AppConfig appConfig;
 
     MyTaskJoinPool myTaskJoinPool = new MyTaskJoinPool(8);
+
+    public final static ConsoleProgressBar CPB = new ConsoleProgressBar();
 
     public TaskExcutor(AppConfig appConfig){
         this.appConfig = appConfig;
@@ -32,13 +34,63 @@ public class TaskExcutor {
             String taskType = taskConfig.getTaskType();
             TaskTypeEnum taskTypeEnum = TaskTypeEnum.valueOf(taskType);
 
-            List<Runnable> tasks = switch (taskTypeEnum) {
-                case IMAGE_TRANSFORM -> processIT(taskConfig);
-                case PDF_MERGE -> procesPM(taskConfig);
-                case IMAGE_COMPRESS -> procesIC(taskConfig);
-                case DRAW_BLUR -> procesDB(taskConfig);
-            };
-            myTaskJoinPool.scheduleBatch(tasks);
+            String inDirPath = taskConfig.getInDirPath();
+            File inDir = new File(inDirPath);
+            List<File> imgFiles = new LinkedList<>();
+
+            FileFetchUtils.fetchFileRecursively(imgFiles,inDir,
+                    ImageTransformTask.SUPPORTED_FILE_FILTER
+            );
+
+            imgFiles.sort(Comparator.comparing(File::getName));
+
+            String fileNameRegex = taskConfig.getFileNameRegex();
+
+            imgFiles = imgFiles.stream().filter(
+                    imgFile -> fileNameRegex == null || imgFile.getName().matches(fileNameRegex)
+            ).toList();
+
+            TaskGroup<Runnable> taskGroup = new TaskGroup<>() {};
+
+            for (File imgFile : imgFiles) {
+                if(fileNameRegex!=null && !imgFile.getName().matches(fileNameRegex)){
+                    continue;
+                }
+                File outFile = genOutFile(imgFile, taskConfig);
+                if(outFile.exists()){
+                    continue;
+                }
+
+                Runnable task = switch (taskTypeEnum) {
+                    case IMAGE_TRANSFORM ->{
+                        yield  new ImageTransformTask(imgFile,outFile,taskConfig.getFormat());
+                    }
+                    case PDF_MERGE -> null;
+                    case IMAGE_COMPRESS -> {
+                        yield new ImageCompressTask(imgFile,outFile,taskConfig.getCompressLimit());
+                    }
+                    case DRAW_BLUR ->{
+                        yield new DrawBlurTask(imgFile,outFile,new File(taskConfig.getBlurImagePath()));
+                    }
+                };
+                if(task==null){
+                    continue;
+                }
+                taskGroup.add(task);
+            }
+            
+            if (taskTypeEnum==TaskTypeEnum.PDF_MERGE){
+                LinkedHashMap<File, List<File>> dirToImgFilesMap = loadSortedDirToImgFilesMap(inDir);
+                for (Map.Entry<File, List<File>> entry1 : dirToImgFilesMap.entrySet()) {
+                    File dirFilesBelong = entry1.getKey();
+                    List<File> imgs = entry1.getValue();
+                    // TODO: 3/6/2023  
+                    PdfMergeTask task = new PdfMergeTask(imgs, dirFilesBelong);
+                    taskGroup.add(task);
+                }
+            }
+
+            myTaskJoinPool.scheduleBatch(taskGroup);
             myTaskJoinPool.start();
         }
     }
@@ -47,9 +99,8 @@ public class TaskExcutor {
     LinkedHashMap<File, List<File>> loadSortedDirToImgFilesMap(File inDir) {
         List<File> imgFiles = new LinkedList<>();
 
-        // TODO: 2023/3/2 靠检查点过滤文件
         FileFetchUtils.fetchFileRecursively(imgFiles,inDir,
-                VolumeDirProcessTask.supported_file_filter
+                ImageTransformTask.SUPPORTED_FILE_FILTER
         );
         imgFiles = imgFiles.stream().sorted(Comparator.comparing(File::getName)).collect(Collectors.toList());
 
@@ -64,63 +115,7 @@ public class TaskExcutor {
         }};
     }
 
-    private List<Runnable> procesDB(AppConfig.ProcessTask taskConfig) throws IOException {
-        String inDirPath = taskConfig.getInDirPath();
-        String format = taskConfig.getFormat();
-        File inDir = new File(inDirPath);
-        List<File> imgFiles = new LinkedList<>();
-        FileFetchUtils.fetchFileRecursively(imgFiles,inDir,
-                ImageTransformTask.SUPPORTED_FILE_FILTER
-        );
-        imgFiles.sort(Comparator.comparing(File::getName));
-
-        TaskGroup<Runnable> taskGroup = new TaskGroup<>() {};
-        String fileNameRegex = taskConfig.getFileNameRegex();
-        // FIXME: 3/6/2023 按文件分任务
-
-        imgFiles = imgFiles.stream().filter(imgFile -> fileNameRegex == null || imgFile.getName().matches(fileNameRegex)).toList();
-        for (File imgFile : imgFiles) {
-            if(fileNameRegex!=null && !imgFile.getName().matches(fileNameRegex)){
-                continue;
-            }
-            File outFile = genOutFile(imgFile, taskConfig);
-            if(outFile.exists()){
-                continue;
-            }
-            BaseTask imageTransformTask = new DrawBlurTask(imgFile, outFile, new File(taskConfig.getBlurImagePath()));
-            taskGroup.add(imageTransformTask);
-        }
-        return taskGroup;
-    }
-
-    private List<Runnable> procesIC(AppConfig.ProcessTask taskConfig) throws IOException {
-        String inDirPath = taskConfig.getInDirPath();
-        String format = taskConfig.getFormat();
-        File inDir = new File(inDirPath);
-        List<File> imgFiles = new LinkedList<>();
-        FileFetchUtils.fetchFileRecursively(imgFiles,inDir,
-                ImageTransformTask.SUPPORTED_FILE_FILTER
-        );
-        imgFiles.sort(Comparator.comparing(File::getName));
-
-        TaskGroup<Runnable> taskGroup = new TaskGroup<>() {};
-        String fileNameRegex = taskConfig.getFileNameRegex();
-        for (File imgFile : imgFiles) {
-            if(fileNameRegex!=null && !imgFile.getName().matches(fileNameRegex)){
-                continue;
-            }
-            File outFile = genOutFile(imgFile, taskConfig);
-            if(outFile.exists()){
-                continue;
-            }
-            BaseTask task = new ImageCompressTask(imgFile, outFile, 500);
-            taskGroup.add(task);
-        }
-        return taskGroup;
-    }
-
-
-    private List<Runnable> procesPM(AppConfig.ProcessTask taskConfig) {
+    private Runnable procesPM(File imgFile, AppConfig.ProcessTask taskConfig) {
         String outDirPath = taskConfig.getOutDirPath();
         LinkedList<Runnable> tasks = new LinkedList<>();
         String inDirPath = taskConfig.getInDirPath();
@@ -138,7 +133,6 @@ public class TaskExcutor {
             PdfMergeTask pdfMergeTask = new PdfMergeTask(imgFiles,outFile,cataFile);
             tasks.add(pdfMergeTask);
         }
-        TaskGroup<Runnable> taskGroup = new TaskGroup<>() {};
         File inDir = new File(inDirPath);
         return null;
     }
@@ -155,36 +149,6 @@ public class TaskExcutor {
     // TODO: 2023/3/5  
     private File genPdfout() {
         return null;
-    }
-
-    private List<Runnable> processIT(AppConfig.ProcessTask taskConfig) throws IOException {
-        String inDirPath = taskConfig.getInDirPath();
-        String format = taskConfig.getFormat();
-        File inDir = new File(inDirPath);
-        List<File> imgFiles = new LinkedList<>();
-        FileFetchUtils.fetchFileRecursively(imgFiles,inDir,
-            ImageTransformTask.SUPPORTED_FILE_FILTER
-        );
-        imgFiles.sort(Comparator.comparing(File::getName));
-
-        TaskGroup<Runnable> taskGroup = new TaskGroup<>() {};
-        String fileNameRegex = taskConfig.getFileNameRegex();
-        for (File imgFile : imgFiles) {
-            if(fileNameRegex!=null && !imgFile.getName().matches(fileNameRegex)){
-                continue;
-            }
-            File outFile = genOutFile(imgFile, taskConfig);
-            if(outFile.exists() || outFile.length()!=0){
-                continue;
-            }
-            ImageTransformTask imageTransformTask = new ImageTransformTask(imgFile, outFile, format);
-            taskGroup.add(imageTransformTask);
-        }
-        return taskGroup;
-
-    // TODO: 2023/2/26 图片处理任务依赖问题，批处理任务依赖问题
-//                        taskConfig.getTaskDepentOn().
-//                        tasks.addLast(taskConfig.getTaskDepentOn().getTask());
     }
 
     File genOutFile(File inFile, AppConfig.ProcessTask taskConfig) throws IOException {

@@ -14,12 +14,11 @@ import java.nio.file.Files;
 @Slf4j
 public class ImageCompressTask extends BaseTask{
     private final File inFilePath;
-    private final File outFile;
     private int limit = 500;
 
-    public ImageCompressTask(File inFilePath, File outFileP, int limit) {
+    public ImageCompressTask(File inFilePath, File outFile, int limit) {
         this.inFilePath = inFilePath;
-        this.outFile = outFileP;
+        this.outFile = outFile;
         this.limit = limit;
     }
 

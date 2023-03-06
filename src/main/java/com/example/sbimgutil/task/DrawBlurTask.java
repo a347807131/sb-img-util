@@ -10,7 +10,6 @@ import java.io.IOException;
 public class DrawBlurTask extends BaseTask{
 
     private final File inFile;
-    private final File outFile;
     private final File blurImageFile;
 
     public DrawBlurTask(File inFile, File outFile,File blurImageFile) {
@@ -27,6 +26,13 @@ public class DrawBlurTask extends BaseTask{
         float scale = bufferedImage.getHeight() / (4f * blurBufferedImage.getHeight());
         ImageUtils.drawBlurPic(blurBufferedImage, blurBufferedImage, scale);
         ImageUtils.drawBlurPic(bufferedImage, blurBufferedImage, scale);
-        ImageIO.write(bufferedImage, format, outFile);
+        switch (format) {
+            case "jp2" -> {
+                ImageIO.write(bufferedImage, "jpeg2000", outFile);
+            }
+            case "jpg", "tif", "tiff" -> {
+                ImageIO.write(bufferedImage, format, outFile);
+            }
+        }
     }
 }
