@@ -9,7 +9,7 @@ spring:
 
 app:
   tif-dir-path:
-  base-out-dir-path:
+  base-out-dir-path: ${app.tif-dir-path}/../ouput
   blur-image-path:
   cata-dir-path: ${app.tif-dir-path}/../5 目录
   #处理线程数
@@ -22,18 +22,20 @@ app:
     compress-limit: 0 #单位kb
     blur-image-path: ${app.blur-image-path}
     out-dir-path: ${app.base-out-dir-path}/2 拼图无损JP2000
+    #是否不考虑检查点，并全部强制重新生成
 
   #有损jp2无水印
   - format: jp2
-    enable: false
+    enable: true
     with-blur: false
     compress-limit: 500 #单位kb
     blur-image-path: ${app.blur-image-path}
     out-dir-path: ${app.base-out-dir-path}/3 水印有损JP2000/无水印
+    #是否不考虑检查点，并全部强制重新生成
 
   #有损jp2有水印
   - format: jp2
-    enable: false
+    enable: true
     with-blur: false
     compress-limit: 500 #单位kb
     blur-image-path: ${app.blur-image-path}
@@ -56,13 +58,6 @@ app:
     blur-image-path: ${app.blur-image-path}
     out-dir-path: ${app.base-out-dir-path}\JPG无损
 
-  #jpg转回tif，处理流程与上述不同
-#  - format: tif
-#    enable: false
-#    with-blur: false
-#    compress-limit: 0 #单位kb 0表示不压缩
-#    blur-image-path: ${app.blur-image-path}
-#    out-dir-path: ${app.base-out-dir-path}\TIF无损
 
 ###################################
   #pdf是书籍处理完成后的后置处理

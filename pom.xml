@@ -10,7 +10,7 @@
     </parent>
     <groupId>com.example</groupId>
     <artifactId>sb-img-util</artifactId>
-    <version>1.2</version>
+    <version>1.2.1</version>
     <name>sb-img-util</name>
     <description>sb-img-util</description>
     <packaging>jar</packaging>
@@ -81,11 +81,9 @@
             <artifactId>spring-boot-starter-test</artifactId>
             <scope>test</scope>
         </dependency>
-<!--        &lt;!&ndash; https://mvnrepository.com/artifact/org.apache.pdfbox/pdfbox &ndash;&gt;-->
 <!--        <dependency>-->
-<!--            <groupId>org.apache.pdfbox</groupId>-->
-<!--            <artifactId>pdfbox</artifactId>-->
-<!--            <version>2.0.25</version>-->
+<!--            <groupId>org.springframework.boot</groupId>-->
+<!--            <artifactId>spring-boot-starter-web</artifactId>-->
 <!--        </dependency>-->
         <dependency>
             <groupId>org.apache.pdfbox</groupId>

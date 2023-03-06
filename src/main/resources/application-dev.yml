@@ -4,7 +4,7 @@ logging:
 
 app:
   tif-dir-path: D:\datasets\图片处理模板\1 扫描原图（TIFF格式）
-  base-out-dir-path: D:\output
+#  base-out-dir-path: ${app.tif-dir-path}/..
   blur-image-path: C:\Users\Gatsby\IdeaProjects\sb-img-util\src\main\resources\blur.png
   #处理线程数
   max-worker-num: 8
