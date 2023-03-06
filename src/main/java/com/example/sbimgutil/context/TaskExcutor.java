@@ -50,59 +50,54 @@ public class TaskExcutor {
                     imgFile -> fileNameRegex == null || imgFile.getName().matches(fileNameRegex)
             ).toList();
 
-            TaskGroup<Runnable> taskGroup = new TaskGroup<>() {};
+            TaskGroup<Runnable> taskGroup = new TaskGroup<>() {
+            };
 
-            for (File imgFile : imgFiles) {
-                if(fileNameRegex!=null && !imgFile.getName().matches(fileNameRegex)){
-                    continue;
-                }
-                File outFile = genOutFile(imgFile, taskConfig);
-                if(outFile.exists()){
-                    continue;
-                }
-
-                Runnable task = switch (taskTypeEnum) {
-                    case IMAGE_TRANSFORM ->{
-                        yield  new ImageTransformTask(imgFile,outFile,taskConfig.getFormat());
+            switch (taskTypeEnum) {
+                case PDF_MERGE: {
+                    LinkedHashMap<File, List<File>> dirToImgFilesMap = loadSortedDirToImgFilesMap(imgFiles);
+                    for (Map.Entry<File, List<File>> entry1 : dirToImgFilesMap.entrySet()) {
+                        File dirThatFilesBelong = entry1.getKey();
+                        List<File> imgs = entry1.getValue();
+                        File pdfOutFile = genPdfOutFile(dirThatFilesBelong, taskConfig);
+                        // TODO: 3/6/2023 目录文件
+                        PdfMergeTask task = new PdfMergeTask(imgs, pdfOutFile);
+                        taskGroup.add(task);
                     }
-                    case PDF_MERGE -> null;
-                    case IMAGE_COMPRESS -> {
-                        yield new ImageCompressTask(imgFile,outFile,taskConfig.getCompressLimit());
-                    }
-                    case DRAW_BLUR ->{
-                        yield new DrawBlurTask(imgFile,outFile,new File(taskConfig.getBlurImagePath()));
-                    }
-                };
-                if(task==null){
-                    continue;
                 }
-                taskGroup.add(task);
+                case IMAGE_TRANSFORM, IMAGE_COMPRESS, DRAW_BLUR: {
+                    //非pdf合并走这边
+                    for (File imgFile : imgFiles) {
+                        if (fileNameRegex != null && !imgFile.getName().matches(fileNameRegex)) {
+                            continue;
+                        }
+                        File outFile = genOutFile(imgFile, taskConfig);
+                        if (outFile.exists()) {
+                            continue;
+                        }
+                        BaseTask task = switch (taskTypeEnum) {
+                            case IMAGE_TRANSFORM -> {
+                                yield new ImageTransformTask(imgFile, outFile, taskConfig.getFormat());
+                            }
+                            case IMAGE_COMPRESS -> {
+                                yield new ImageCompressTask(imgFile, outFile, taskConfig.getCompressLimit());
+                            }
+                            case DRAW_BLUR -> {
+                                yield new DrawBlurTask(imgFile, outFile, new File(taskConfig.getBlurImagePath()));
+                            }
+                            default -> null;
+                        };
+                        if (task != null)
+                            taskGroup.add(task);
+                    }
+                }
             }
-            
-            if (taskTypeEnum==TaskTypeEnum.PDF_MERGE){
-                LinkedHashMap<File, List<File>> dirToImgFilesMap = loadSortedDirToImgFilesMap(inDir);
-                for (Map.Entry<File, List<File>> entry1 : dirToImgFilesMap.entrySet()) {
-                    File dirFilesBelong = entry1.getKey();
-                    List<File> imgs = entry1.getValue();
-                    // TODO: 3/6/2023  
-                    PdfMergeTask task = new PdfMergeTask(imgs, dirFilesBelong);
-                    taskGroup.add(task);
-                }
-            }
-
             myTaskJoinPool.scheduleBatch(taskGroup);
             myTaskJoinPool.start();
         }
     }
 
-
-    LinkedHashMap<File, List<File>> loadSortedDirToImgFilesMap(File inDir) {
-        List<File> imgFiles = new LinkedList<>();
-
-        FileFetchUtils.fetchFileRecursively(imgFiles,inDir,
-                ImageTransformTask.SUPPORTED_FILE_FILTER
-        );
-        imgFiles = imgFiles.stream().sorted(Comparator.comparing(File::getName)).collect(Collectors.toList());
+    LinkedHashMap<File, List<File>> loadSortedDirToImgFilesMap(List<File> imgFiles) {
 
         Map<File, List<File>> volumeToImgFilesMap = imgFiles.parallelStream().collect(
                 Collectors.groupingBy(File::getParentFile)
@@ -115,28 +110,6 @@ public class TaskExcutor {
         }};
     }
 
-    private Runnable procesPM(File imgFile, AppConfig.ProcessTask taskConfig) {
-        String outDirPath = taskConfig.getOutDirPath();
-        LinkedList<Runnable> tasks = new LinkedList<>();
-        String inDirPath = taskConfig.getInDirPath();
-
-        LinkedHashMap<File, List<File>> dirToImgFilesMap = loadSortedDirToImgFilesMap(new File(inDirPath));
-        for (Map.Entry<File, List<File>> entry : dirToImgFilesMap.entrySet()) {
-            File dirThatFilesBelong = entry.getKey();
-            List<File> imgFiles = entry.getValue();
-            File outFile=genPdfOutFile(dirThatFilesBelong,taskConfig);
-            if(outFile.exists()){
-                continue;
-            }
-            /// FIXME: 3/6/2023 目录文件路径
-            File cataFile = new File(outFile.getAbsolutePath().replace(".pdf", ".txt"));
-            PdfMergeTask pdfMergeTask = new PdfMergeTask(imgFiles,outFile,cataFile);
-            tasks.add(pdfMergeTask);
-        }
-        File inDir = new File(inDirPath);
-        return null;
-    }
-
     private File genPdfOutFile(File dirFilesBelong, AppConfig.ProcessTask taskConfig) {
         String outFileName = dirFilesBelong.getName() + ".pdf";
 
@@ -144,11 +117,6 @@ public class TaskExcutor {
                 .replace(taskConfig.getInDirPath(), taskConfig.getOutDirPath())
                 .replace(dirFilesBelong.getName(), outFileName);
         return new File(outFilePath);
-    }
-
-    // TODO: 2023/3/5  
-    private File genPdfout() {
-        return null;
     }
 
     File genOutFile(File inFile, AppConfig.ProcessTask taskConfig) throws IOException {
