@@ -74,7 +74,7 @@ public class TaskExcutor {
         }));
 
         List<Map.Entry<String, List<File>>> sortedEntries = volumeToImgFilesMap.entrySet().stream()
-                .sorted(Map.Entry.comparingByKey()).collect(Collectors.toList());
+                .sorted(Map.Entry.comparingByKey()).toList();
         return new LinkedHashMap<>(sortedEntries.size()) {{
             sortedEntries.forEach(e -> put(e.getKey(), e.getValue()));
         }};
@@ -84,14 +84,6 @@ public class TaskExcutor {
 //        String outDirPath = taskConfig.getOutDirPath();
 //        String format = taskConfig.getFormat();
 //        LinkedList<Runnable> tasks = new LinkedList<>();
-//        for (Map.Entry<String, List<File>> entry : sortedVolumeToImgFilesMap.entrySet()) {
-//            String volumeKey = entry.getKey();
-//            List<File> files = entry.getValue();
-//            File outFile= genPdfout();
-//            //检查点问题
-//            PdfMergeTask pdfMergeTask = new PdfMergeTask(files, outFile, format);
-//            // TODO: 2023/3/5
-//        }
         return null;
     }
 
@@ -101,7 +93,6 @@ public class TaskExcutor {
     }
 
     private List<Runnable> processIT(AppConfig.ProcessTask taskConfig) throws IOException {
-        String outDirPath = taskConfig.getOutDirPath();
         String inDirPath = taskConfig.getInDirPath();
         String format = taskConfig.getFormat();
         File inDir = new File(inDirPath);
@@ -113,39 +104,26 @@ public class TaskExcutor {
 
         TaskGroup<Runnable> taskGroup = new TaskGroup<>() {
         };
-        //todo 失败的任务需要将信息保存下来，以便后续处理
         for (File imgFile : imgFiles) {
-            File outFile = genOutFile(imgFile, outDirPath, format);
+            File outFile = genOutFile(imgFile, taskConfig);
             ImageTransformTask imageTransformTask = new ImageTransformTask(imgFile, outFile, format);
             taskGroup.add(imageTransformTask);
         }
         return taskGroup;
-//        for (Map.Entry<String, List<File>> entry : sortedVolumeToImgFilesMap.entrySet()) {
-//            String volumeKey = entry.getKey();
-//            List<File> files = entry.getValue();
-//            TaskGroup<Runnable> taskGroup = new TaskGroup<>();
-//            taskGroup.setTaskAfterAllDone(() -> {
-//                //检查点 fixme 颗粒度问题
-//                System.out.println("任务组"+volumeKey+"执行完毕");
-//            });
-//            for (File file : files) {
-//                File outFile = genOutFile(file, outDirPath, format);
-//                ImageTransformTask imageTransformTask = new ImageTransformTask(file, outFile, format);
-//                taskGroup.add(imageTransformTask);
-//            }
-//        }
 
-            //找到依赖他的任务，并将自己加入到依赖他的任务的依赖队列中
-            // TODO: 2023/2/26 图片处理任务依赖问题，批处理任务依赖问题
+    // TODO: 2023/2/26 图片处理任务依赖问题，批处理任务依赖问题
 //                        taskConfig.getTaskDepentOn().
 //                        tasks.addLast(taskConfig.getTaskDepentOn().getTask());
     }
 
-    File genOutFile(File inFile, String outDirPath, String format) throws IOException {
-        // FIXME: 2023/2/26
+    File genOutFile(File inFile, AppConfig.ProcessTask taskConfig) throws IOException {
         String inFileName = inFile.getName();
-        String outFileName = inFileName.substring(0,inFileName.lastIndexOf(".")) + "." + format;
-        File outFile = new File(outDirPath, outFileName);
+        String outFileName = inFileName.substring(0,inFileName.lastIndexOf(".")) + "." + taskConfig.getFormat();
+
+        String outFilePath = inFile.getAbsolutePath()
+                .replace(taskConfig.getInDirPath(), taskConfig.getOutDirPath())
+                .replace(inFileName, outFileName);
+        File outFile = new File(outFilePath);
         FileUtils.forceMkdirParent(outFile);
         return outFile;
     }

@@ -2,15 +2,17 @@
 logging:
   file:
     name: ${app.base-out-dir-path}/log.txt
+  level:
+    com.example: debug
 
 #spring:
 #  profiles:
 #    active: dev
 
 app:
-  base-in-dir-path: /Users/gatsby/IdeaProjects/sb-img-util/src/main/resources
-  base-out-dir-path: output
-  blur-image-path: /Users/gatsby/IdeaProjects/sb-img-util/src/main/resources\blur.png
+  base-in-dir-path: D:\datasets\图片处理模板\1 扫描原图（TIFF格式）
+  base-out-dir-path: D:/output
+  blur-image-path: src/main/resources/blur.png
   #处理线程数
   max-worker-num: 8
   process-tasks:
@@ -20,7 +22,7 @@ app:
       out-dir-path: ${app.base-out-dir-path}/2 JP2000无损
       in-dir-path: ${app.base-in-dir-path}
       file-name-regex: ^(?!seka).*$ #不以seka开头的文件名
-      format: jpg
+      format: jpeg2000
       depend-on:
 
 #    DB1:

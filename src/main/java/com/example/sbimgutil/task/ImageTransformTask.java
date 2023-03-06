@@ -30,18 +30,14 @@ public class ImageTransformTask extends BaseTask{
 
     @Override
     public void doWork() {
-        switch (format){
-            case "jp2":
-            case "jpg":
-            case "tif":
-            case "tiff":{
+        switch (format) {
+            case "jpeg2000","jpg", "tif", "tiff" -> {
                 try {
                     BufferedImage bufferedImage = ImageIO.read(inFile);
-                    ImageIO.write(bufferedImage,"jpeg",outFile);
-                }catch (Exception e){
+                    ImageIO.write(bufferedImage, format, outFile);
+                } catch (Exception e) {
                     throw new RuntimeException(e);
                 }
-                break;
             }
         }
     }
