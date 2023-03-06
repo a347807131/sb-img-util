@@ -7,6 +7,7 @@ import lombok.Data;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 
@@ -19,6 +20,7 @@ public abstract class BaseTask implements ITask {
     protected Runnable taskBefore;
     protected Runnable taskAfter;
 
+    protected String taskName;
     protected TaskStateEnum state = TaskStateEnum.NEW;
 
     @Override
@@ -38,7 +40,7 @@ public abstract class BaseTask implements ITask {
     @Override
     public void after(){
         long between = LocalDateTimeUtil.between(startDate, LocalDateTime.now(), ChronoUnit.SECONDS);
-        log.debug("任务执行时间：{}s",between);
+        log.debug("任务完成:{},执行时间：{}s",taskName,between);
         state = TaskStateEnum.TERMINATED;
     }
 
@@ -49,7 +51,7 @@ public abstract class BaseTask implements ITask {
     }
 
     @Override
-    public void doWork() {
+    public void doWork() throws IOException {
 
     }
 

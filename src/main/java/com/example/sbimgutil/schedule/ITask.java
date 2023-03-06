@@ -1,5 +1,7 @@
 package com.example.sbimgutil.schedule;
 
+import java.io.IOException;
+
 public interface ITask extends Runnable {
 
     /**
@@ -20,7 +22,7 @@ public interface ITask extends Runnable {
     /**
      * 工作逻辑
      */
-    void doWork();
+    void doWork() throws Throwable;
 
     /**
      * 入口

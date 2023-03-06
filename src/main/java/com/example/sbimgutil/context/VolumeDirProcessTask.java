@@ -5,7 +5,7 @@ import com.example.sbimgutil.schedule.ITask;
 import com.example.sbimgutil.utils.ConsoleProgressBar;
 import com.example.sbimgutil.utils.FileFetchUtils;
 import com.example.sbimgutil.utils.PDFUtils;
-import com.example.sbimgutil.utils.TifUtils;
+import com.example.sbimgutil.utils.ImageUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
 
@@ -122,7 +122,7 @@ public class VolumeDirProcessTask implements ITask {
             BufferedImage blurBufferedImage = ImageIO.read(new File(processItem.getBlurImagePath()));
             bufferedImageToSave = ImageIO.read(oriTifFile);
             float scale = bufferedImageToSave.getHeight() / (4f * blurBufferedImage.getHeight());
-            TifUtils.drawBlurPic(bufferedImageToSave, blurBufferedImage, scale);
+            ImageUtils.drawBlurPic(bufferedImageToSave, blurBufferedImage, scale);
         }
         switch (format) {
             case "jp2": {
@@ -132,7 +132,7 @@ public class VolumeDirProcessTask implements ITask {
                 float limitM = compressLimit / 1024f;
                 if (limitM == 0) {
                     long s = System.currentTimeMillis();
-                    TifUtils.transformImgToJp2(bufferedImageToSave, Files.newOutputStream(outFile.toPath()));
+                    ImageUtils.transformImgToJp2(bufferedImageToSave, Files.newOutputStream(outFile.toPath()));
                     log.debug("转换jp2无损耗时{}s,文件名{}", (System.currentTimeMillis() - s)/1000f, oriTifFile.getAbsolutePath());
                     return;
                 }
@@ -140,7 +140,7 @@ public class VolumeDirProcessTask implements ITask {
                 long oriFileSizeM = oriTifFile.length() / (1024 * 1024);
                 while (fsize > limitM || fsize < limitM * 0.8) {
                     long s = System.currentTimeMillis();
-                    TifUtils.transformImgToJp2(bufferedImageToSave, Files.newOutputStream(outFile.toPath()), 0.5f, encoding);
+                    ImageUtils.transformImgToJp2(bufferedImageToSave, Files.newOutputStream(outFile.toPath()), 0.5f, encoding);
                     fsize = outFile.length() / (1024 * 1024f);
                     log.debug("压缩次数{},输出文件大小{}m,原文件大小{}m,编码率{},耗时{}s,文件名{}", compressTime,
                             fsize,oriFileSizeM , encoding,
@@ -158,7 +158,7 @@ public class VolumeDirProcessTask implements ITask {
             }
             case "jpg": {
                 long s = System.currentTimeMillis();
-                TifUtils.transformImgToJpg(bufferedImageToSave, Files.newOutputStream(outFile.toPath()), compressLimit);
+                ImageUtils.transformImgToJpg(bufferedImageToSave, Files.newOutputStream(outFile.toPath()), compressLimit);
                 log.debug("{}转化为jpg并输出共耗时{}s",oriTifFile,(System.currentTimeMillis()-s)/1000f);
                 break;
             }

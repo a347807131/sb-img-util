@@ -2,21 +2,34 @@ package com.example.sbimgutil.task;
 
 import com.example.sbimgutil.config.AppConfig;
 import com.example.sbimgutil.utils.FileFetchUtils;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.io.FileUtils;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.File;
+import java.io.FileFilter;
+import java.io.IOException;
+import java.nio.file.Files;
 import java.util.Comparator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
 import static com.example.sbimgutil.context.VolumeDirProcessTask.supported_file_filter;
-
+@Slf4j
 public class ImageTransformTask extends BaseTask{
 
 
     public static final Set<String> SUPORTTED_FORMATS = Set.of("pdf", "jp2", "jpg","tif","tiff");
+
+    public static final FileFilter SUPPORTED_FILE_FILTER = file -> {
+        if (file.isDirectory())
+            return true;
+        String lowerCasedName = file.getName().toLowerCase();
+        return SUPORTTED_FORMATS.stream().anyMatch(lowerCasedName::endsWith);
+    };
+
     private final File inFile;
     private final File outFile;
     private final String format;
@@ -26,18 +39,20 @@ public class ImageTransformTask extends BaseTask{
         this.inFile = inFile;
         this.outFile = outFile;
         this.format = format;
+        taskName= "格式转换: "+inFile.getName()+" to "+outFile.getAbsolutePath();
     }
 
     @Override
-    public void doWork() {
+    public void doWork() throws IOException {
+        FileUtils.forceMkdirParent(outFile);
         switch (format) {
-            case "jpeg2000","jpg", "tif", "tiff" -> {
-                try {
-                    BufferedImage bufferedImage = ImageIO.read(inFile);
-                    ImageIO.write(bufferedImage, format, outFile);
-                } catch (Exception e) {
-                    throw new RuntimeException(e);
-                }
+            case "jp2" -> {
+                BufferedImage bufferedImage = ImageIO.read(inFile);
+                ImageIO.write(bufferedImage, "jpeg2000", outFile);
+            }
+            case "jpg", "tif", "tiff" -> {
+                BufferedImage bufferedImage = ImageIO.read(inFile);
+                ImageIO.write(bufferedImage, format, outFile);
             }
         }
     }

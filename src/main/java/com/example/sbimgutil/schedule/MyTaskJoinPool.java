@@ -38,9 +38,11 @@ public class MyTaskJoinPool extends ForkJoinPool {
 
     public void start() throws ExecutionException, InterruptedException {
         for (Node node : nodes) {
-            node.state = TaskStateEnum.RUNNING;
+            if(node.state == TaskStateEnum.FINISHED)
+                continue;
             //不会阻塞
             ForkJoinTask<?> forkJoinTask = runTaskGroup(node.childrens);
+            node.state = TaskStateEnum.RUNNING;
 //            if (node.denpendOnLast)
             forkJoinTask.get();
             node.state = TaskStateEnum.FINISHED;

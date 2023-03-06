@@ -11,28 +11,38 @@ logging:
 
 app:
   base-in-dir-path: D:\datasets\图片处理模板\1 扫描原图（TIFF格式）
-  base-out-dir-path: D:/output
+  base-out-dir-path: D:\datasets\图片处理模板
   blur-image-path: src/main/resources/blur.png
   #处理线程数
   max-worker-num: 8
   process-tasks:
+
     IT1:
       task-type: IMAGE_TRANSFORM
       enable: true
       out-dir-path: ${app.base-out-dir-path}/2 JP2000无损
       in-dir-path: ${app.base-in-dir-path}
       file-name-regex: ^(?!seka).*$ #不以seka开头的文件名
-      format: jpeg2000
+      format: jp2
       depend-on:
 
-#    DB1:
-#      task-type: DRAW-BLUR
+#    IC1:
+#      task-type: IMAGE_COMPRESS
 #      enable: true
-#      out-dir-path: ${app.base-out-dir-path}/4 PDF/有水印
-#      in-dir-path: ${app.base-out-dir-path}/3 水印有损JP2000/有水印
+#      out-dir-path: ${app.base-out-dir-path}/3 水印有损JP2000/无水印
+#      in-dir-path: ${app.process-tasks.IT1.out-dir-path}
+#      file-name-regex: ^(?!seka).*$ #不以seka开头的文件名
+#      compress-limit: 500
+#      depend-on:
+
+#    DB1:
+#      task-type: DRAW_BLUR
+#      enable: true
+#      out-dir-path: ${app.base-out-dir-path}/3 水印有损JP2000/无水印
+#      in-dir-path: ${app.process-tasks.IC1.out-dir-path}
 #      file-name-regex: ^(?!seka).*$ #不以seka开头的文件名
 #      blur-image-path: ${app.blur-image-path}
-#      depend-on: 1
+#      depend-on: IC1
 #
 #    IC1:
 #      task-type: IMAGE-COMPRESS

@@ -1,8 +1,7 @@
 package com.example.sbimgutil;
 
 import cn.hutool.core.date.LocalDateTimeUtil;
-import com.example.sbimgutil.utils.TifUtils;
-import com.github.jaiimageio.jpeg2000.J2KImageWriteParam;
+import com.example.sbimgutil.utils.ImageUtils;
 //import com.itextpdf.text.BadElementException;
 //import com.itextpdf.text.Image;
 //import com.itextpdf.text.PageSize;
@@ -16,15 +15,10 @@ import lombok.extern.slf4j.Slf4j;
 //import org.apache.pdfbox.pdmodel.graphics.image.PDImageXObject;
 import org.junit.jupiter.api.Test;
 
-import javax.imageio.IIOImage;
 import javax.imageio.ImageIO;
-import javax.imageio.ImageWriter;
-import javax.imageio.stream.ImageOutputStream;
 import java.awt.image.BufferedImage;
 import java.io.*;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.Period;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
 
@@ -63,7 +57,7 @@ public class DemoTest {
             encoding = -0.001f * fsize + 0.227f;
             while (size > 0.5f || size < 0.4f) {
 //                bufferedImageToSave = ImageIO.read(outFile);
-                TifUtils.transformImgToJp2(bufferedImageToSave, new FileOutputStream(outFile), quality, encoding);
+                ImageUtils.transformImgToJp2(bufferedImageToSave, new FileOutputStream(outFile), quality, encoding);
                 size = outFile.length() / (1024 * 1024f);
                 log.info("输出文件大小{}m,原文件大小{}m", size, oriTifFile.length() / 1024);
                 System.out.println(encoding);
@@ -98,7 +92,7 @@ public class DemoTest {
         BufferedImage bufferedImageToSave = ImageIO.read(oriTifFile);
         float fsize = oriTifFile.length() / (1024f * 1024);
         float encoding = -0.001f * fsize + 0.227f;
-        TifUtils.transformImgToJp2(bufferedImageToSave, new FileOutputStream(outFile), quality, encoding);
+        ImageUtils.transformImgToJp2(bufferedImageToSave, new FileOutputStream(outFile), quality, encoding);
         log.info("输出文件大小{}m,原文件大小{}m", outFile.length() / 1024, oriTifFile.length() / 1024);
     }
 

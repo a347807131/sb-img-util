@@ -49,14 +49,12 @@ public class FileFetchUtils {
         return count;
     }
 
-    public static int countDir(File dir, FileFilter filter){
-        int count = 0;
-        File[] files = dir.listFiles(filter);
-        if (files==null) return count;
-        for (File file : files) {
-            if(file.isDirectory())
-                count+=countDir(file,filter)+1;
+    public static void fetchFileRecursively(Collection<File> container, Collection<File> dirs, FileFilter filter) {
+        for (File dir : dirs) {
+            fetchFileRecursively(container,dir,filter);
         }
-        return count;
+    }
+    public static void fetchFileRecursively(Collection<File> container, Collection<File> dirs) {
+        fetchFileRecursively(container,dirs,null);
     }
 }

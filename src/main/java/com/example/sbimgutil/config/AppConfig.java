@@ -24,7 +24,7 @@ public class AppConfig {
     Map<String,ProcessTask> processTasks;
 
     public List<ProcessTask> getEnabledProcessTaskConfigs(){
-        List<ProcessTask> enbaledTasks = processTasks.values().stream().filter(ProcessTask::isEnable).collect(Collectors.toList());
+        List<ProcessTask> enbaledTasks = processTasks.values().stream().filter(ProcessTask::isEnable).toList();
         for (ProcessTask task : enbaledTasks) {
             if (task.getDependOn() != null) {
                 ProcessTask taskDepentOn = processTasks.get(task.getDependOn());
