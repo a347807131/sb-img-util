@@ -1,6 +1,5 @@
 package com.example.sbimgutil.utils;
 
-import com.itextpdf.io.image.ImageDataFactory;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Test;
 
@@ -23,10 +22,10 @@ public class TifUtilsTest {
             log.info("原文件大小,{}",imgFile.length()/(1024*1024f));
             BufferedImage read = ImageIO.read(imgFile);
             File outF = new File("test");
-            TifUtils.transformImgToJpg(read, new FileOutputStream(outF),0);
+            ImageUtils.transformImgToJpg(read, new FileOutputStream(outF),0);
             log.info("转换jpg后文件大小,{}",outF.length()/(1024*1024f));
             read = ImageIO.read(new File("test"));
-            ImageIO.write(read,"tiff",new File("test"));
+            ImageIO.write(read,"JPEG2000",new File("test"));
             log.info("转换tiff后文件大小,{}",outF.length()/(1024*1024f));
         }
     }

@@ -1,29 +1,35 @@
 package com.example.sbimgutil.schedule;
 
-
 import java.util.Collection;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
-public abstract class AbstractTaskGroup extends LinkedList<Runnable> {
+public abstract class AbstractTaskGroup<R> extends LinkedList<Runnable> {
+
+    protected volatile TaskStateEnum state = TaskStateEnum.NEW;
 
     /**
      * 剩余未完成的任务的数量
      */
-    protected AtomicInteger taskCountAwaitingToFinish = new AtomicInteger(0);
+    protected AtomicInteger taskCountAwait = new AtomicInteger(0);
 
     public AbstractTaskGroup() {
     }
 
+    public TaskStateEnum getState() {
+        return state;
+    }
+
     public AbstractTaskGroup(Collection<? extends Runnable> taskQueue) {
         this.addAll(taskQueue);
-        this.taskCountAwaitingToFinish.addAndGet(taskQueue.size());
+        this.taskCountAwait.addAndGet(taskQueue.size());
     }
 
     @Override
     public boolean add(Runnable task) {
         var taskWrapper = this.wrapTask(task);
-        this.taskCountAwaitingToFinish.addAndGet(1);
+        this.taskCountAwait.addAndGet(1);
         return super.add(taskWrapper);
     }
 
@@ -33,7 +39,7 @@ public abstract class AbstractTaskGroup extends LinkedList<Runnable> {
         for (Runnable task : tasks) {
             list.add(this.wrapTask(task));
         }
-        this.taskCountAwaitingToFinish.addAndGet(list.size());
+        this.taskCountAwait.addAndGet(list.size());
         return super.addAll(list);
     }
 
@@ -69,5 +75,9 @@ public abstract class AbstractTaskGroup extends LinkedList<Runnable> {
      */
     protected Runnable wrapTask(Runnable task) {
         return task;
+    }
+
+    public List<Runnable> toList(){
+        return this;
     }
 }

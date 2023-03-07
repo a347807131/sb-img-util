@@ -4,34 +4,37 @@ import lombok.extern.slf4j.Slf4j;
 
 import java.util.Collection;
 import java.util.UUID;
+import java.util.concurrent.locks.ReentrantLock;
 
 
 /**
  * @author gatsby
  */
 @Slf4j
-public class TaskGroup extends AbstractTaskGroup {
+public class TaskGroup<T> extends AbstractTaskGroup<Runnable> {
+
+    protected final ReentrantLock firstStartLock = new ReentrantLock();
 
     protected volatile boolean cancelled = false;
 
-    int id;
-
-    String name;
+    protected String name;
 
     Runnable taskBeforeFirstStart = null;
 
     Runnable taskAfterAllDone = null;
 
+    volatile TaskStateEnum state = TaskStateEnum.NEW;
+
+    boolean denpendOnLast = false;
+
 
     public TaskGroup() {
         int code = UUID.randomUUID().hashCode();
-        this.id = code < 0 ? -code : code;
-        this.name = "task-group-" + id;
+        this.name = "task-group-" + code;
     }
 
     public TaskGroup(int id, String name, Collection<? extends Runnable> tasks) {
         super(tasks);
-        this.id = id;
         this.name = name;
     }
 
@@ -41,14 +44,6 @@ public class TaskGroup extends AbstractTaskGroup {
 
     public void setName(String name) {
         this.name = name;
-    }
-
-    public int getId() {
-        return id;
-    }
-
-    public void setId(int id) {
-        this.id = id;
     }
 
     /**
@@ -82,6 +77,7 @@ public class TaskGroup extends AbstractTaskGroup {
         if (taskAfterAllDone != null) {
             taskAfterAllDone.run();
         }
+        state = TaskStateEnum.FINISHED;
     }
 
     /**
@@ -115,7 +111,7 @@ public class TaskGroup extends AbstractTaskGroup {
             if (cancelled) {
                 return;
             }
-            int count = taskCountAwaitingToFinish.decrementAndGet();
+            int count = taskCountAwait.decrementAndGet();
             try {
                 synchronized (TaskGroup.this) {
                     if (count + 1 == size()) {

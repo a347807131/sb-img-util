@@ -11,16 +11,13 @@ import javax.imageio.ImageWriter;
 import javax.imageio.stream.ImageOutputStream;
 import java.awt.*;
 import java.awt.image.BufferedImage;
-import java.awt.image.RenderedImage;
 import java.io.*;
 import java.nio.file.Files;
-import java.rmi.server.ExportException;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Objects;
 
 @Slf4j
-public class TifUtils {
+public class ImageUtils {
     public static void drawBlurPic(BufferedImage oriBufferedImage, BufferedImage blurBufferedImage){
         Point point = new Point((oriBufferedImage.getWidth() - blurBufferedImage.getWidth()) / 2, (oriBufferedImage.getHeight() - blurBufferedImage.getHeight()) / 2);
         Graphics g = oriBufferedImage.getGraphics();
@@ -41,7 +38,7 @@ public class TifUtils {
         }
         IOUtils.write(bytes,outputStream);
     }
-    
+
     public static void transformImgToJp2(BufferedImage bufferedImage, File outFile, int limit) throws IOException {
         float fsize = bufferedImage.getData().getDataBuffer().getSize()/(1024*1024f);
         float oriFileSizeM=fsize;
@@ -59,7 +56,7 @@ public class TifUtils {
             compressTime += 1;
             OutputStream os = Files.newOutputStream(outFile.toPath());
             long s = System.currentTimeMillis();
-            TifUtils.transformImgToJp2(bufferedImage, os, 0.5f, encoding);
+            ImageUtils.transformImgToJp2(bufferedImage, os, 0.5f, encoding);
             os.close();
             fsize = outFile.length() / (1024 * 1024f);
             log.debug("压缩次数{},输出文件大小{}m,原文件大小{}m,编码率{},耗时{}s,文件名{}",
