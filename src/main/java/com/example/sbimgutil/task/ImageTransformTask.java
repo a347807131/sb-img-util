@@ -16,12 +16,11 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
-import static com.example.sbimgutil.context.VolumeDirProcessTask.supported_file_filter;
 @Slf4j
 public class ImageTransformTask extends BaseTask{
 
 
-    public static final Set<String> SUPORTTED_FORMATS = Set.of("pdf", "jp2", "jpg","tif","tiff");
+    public static final Set<String> SUPORTTED_FORMATS = Set.of("jp2", "jpg","tif","tiff");
 
     public static final FileFilter SUPPORTED_FILE_FILTER = file -> {
         if (file.isDirectory())

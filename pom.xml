@@ -10,7 +10,7 @@
     </parent>
     <groupId>com.example</groupId>
     <artifactId>sb-img-util</artifactId>
-    <version>2.0-SNAPSHOT</version>
+    <version>2.0</version>
     <name>sb-img-util</name>
     <description>sb-img-util</description>
     <packaging>jar</packaging>

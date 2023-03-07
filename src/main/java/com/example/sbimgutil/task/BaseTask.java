@@ -2,6 +2,7 @@ package com.example.sbimgutil.task;
 
 
 import cn.hutool.core.date.LocalDateTimeUtil;
+import com.example.sbimgutil.context.TaskExcutor;
 import com.example.sbimgutil.schedule.ITask;
 import lombok.Data;
 import org.apache.commons.io.FileUtils;
@@ -46,9 +47,12 @@ public abstract class BaseTask implements ITask {
     @Override
     public void after(){
         outFile.renameTo(new File(outFile.getParentFile(),outFile.getName().substring(0,outFile.getName().lastIndexOf("."))));
+
         long between = LocalDateTimeUtil.between(startDate, LocalDateTime.now(), ChronoUnit.SECONDS);
         log.debug("任务完成:{},执行时间：{}s",taskName,between);
         state = TaskStateEnum.TERMINATED;
+
+        TaskExcutor.getGlobalConsoleProgressBar().iterate();
     }
 
     @Override

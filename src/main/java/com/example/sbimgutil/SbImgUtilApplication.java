@@ -1,7 +1,6 @@
 package com.example.sbimgutil;
 
 import com.example.sbimgutil.config.AppConfig;
-import com.example.sbimgutil.context.ProcessExcutor;
 import com.example.sbimgutil.context.TaskExcutor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.autoconfigure.SpringBootApplication;

@@ -6,15 +6,16 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ForkJoinPool;
 import java.util.concurrent.ForkJoinTask;
 import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.atomic.AtomicInteger;
 
-public class MyTaskJoinPool extends ForkJoinPool {
+public class TaskScheduleForkJoinPool extends ForkJoinPool {
 
-    public MyTaskJoinPool() {
+    public TaskScheduleForkJoinPool() {
         super();
     }
 
 
-    public MyTaskJoinPool(int parallelism) {
+    public TaskScheduleForkJoinPool(int parallelism) {
         super(parallelism);
     }
 
@@ -57,6 +58,12 @@ public class MyTaskJoinPool extends ForkJoinPool {
         boolean denpendOnLast = false;
         TaskStateEnum state = TaskStateEnum.WAITING;
         List<Runnable> childrens = new LinkedList<>();
+    }
+
+    public int getTaskCount(){
+        AtomicInteger count = new AtomicInteger();
+        nodes.forEach(e-> count.addAndGet(e.childrens.size()));
+        return count.get();
     }
 
 }

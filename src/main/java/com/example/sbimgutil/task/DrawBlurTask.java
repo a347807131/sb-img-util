@@ -16,6 +16,7 @@ public class DrawBlurTask extends BaseTask{
         this.inFile = inFile;
         this.outFile = outFile;
         this.blurImageFile = blurImageFile;
+        taskName= "绘制水印图: "+inFile.getName()+" to "+outFile.getAbsolutePath();
     }
 
     @Override
@@ -24,7 +25,6 @@ public class DrawBlurTask extends BaseTask{
         BufferedImage blurBufferedImage = ImageIO.read(blurImageFile);
         BufferedImage bufferedImage = ImageIO.read(inFile);
         float scale = bufferedImage.getHeight() / (4f * blurBufferedImage.getHeight());
-        ImageUtils.drawBlurPic(blurBufferedImage, blurBufferedImage, scale);
         ImageUtils.drawBlurPic(bufferedImage, blurBufferedImage, scale);
         switch (format) {
             case "jp2" -> {

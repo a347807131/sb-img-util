@@ -1,7 +1,7 @@
 package com.example.sbimgutil.context;
 
 import com.example.sbimgutil.config.AppConfig;
-import com.example.sbimgutil.schedule.MyTaskJoinPool;
+import com.example.sbimgutil.schedule.TaskScheduleForkJoinPool;
 import com.example.sbimgutil.schedule.TaskGroup;
 import com.example.sbimgutil.task.*;
 import com.example.sbimgutil.utils.ConsoleProgressBar;
@@ -12,22 +12,27 @@ import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class TaskExcutor {
 
     private final AppConfig appConfig;
 
-    MyTaskJoinPool myTaskJoinPool = new MyTaskJoinPool(8);
+    TaskScheduleForkJoinPool myTaskJoinPool;
 
-    public final static ConsoleProgressBar CPB = new ConsoleProgressBar();
+    public static ConsoleProgressBar CPB;
 
     public TaskExcutor(AppConfig appConfig){
         this.appConfig = appConfig;
+        myTaskJoinPool = new TaskScheduleForkJoinPool(appConfig.getMaxWorkerNum());
     }
 
     public void execute() throws ExecutionException, InterruptedException, IOException {
         Map<String, AppConfig.ProcessTask> taskMap = appConfig.getProcessTasks();
-        for (Map.Entry<String, AppConfig.ProcessTask> entry : taskMap.entrySet()) {
+        List<Map.Entry<String, AppConfig.ProcessTask>> taskEntrys = taskMap.entrySet().stream().filter(e -> e.getValue().isEnable()).toList();
+
+        int step = 1;int totalStep = taskMap.size();
+        for (Map.Entry<String, AppConfig.ProcessTask> entry : taskEntrys) {
             if (!entry.getValue().isEnable())
                 continue;
             AppConfig.ProcessTask taskConfig = entry.getValue();
@@ -50,27 +55,31 @@ public class TaskExcutor {
                     imgFile -> fileNameRegex == null || imgFile.getName().matches(fileNameRegex)
             ).toList();
 
-            TaskGroup<Runnable> taskGroup = new TaskGroup<>() {
-            };
+            TaskGroup<Runnable> taskGroup = new ProcessTaskGroup(entry.getKey());
 
             switch (taskTypeEnum) {
                 case PDF_MERGE: {
                     LinkedHashMap<File, List<File>> dirToImgFilesMap = loadSortedDirToImgFilesMap(imgFiles);
                     for (Map.Entry<File, List<File>> entry1 : dirToImgFilesMap.entrySet()) {
                         File dirThatFilesBelong = entry1.getKey();
+                        File pdfOutFile =
+                                genPdfOutFile(dirThatFilesBelong, taskConfig);
+                        if (pdfOutFile.exists())
+                            continue;
+                        String cataDirPath = taskConfig.getCataDirPath();
+                        //中段
+                        String interlude = dirThatFilesBelong.getAbsolutePath().replace(new File(inDirPath).getAbsolutePath(), "");
                         List<File> imgs = entry1.getValue();
-                        File pdfOutFile = genPdfOutFile(dirThatFilesBelong, taskConfig);
-                        // TODO: 3/6/2023 目录文件
-                        PdfMergeTask task = new PdfMergeTask(imgs, pdfOutFile);
+                        String cataFilePath=cataDirPath+interlude+ ".txt";
+                        File cataFile=new File(cataFilePath);
+
+                        PdfMergeTask task = new PdfMergeTask(imgs, pdfOutFile,cataFile);
                         taskGroup.add(task);
                     }
                 }
                 case IMAGE_TRANSFORM, IMAGE_COMPRESS, DRAW_BLUR: {
                     //非pdf合并走这边
                     for (File imgFile : imgFiles) {
-                        if (fileNameRegex != null && !imgFile.getName().matches(fileNameRegex)) {
-                            continue;
-                        }
                         File outFile = genOutFile(imgFile, taskConfig);
                         if (outFile.exists()) {
                             continue;
@@ -93,8 +102,15 @@ public class TaskExcutor {
                 }
             }
             myTaskJoinPool.scheduleBatch(taskGroup);
+            // FIXME: 3/7/2023 进度条实现过于丑陋
+            CPB=new ConsoleProgressBar(taskGroup.size(),step,totalStep);
             myTaskJoinPool.start();
+            step+=1;
         }
+    }
+
+    public static ConsoleProgressBar getGlobalConsoleProgressBar(){
+        return CPB;
     }
 
     LinkedHashMap<File, List<File>> loadSortedDirToImgFilesMap(List<File> imgFiles) {
@@ -114,7 +130,7 @@ public class TaskExcutor {
         String outFileName = dirFilesBelong.getName() + ".pdf";
 
         String outFilePath = dirFilesBelong.getAbsolutePath()
-                .replace(taskConfig.getInDirPath(), taskConfig.getOutDirPath())
+                .replace(new File(taskConfig.getInDirPath()).getAbsolutePath(), taskConfig.getOutDirPath())
                 .replace(dirFilesBelong.getName(), outFileName);
         return new File(outFilePath);
     }
@@ -128,16 +144,8 @@ public class TaskExcutor {
         );
         String outFileName =inFileName;
         if(taskConfig.getFormat()!=null){
-            String format= inFileName.substring(inFileName.lastIndexOf(".")+1);
             outFileName = inFileName.substring(0,inFileName.lastIndexOf(".")) + "." + taskConfig.getFormat();
         }
-
         return new File(newDirPath, outFileName);
     }
-}
-enum TaskTypeEnum{
-    IMAGE_TRANSFORM,
-    PDF_MERGE,
-    IMAGE_COMPRESS,
-    DRAW_BLUR
 }

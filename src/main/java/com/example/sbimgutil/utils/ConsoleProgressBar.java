@@ -9,6 +9,8 @@ public class ConsoleProgressBar {
     private static final DecimalFormat floatPercentFormater = new DecimalFormat("0.00%");
     private static final DecimalFormat floatFormater = new DecimalFormat("0.00");
     private final AtomicInteger currentValue = new AtomicInteger(0);
+    private final int totalStep;
+    private final int step;
     private volatile long currentSpeed = 1024 * 1000;
     char progressChar = '#';
     char waitChar = '-';
@@ -18,11 +20,20 @@ public class ConsoleProgressBar {
 
     private long startTime;
 
-    public ConsoleProgressBar() {
-    }
+//    public ConsoleProgressBar() {
+//        this.step = 0;
+//        this.totalStep = 1;
+//    }
 
     public ConsoleProgressBar(int total) {
         this.total .set(total);
+        this.step = 0;
+        this.totalStep = 1;
+    }
+    public ConsoleProgressBar(int total,int step,int totalStep) {
+        this.total .set(total);
+        this.step = step;
+        this.totalStep = totalStep;
     }
 
     public synchronized void iterate() {
@@ -42,7 +53,7 @@ public class ConsoleProgressBar {
     synchronized void show(int value) {
         last=value;
         int totalV=total.get();
-//        System.out.print('\r');
+        System.out.print('\r');
 //        System.out.print(ColorEnum.RED.value);
         // 比例
         float rate = value * 1f / totalV;
@@ -64,10 +75,11 @@ public class ConsoleProgressBar {
         sb.append(" |").append(floatFormater.format(speed)).append(" avg spi");
         sb.append(" |").append( genHMS(secondsLeft));
         sb.append(" |").append(totalV - value).append(" units left");
+        sb.append(" |").append(step).append("/").append(totalStep);
         System.out.println(sb);
     }
 
-    static String genHMS(long second) {
+    public static String genHMS(long second) {
 
         String str = "00:00:00";
         if (second < 0) {
