@@ -5,6 +5,7 @@ import cn.hutool.core.date.LocalDateTimeUtil;
 import com.example.sbimgutil.context.TaskExcutor;
 import com.example.sbimgutil.schedule.ITask;
 import lombok.Data;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -15,9 +16,9 @@ import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 
 
+@Slf4j
 public abstract class BaseTask implements ITask {
 
-    protected Logger log = LoggerFactory.getLogger(BaseTask.class);
 
     private LocalDateTime startDate;
     protected Runnable taskBefore;
@@ -59,6 +60,7 @@ public abstract class BaseTask implements ITask {
     public void onError(Throwable e) {
         state = TaskStateEnum.ERROR;
         log.error("任务执行异常",e);
+        outFile.delete();
     }
 
     @Override

@@ -1,6 +1,7 @@
 package com.example.sbimgutil.task;
 
 import com.example.sbimgutil.utils.PDFUtils;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
 
 import java.io.File;
@@ -9,7 +10,7 @@ import java.io.OutputStream;
 import java.nio.file.Files;
 import java.util.Comparator;
 import java.util.List;
-
+@Slf4j
 public class PdfMergeTask extends BaseTask {
 
     private List<File> inFiles;

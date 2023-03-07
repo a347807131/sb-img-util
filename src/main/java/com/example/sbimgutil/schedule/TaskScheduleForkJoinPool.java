@@ -45,8 +45,13 @@ public class TaskScheduleForkJoinPool extends ForkJoinPool {
             ForkJoinTask<?> forkJoinTask = runTaskGroup(node.childrens);
             node.state = TaskStateEnum.RUNNING;
 //            if (node.denpendOnLast)
-            forkJoinTask.get();
-            node.state = TaskStateEnum.FINISHED;
+            try {
+                forkJoinTask.get();
+                node.state = TaskStateEnum.FINISHED;
+            } catch (Exception e) {
+                node.state=TaskStateEnum.ERROR;
+            }
+
         }
     }
 

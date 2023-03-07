@@ -1,12 +1,14 @@
 package com.example.sbimgutil.task;
 
 import com.example.sbimgutil.utils.ImageUtils;
+import lombok.extern.slf4j.Slf4j;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 
+@Slf4j
 public class DrawBlurTask extends BaseTask{
 
     private final File inFile;

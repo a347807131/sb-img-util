@@ -1,0 +1,13 @@
+
+logging:
+  config: classpath:logback-spring.xml
+  level:
+    com.example: DEBUG
+
+app:
+  #输入目录
+  base-in-dir-path: D:\datasets\图片处理模板\1 扫描原图（TIFF格式）
+  #输出目录
+  base-out-dir-path: D:\output
+  #水印图片路径
+  blur-image-path: src/main/resources/blur.png
