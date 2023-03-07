@@ -3,7 +3,7 @@ logging:
   file:
     name: ${app.base-out-dir-path}/log.txt
   level:
-    com.example: debug
+    com.example: info
 
 #spring:
 #  profiles:
@@ -43,4 +43,4 @@ app:
       in-dir-path: ${app.process-tasks.IC1.out-dir-path}
       file-name-regex: ^(?!seka).*$ #不以seka开头的文件名
       cata-dir-path: ${app.cata-dir-path}
-      depend-on: 2
+      depend-on:

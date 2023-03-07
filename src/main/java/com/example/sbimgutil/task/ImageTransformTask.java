@@ -1,6 +1,7 @@
 package com.example.sbimgutil.task;
 
 import com.example.sbimgutil.config.AppConfig;
+import com.example.sbimgutil.utils.Const;
 import com.example.sbimgutil.utils.FileFetchUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
@@ -19,14 +20,11 @@ import java.util.Set;
 @Slf4j
 public class ImageTransformTask extends BaseTask{
 
-
-    public static final Set<String> SUPORTTED_FORMATS = Set.of("jp2", "jpg","tif","tiff");
-
     public static final FileFilter SUPPORTED_FILE_FILTER = file -> {
         if (file.isDirectory())
             return true;
         String lowerCasedName = file.getName().toLowerCase();
-        return SUPORTTED_FORMATS.stream().anyMatch(lowerCasedName::endsWith);
+        return Const.SUPORTTED_FORMATS.stream().anyMatch(lowerCasedName::endsWith);
     };
 
     private final File inFile;
