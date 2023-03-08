@@ -31,14 +31,16 @@ public class PdfMergeTask extends BaseTask {
     public void doWork() {
         inFiles = inFiles.stream().sorted(Comparator.comparing(File::getName)).toList();
         try (OutputStream os = Files.newOutputStream(outFile.toPath())) {
-            if (cataFile == null) {
-                PDFUtils.mergeIntoPdf(inFiles, os);
+            if (cataFile == null || !cataFile.exists()) {
+                log.error("cataFile is null" + outFile.getAbsolutePath());
+                throw new RuntimeException("cataFile is null" + outFile.getAbsolutePath());
             } else {
                 PDFUtils.mergeIntoPdf(inFiles, cataFile, os);
-                FileUtils.copyFile(cataFile, new File(outFile.getParentFile(), cataFile.getName()));
+                File txtCopiedFile = new File(outFile.getParentFile(), cataFile.getName());
+                Files.copy(cataFile.toPath(), txtCopiedFile.toPath());
             }
         } catch (Exception e) {
-            log.error("merge pdf:{} error",outFile, e);
+            log.error("merge pdf:{} error,目录文件:{}", outFile, cataFile, e);
             throw new RuntimeException(e);
         }
     }

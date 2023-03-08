@@ -60,7 +60,6 @@ public abstract class BaseTask implements ITask {
     public void onError(Throwable e) {
         state = TaskStateEnum.ERROR;
         log.error("任务执行异常",e);
-        outFile.delete();
     }
 
     @Override
