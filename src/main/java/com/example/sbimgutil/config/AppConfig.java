@@ -21,47 +21,17 @@ public class AppConfig {
     String baseInDirPath;
     String baseOutDirPath;
     String blurImagePath;
-    Map<String,ProcessTask> processTasks;
+    String cataDirPath;
+    Map<String, ProcessTask> processTasks;
 
     public List<ProcessTask> getEnabledProcessTaskConfigs(){
         List<ProcessTask> enbaledTasks = processTasks.values().stream().filter(ProcessTask::isEnable).toList();
         for (ProcessTask task : enbaledTasks) {
             if (task.getDependOn() != null) {
                 ProcessTask taskDepentOn = processTasks.get(task.getDependOn());
-                task.setTaskDepentOn(taskDepentOn);
             }
         }
-
         return null;
-    }
-
-    @Data
-    static public class ProcessItem{
-        boolean enable;
-        boolean withBlur;
-        String blurImagePath;
-        int compressLimit;
-        String outDirPath;
-        String format;
-        String resourceDirPath;
-        String fileNameRegex;
-        String cataDirPath;
-
-        @Override
-        public String toString() {
-            return "ProcessItem{" +
-                    "enable=" + enable +
-                    ", withBlur=" + withBlur +
-                    ", blurImagePath='" + blurImagePath + '\'' +
-                    ", compressLimit=" + compressLimit +
-                    ", outDirPath='" + outDirPath + '\'' +
-                    ", format='" + format + '\'' +
-                    ", resourceDirPath='" + resourceDirPath + '\'' +
-                    ", fileNameRegex='" + fileNameRegex + '\'' +
-                    ", cataDirPath='" + cataDirPath + '\'' +
-                    ", hashCode='"+hashCode()+ '\''+
-                    '}';
-        }
     }
 
     @Data
@@ -76,6 +46,5 @@ public class AppConfig {
         String fileNameRegex;
         String cataDirPath;
         String dependOn;
-        ProcessTask taskDepentOn;
     }
 }

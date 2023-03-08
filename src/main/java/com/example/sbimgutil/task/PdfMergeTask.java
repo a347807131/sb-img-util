@@ -40,7 +40,7 @@ public class PdfMergeTask extends BaseTask {
                 Files.copy(cataFile.toPath(), txtCopiedFile.toPath());
             }
         } catch (Exception e) {
-            log.error("merge pdf:{} error,目录文件:{}", outFile, cataFile, e);
+            log.error("merge pdf:{} error", outFile, e);
             throw new RuntimeException(e);
         }
     }

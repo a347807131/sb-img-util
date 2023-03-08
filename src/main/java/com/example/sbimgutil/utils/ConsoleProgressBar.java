@@ -1,5 +1,7 @@
 package com.example.sbimgutil.utils;
 
+import org.springframework.stereotype.Component;
+
 import java.text.DecimalFormat;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -25,13 +27,18 @@ public class ConsoleProgressBar {
 //        this.totalStep = 1;
 //    }
 
+    public int getTotal() {
+        return total.get();
+    }
+
     public ConsoleProgressBar(int total) {
-        this.total .set(total);
+        this.total.set(total);
         this.step = 0;
         this.totalStep = 1;
     }
-    public ConsoleProgressBar(int total,int step,int totalStep) {
-        this.total .set(total);
+
+    public ConsoleProgressBar(int total, int step, int totalStep) {
+        this.total.set(total);
         this.step = step;
         this.totalStep = totalStep;
     }
@@ -50,9 +57,10 @@ public class ConsoleProgressBar {
 
 
     int last=0;
-    synchronized void show(int value) {
-        last=value;
-        int totalV=total.get();
+
+    synchronized String show(int value) {
+        last = value;
+        int totalV = total.get();
         System.out.print('\r');
 //        System.out.print(ColorEnum.RED.value);
         // 比例
@@ -73,10 +81,15 @@ public class ConsoleProgressBar {
 
         sb.append(" |").append(floatPercentFormater.format(rate));
         sb.append(" |").append(floatFormater.format(speed)).append(" avg spi");
-        sb.append(" |").append( genHMS(secondsLeft));
+        sb.append(" |").append(genHMS(secondsLeft));
         sb.append(" |").append(totalV - value).append(" units left");
         sb.append(" |").append(step).append("/").append(totalStep);
         System.out.println(sb);
+        return sb.toString();
+    }
+
+    public String getProgress() {
+        return show(last);
     }
 
     public static String genHMS(long second) {

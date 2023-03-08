@@ -3,11 +3,15 @@ logging:
   file:
     name: ./log.txt
 
+#spring:
+#  profiles:
+#    active: dev
+
 app:
   #输入目录
-  base-in-dir-path:
+  base-in-dir-path: D:\datasets\图片处理模板\1 扫描原图（TIFF格式）
   #输出目录
-  base-out-dir-path:
+  base-out-dir-path: D:\output
   #水印图片路径
   blur-image-path: blur.png
   #目录文件所在目录
@@ -16,47 +20,44 @@ app:
   max-worker-num: 8
   #处理项
   process-tasks:
-    IT1:
+    IMAGE_TRANSFORM:
       #任务类型 目前只有4重类型：IMAGE_TRANSFORM、IMAGE_COMPRESS、DRAW_BLUR、PDF_MERGE
       task-type: IMAGE_TRANSFORM
       #是否启用
-      enable: true
+      enable: false
       #输出目录
       out-dir-path: ${app.base-out-dir-path}/2 JP2000无损
-        #输入目录
+      #输入目录
       in-dir-path: ${app.base-in-dir-path}
-        #文件名正则表达式
+      #文件名正则表达式
       file-name-regex: ^(?!seka).*$ #不以seka开头的文件名
         #输出格式
       format: jp2
       #暂时不用
       depend-on:
 
-    IC1:
+    IMAGE_COMPRESS:
       task-type: IMAGE_COMPRESS
-      enable: true
+      enable: false
       out-dir-path: ${app.base-out-dir-path}/3 水印有损JP2000/无水印
-      in-dir-path: ${app.process-tasks.IT1.out-dir-path}
+      in-dir-path: ${app.base-in-dir-path}
       file-name-regex: #^(?!seka).*$ #不以seka开头的文件名
       #压缩限制大小
       compress-limit: 500
-      depend-on:
 
-    DB1:
+    DRAW_BLUR:
       task-type: DRAW_BLUR
-      enable: true
+      enable: false
       out-dir-path: ${app.base-out-dir-path}/3 水印有损JP2000/有水印
-      in-dir-path: ${app.process-tasks.IC1.out-dir-path}
+      in-dir-path: ${app.base-in-dir-path}
       file-name-regex: #^(?!seka).*$ #不以seka开头的文件名
       blur-image-path: ${app.blur-image-path}
-      depend-on: IC1
 
-    PM1:
+    PDF_MERGE:
       task-type: PDF_MERGE
-      enable: true
+      enable: false
       out-dir-path: ${app.base-out-dir-path}/4 PDF/无水印
-      in-dir-path: ${app.process-tasks.IC1.out-dir-path}
-      file-name-regex: #^(?!seka).*$ #不以seka开头的文件名
+      in-dir-path: ${app.base-in-dir-path}
+      file-name-regex: ^(?!seka).*$ #不以seka开头的文件名
       #目录文件所在目录
       cata-dir-path: ${app.cata-dir-path}
-      depend-on:

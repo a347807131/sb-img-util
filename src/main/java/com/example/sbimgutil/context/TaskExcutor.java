@@ -6,6 +6,7 @@ import com.example.sbimgutil.schedule.TaskGroup;
 import com.example.sbimgutil.task.*;
 import com.example.sbimgutil.utils.ConsoleProgressBar;
 import com.example.sbimgutil.utils.FileFetchUtils;
+import org.apache.logging.log4j.util.Strings;
 
 import java.io.File;
 import java.io.IOException;
@@ -16,22 +17,31 @@ import java.util.stream.Stream;
 
 public class TaskExcutor {
 
-    private final AppConfig appConfig;
 
     TaskScheduleForkJoinPool myTaskJoinPool;
+    Map<String, AppConfig.ProcessTask> processTasks;
 
     public static ConsoleProgressBar CPB;
 
-    public TaskExcutor(AppConfig appConfig){
-        this.appConfig = appConfig;
+    public TaskExcutor(AppConfig appConfig) throws IOException {
+        processTasks = appConfig.getProcessTasks();
         myTaskJoinPool = new TaskScheduleForkJoinPool(appConfig.getMaxWorkerNum());
+        init();
     }
 
-    public void execute() throws ExecutionException, InterruptedException, IOException {
-        Map<String, AppConfig.ProcessTask> taskMap = appConfig.getProcessTasks();
+    public TaskExcutor(AppConfig.ProcessTask processTask, String taskName, int maxWorkerNum) throws IOException {
+        myTaskJoinPool = new TaskScheduleForkJoinPool(maxWorkerNum);
+        processTasks = new HashMap<>();
+        processTasks.put(taskName, processTask);
+        init();
+    }
+
+    public void init() throws IOException {
+        Map<String, AppConfig.ProcessTask> taskMap = processTasks;
         List<Map.Entry<String, AppConfig.ProcessTask>> taskEntrys = taskMap.entrySet().stream().filter(e -> e.getValue().isEnable()).toList();
 
-        int step = 1;int totalStep = taskMap.size();
+        int step = 1;
+        int totalStep = taskMap.size();
         for (Map.Entry<String, AppConfig.ProcessTask> entry : taskEntrys) {
             if (!entry.getValue().isEnable())
                 continue;
@@ -52,7 +62,7 @@ public class TaskExcutor {
             String fileNameRegex = taskConfig.getFileNameRegex();
 
             imgFiles = imgFiles.stream().filter(
-                    imgFile -> fileNameRegex == null || imgFile.getName().matches(fileNameRegex)
+                    imgFile -> Strings.isBlank(fileNameRegex) || imgFile.getName().matches(fileNameRegex)
             ).toList();
 
             TaskGroup<Runnable> taskGroup = new ProcessTaskGroup(entry.getKey());
@@ -103,13 +113,20 @@ public class TaskExcutor {
             }
             myTaskJoinPool.scheduleBatch(taskGroup);
             // FIXME: 3/7/2023 进度条实现过于丑陋
-            CPB=new ConsoleProgressBar(taskGroup.size(),step,totalStep);
-            myTaskJoinPool.start();
-            step+=1;
+            CPB = new ConsoleProgressBar(taskGroup.size(), step, totalStep);
+            step += 1;
         }
     }
 
-    public static ConsoleProgressBar getGlobalConsoleProgressBar(){
+    public void start() throws ExecutionException, InterruptedException {
+        myTaskJoinPool.start();
+    }
+
+    public int getTotalTask() {
+        return CPB.getTotal();
+    }
+
+    public static ConsoleProgressBar getGlobalConsoleProgressBar() {
         return CPB;
     }
 
