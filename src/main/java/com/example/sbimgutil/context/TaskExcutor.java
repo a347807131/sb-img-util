@@ -160,8 +160,8 @@ public class TaskExcutor {
                 taskConfig.getOutDirPath()
         );
         String outFileName =inFileName;
-        if(taskConfig.getFormat()!=null){
-            outFileName = inFileName.substring(0,inFileName.lastIndexOf(".")) + "." + taskConfig.getFormat();
+        if (Strings.isNotBlank(taskConfig.getFormat())) {
+            outFileName = inFileName.substring(0, inFileName.lastIndexOf(".")) + "." + taskConfig.getFormat();
         }
         return new File(newDirPath, outFileName);
     }

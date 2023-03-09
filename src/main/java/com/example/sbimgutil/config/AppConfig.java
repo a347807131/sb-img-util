@@ -39,7 +39,7 @@ public class AppConfig {
         String taskType;
         boolean enable;
         String blurImagePath;
-        int compressLimit;
+        int compressLimit = 500;
         String outDirPath;
         String inDirPath;
         String format;
