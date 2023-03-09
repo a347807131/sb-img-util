@@ -19,12 +19,10 @@ public class WorkItemChoosePanel extends JPanel {
             radioButton.setActionCommand(taskTypeEnum.name());
             group.add(radioButton);
             add(radioButton);
-            radioButton.setSelected(true);
-
-
             jRadioButtons[i] = radioButton;
             i += 1;
         }
+        jRadioButtons[0].setSelected(true);
     }
 
     public TaskTypeEnum getSelectedTaskType() {

@@ -40,8 +40,6 @@ public class TaskExcutor {
         Map<String, AppConfig.ProcessTask> taskMap = processTasks;
         List<Map.Entry<String, AppConfig.ProcessTask>> taskEntrys = taskMap.entrySet().stream().filter(e -> e.getValue().isEnable()).toList();
 
-        int step = 1;
-        int totalStep = taskMap.size();
         for (Map.Entry<String, AppConfig.ProcessTask> entry : taskEntrys) {
             if (!entry.getValue().isEnable())
                 continue;
@@ -113,8 +111,7 @@ public class TaskExcutor {
             }
             myTaskJoinPool.scheduleBatch(taskGroup);
             // FIXME: 3/7/2023 进度条实现过于丑陋
-            CPB = new ConsoleProgressBar(taskGroup.size(), step, totalStep);
-            step += 1;
+            CPB = new ConsoleProgressBar(taskGroup.size());
         }
     }
 

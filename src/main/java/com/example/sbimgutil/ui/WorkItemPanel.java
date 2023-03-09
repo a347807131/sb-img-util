@@ -1,18 +1,20 @@
 package com.example.sbimgutil.ui;
 
 import com.example.sbimgutil.config.AppConfig;
+import com.example.sbimgutil.utils.Const;
 
 import javax.swing.*;
 
 public class WorkItemPanel extends JPanel {
 
     private final CommonInputPanel fileNameRegInputPanel;
-    private final CommonInputPanel formateInputPanel;
+//    private final CommonInputPanel formateInputPanel;
 
     private FilePathInputPanel pathInputPanel;
     private FilePathInputPanel pathOutPanel;
     private FilePathInputPanel cataDirInputPanel;
     private FilePathInputPanel blurImgFileInputPanel;
+    JComboBox<String> comboBox;
 
     WorkItemPanel(AppConfig.ProcessTask processTask) {
         super();
@@ -27,20 +29,25 @@ public class WorkItemPanel extends JPanel {
         cataDirInputPanel = new FilePathInputPanel("pdf目录所在文件夹");
         cataDirInputPanel.setFilePath(processTask.getCataDirPath());
 
-        blurImgFileInputPanel = new FilePathInputPanel("水印文件位置");
+        blurImgFileInputPanel = new FilePathInputPanel("水印文件位置", JFileChooser.FILES_ONLY);
         blurImgFileInputPanel.setFilePath(processTask.getBlurImagePath());
 
         fileNameRegInputPanel = new CommonInputPanel("文件名正则表达式", processTask.getFileNameRegex(), 10);
 
-        formateInputPanel = new CommonInputPanel("目标格式", processTask.getFormat());
+
+        JPanel formatPanel = new JPanel();
+        JLabel formatLabel = new JLabel("目标格式");
+        comboBox = new JComboBox<>(Const.SUPORTTED_FORMATS.toArray(new String[]{}));
+        formatPanel.add(formatLabel);
+        formatPanel.add(comboBox);
 
 
         add(pathInputPanel);
         add(pathOutPanel);
         add(cataDirInputPanel);
         add(fileNameRegInputPanel);
-        add(formateInputPanel);
         add(blurImgFileInputPanel);
+        add(formatPanel);
     }
 
     public AppConfig.ProcessTask getProcessTask() {
@@ -50,7 +57,7 @@ public class WorkItemPanel extends JPanel {
         processTask.setCataDirPath(cataDirInputPanel.getFilePath());
         processTask.setBlurImagePath(blurImgFileInputPanel.getFilePath());
         processTask.setFileNameRegex(fileNameRegInputPanel.getValue());
-        processTask.setFormat(formateInputPanel.getValue());
+        processTask.setFormat(comboBox.getSelectedItem().toString());
 
         processTask.setEnable(true);
         return processTask;

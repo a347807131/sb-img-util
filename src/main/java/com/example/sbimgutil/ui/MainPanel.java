@@ -31,35 +31,35 @@ public class MainPanel extends JPanel {
 
     private void init() {
 
-        JButton startBtn = new JButton("开始");
-        add(startBtn);
-
         taskItemChoosePanel = new WorkItemChoosePanel();
         add(taskItemChoosePanel);
         String taskTypeName = taskItemChoosePanel.getSelectedTaskType().name();
         workNumInputPanel = new CommonInputPanel("最大线程数", String.valueOf(appConfig.getMaxWorkerNum()));
+        add(workNumInputPanel);
+
+        JPanel middlePanel = new JPanel();
+        add(middlePanel);
 //
         final WorkItemPanel[] workItemPanel = {new WorkItemPanel(appConfig.getProcessTasks().get(taskTypeName))};
+        middlePanel.add(workItemPanel[0]);
 
-        add(workItemPanel[0]);
-
+        JButton startBtn = new JButton("开始");
+        add(startBtn);
 
         taskItemChoosePanel.addItemListener(e -> {
             String actionCommand = e.getActionCommand();
             TaskTypeEnum taskTypeEnum = TaskTypeEnum.parse(actionCommand);
             WorkItemPanel workItemPanel1 = new WorkItemPanel(appConfig.getProcessTasks().get(taskTypeEnum.name()));
 
-            remove(workItemPanel[0]);
+            middlePanel.remove(workItemPanel[0]);
             workItemPanel[0] = workItemPanel1;
-            add(workItemPanel[0]);
+            middlePanel.add(workItemPanel[0]);
 
-            revalidate();
-            repaint();
+            middlePanel.revalidate();
+            middlePanel.repaint();
         });
 
         startBtn.addActionListener(e -> {
-            JDialog jDialog = new JDialog();
-            jDialog.setTitle("进度");
 
             AppConfig.ProcessTask processTask = workItemPanel[0].getProcessTask();
             TaskTypeEnum taskType = taskItemChoosePanel.getSelectedTaskType();
@@ -68,6 +68,7 @@ public class MainPanel extends JPanel {
             try {
                 TaskExcutor taskExcutor = new TaskExcutor(processTask, taskType.name(), maxWorkerNum);
                 taskExcutor.start();
+                JOptionPane.showMessageDialog(this, "任务完成");
             } catch (Exception ex) {
                 JDialog dialog = new JDialog();
                 dialog.setTitle("错误");

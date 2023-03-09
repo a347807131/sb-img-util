@@ -11,15 +11,15 @@ logging:
 
 app:
   #输入目录
-  base-in-dir-path: D:\datasets\图片处理模板\1 扫描原图（TIFF格式）
+  base-in-dir-path: 请替换为你的输入目录
   #输出目录
-  base-out-dir-path: D:\output
+  base-out-dir-path: 请替换为你的输出目录
   #水印图片路径
   blur-image-path: blur.png
   #目录文件所在目录
-  cata-dir-path: ${app.base-in-dir-path}/../5 目录
+  cata-dir-path: #${app.base-in-dir-path}/../5 目录
   #处理线程数
-  max-worker-num: 8
+  max-worker-num: 4
   #处理项
   process-tasks:
     IMAGE_TRANSFORM:
