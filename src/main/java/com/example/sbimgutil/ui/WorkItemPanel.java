@@ -37,10 +37,14 @@ public class WorkItemPanel extends JPanel {
 
         JPanel formatPanel = new JPanel();
         JLabel formatLabel = new JLabel("目标格式");
-        comboBox = new JComboBox<>(Const.SUPORTTED_FORMATS.toArray(new String[]{}));
+        comboBox = new JComboBox<>();
+        comboBox.addItem("");
+        for (String format : Const.SUPORTTED_FORMATS) {
+            comboBox.addItem(format);
+        }
+
         formatPanel.add(formatLabel);
         formatPanel.add(comboBox);
-
 
         add(pathInputPanel);
         add(pathOutPanel);
