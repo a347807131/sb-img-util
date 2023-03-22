@@ -10,14 +10,23 @@ import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.imageio.ImageIO;
+import javax.imageio.ImageWriter;
 import java.io.File;
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
+import java.util.Iterator;
 
 
 @Slf4j
 public abstract class BaseTask implements ITask {
+
+    //bugfixed
+    static {
+        Iterator<ImageWriter> writers = ImageIO.getImageWritersByFormatName("jpeg2000");
+        ImageWriter writer = writers.next();
+    }
 
 
     private LocalDateTime startDate;
