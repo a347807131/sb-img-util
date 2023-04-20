@@ -78,10 +78,12 @@ public class TaskExcutor {
                         //中段
                         String interlude = dirThatFilesBelong.getAbsolutePath().replace(new File(inDirPath).getAbsolutePath(), "");
                         List<File> imgs = entry1.getValue();
-                        String cataFilePath=cataDirPath+interlude+ ".txt";
-                        File cataFile=new File(cataFilePath);
+                        String cataFilePath = cataDirPath + interlude + ".txt";
+                        File cataFile = new File(cataFilePath);
+                        if (Strings.isBlank(cataDirPath))
+                            cataFile = null;
 
-                        PdfMergeTask task = new PdfMergeTask(imgs, pdfOutFile,cataFile);
+                        PdfMergeTask task = new PdfMergeTask(imgs, pdfOutFile, cataFile);
                         taskGroup.add(task);
                     }
                 }

@@ -31,7 +31,9 @@ public class PdfMergeTask extends BaseTask {
     public void doWork() {
         inFiles = inFiles.stream().sorted(Comparator.comparing(File::getName)).toList();
         try (OutputStream os = Files.newOutputStream(outFile.toPath())) {
-            if (cataFile == null || !cataFile.exists()) {
+            if (cataFile == null) {
+                PDFUtils.mergeIntoPdf(inFiles, os);
+            } else if (!cataFile.exists()) {
                 log.error("cataFile is null" + outFile.getAbsolutePath());
                 throw new RuntimeException("cataFile is null" + outFile.getAbsolutePath());
             } else {
