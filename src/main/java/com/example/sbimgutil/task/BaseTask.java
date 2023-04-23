@@ -46,13 +46,6 @@ public abstract class BaseTask implements ITask {
         startDate = LocalDateTime.now();
     }
 
-    public void setTaskAfter(Runnable taskAfter) {
-        this.taskAfter = taskAfter;
-    }
-
-    public void setTaskBefore(Runnable taskBefore) {
-        this.taskBefore = taskBefore;
-    }
 
     @Override
     public void after(){
@@ -74,13 +67,5 @@ public abstract class BaseTask implements ITask {
     @Override
     public void doWork() throws IOException {
 
-    }
-
-    public TaskStateEnum getState() {
-        return state;
-    }
-
-    public void setState(TaskStateEnum state) {
-        this.state = state;
     }
 }

@@ -4,6 +4,7 @@ import com.example.sbimgutil.config.AppConfig;
 import com.example.sbimgutil.utils.Const;
 import com.example.sbimgutil.utils.FileFetchUtils;
 import lombok.extern.slf4j.Slf4j;
+import lombok.val;
 import org.apache.commons.io.FileUtils;
 
 import javax.imageio.ImageIO;
@@ -41,15 +42,18 @@ public class ImageTransformTask extends BaseTask{
     @Override
     public void doWork() throws IOException {
         FileUtils.forceMkdirParent(outFile);
+        BufferedImage bufferedImage = ImageIO.read(inFile);
         switch (format) {
             case "jp2" -> {
-                BufferedImage bufferedImage = ImageIO.read(inFile);
                 ImageIO.write(bufferedImage, "jpeg2000", outFile);
             }
             case "jpg", "tif", "tiff" -> {
-                BufferedImage bufferedImage = ImageIO.read(inFile);
                 ImageIO.write(bufferedImage, format, outFile);
             }
+        }
+        var bufferedOutImage = ImageIO.read(outFile);
+        if (bufferedOutImage.getWidth() != bufferedImage.getWidth() || bufferedOutImage.getHeight() != bufferedImage.getHeight()) {
+            log.error("转换失败,存在输入输出大小不一致的问题: {} to {}", inFile.getAbsolutePath(), outFile.getAbsolutePath());
         }
     }
 

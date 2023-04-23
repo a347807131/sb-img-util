@@ -66,7 +66,7 @@ public class TaskExcutor {
             TaskGroup<Runnable> taskGroup = new ProcessTaskGroup(entry.getKey());
 
             switch (taskTypeEnum) {
-                case PDF_MERGE: {
+                case PDF_MERGE -> {
                     LinkedHashMap<File, List<File>> dirToImgFilesMap = loadSortedDirToImgFilesMap(imgFiles);
                     for (Map.Entry<File, List<File>> entry1 : dirToImgFilesMap.entrySet()) {
                         File dirThatFilesBelong = entry1.getKey();
@@ -74,20 +74,19 @@ public class TaskExcutor {
                                 genPdfOutFile(dirThatFilesBelong, taskConfig);
                         if (pdfOutFile.exists())
                             continue;
-                        String cataDirPath = taskConfig.getCataDirPath();
-                        //中段
-                        String interlude = dirThatFilesBelong.getAbsolutePath().replace(new File(inDirPath).getAbsolutePath(), "");
                         List<File> imgs = entry1.getValue();
-                        String cataFilePath = cataDirPath + interlude + ".txt";
-                        File cataFile = new File(cataFilePath);
-                        if (Strings.isBlank(cataDirPath))
-                            cataFile = null;
-
+                        String cataDirPath = taskConfig.getCataDirPath();
+                        File cataFile = null;
+                        if (Strings.isNotBlank(cataDirPath)) {
+                            cataFile = new File(cataDirPath,
+                                    dirThatFilesBelong.getAbsolutePath().replace(new File(inDirPath).getAbsolutePath(), "") + ".txt"
+                            );
+                        }
                         PdfMergeTask task = new PdfMergeTask(imgs, pdfOutFile, cataFile);
                         taskGroup.add(task);
                     }
                 }
-                case IMAGE_TRANSFORM, IMAGE_COMPRESS, DRAW_BLUR: {
+                case IMAGE_TRANSFORM, IMAGE_COMPRESS, DRAW_BLUR -> {
                     //非pdf合并走这边
                     for (File imgFile : imgFiles) {
                         File outFile = genOutFile(imgFile, taskConfig);
@@ -144,11 +143,9 @@ public class TaskExcutor {
 
     private File genPdfOutFile(File dirFilesBelong, AppConfig.ProcessTask taskConfig) {
         String outFileName = dirFilesBelong.getName() + ".pdf";
-
         String outFilePath = dirFilesBelong.getAbsolutePath()
-                .replace(new File(taskConfig.getInDirPath()).getAbsolutePath(), taskConfig.getOutDirPath())
-                .replace(dirFilesBelong.getName(), outFileName);
-        return new File(outFilePath);
+                .replace(new File(taskConfig.getInDirPath()).getAbsolutePath(), taskConfig.getOutDirPath());
+        return new File(outFilePath, outFileName);
     }
 
     File genOutFile(File inFile, AppConfig.ProcessTask taskConfig) throws IOException {

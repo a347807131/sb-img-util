@@ -12,15 +12,15 @@ import java.io.OutputStream;
 import java.nio.file.Files;
 
 @Slf4j
-public class ImageCompressTask extends BaseTask{
-    private final File inFilePath;
+public class ImageCompressTask extends BaseTask {
+    private final File inFile;
     private int limit = 500;
 
-    public ImageCompressTask(File inFilePath, File outFile, int limit) {
-        this.inFilePath = inFilePath;
+    public ImageCompressTask(File inFile, File outFile, int limit) {
+        this.inFile = inFile;
         this.outFile = outFile;
         this.limit = limit;
-        taskName= "压缩图片: "+inFilePath.getName()+" to "+outFile.getAbsolutePath();
+        taskName = "压缩图片: " + inFile.getName() + " to " + outFile.getAbsolutePath();
     }
 
 
@@ -28,10 +28,10 @@ public class ImageCompressTask extends BaseTask{
     @Override
     public void doWork() throws IOException {
         FileUtils.forceMkdirParent(outFile);
-        BufferedImage bufferedImage = ImageIO.read(inFilePath);
+        BufferedImage bufferedImage = ImageIO.read(inFile);
         // FIXME: 3/6/2023
         if(bufferedImage==null){
-            log.error("读取图片失败:{}",inFilePath);
+            log.error("读取图片失败:{}", inFile);
             return;
         }
         float fsize = bufferedImage.getData().getDataBuffer().getSize()/(1024*1024f);
