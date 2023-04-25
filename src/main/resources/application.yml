@@ -1,6 +1,12 @@
 
 logging:
+  level:
+    root: info
     com.example: debug
+  file:
+    path: ./logs
+    name: log.txt
+
 
 #spring:
 #  profiles:
