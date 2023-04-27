@@ -16,11 +16,12 @@ import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Test;
 
 import javax.imageio.ImageIO;
+import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.*;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
-import java.util.*;
+import java.util.List;
 
 @Slf4j
 public class DemoTest {
@@ -118,6 +119,7 @@ public class DemoTest {
         long between = LocalDateTimeUtil.between(now, LocalDateTime.now(), ChronoUnit.SECONDS);
         System.out.println("任务执行时间：" + between + "秒");
     }
+
     @Test
     public void test4() throws IOException {
         String file = this.getClass().getResource("/demo.tif").getFile();
@@ -128,4 +130,8 @@ public class DemoTest {
 //        ImageIO.getImageWriters(file1, "jp2");
     }
 
+    @Test
+    public void test5() throws IOException {
+        Desktop.getDesktop().open(new File("guide.pdf"));
+    }
 }

@@ -3,14 +3,20 @@ package com.example.sbimgutil.ui;
 import com.example.sbimgutil.config.AppConfig;
 import com.example.sbimgutil.context.TaskExcutor;
 import com.example.sbimgutil.task.TaskTypeEnum;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.io.File;
 import java.io.IOException;
+import java.net.URL;
 import java.util.concurrent.ExecutionException;
 
+@Slf4j
 @Component
 public class MainPanel extends JPanel {
     final
@@ -30,6 +36,24 @@ public class MainPanel extends JPanel {
     }
 
     private void init() {
+
+        JLabel label = new JLabel("<HTML><U>使用说明</U></HTML>");
+        label.setForeground(Color.BLUE);
+        label.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+        add(label);
+        label.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                try {
+//                    URL resource = ClassLoader.getSystemClassLoader().getResource("程序说明.pdf");
+//                    System.out.println(resource.getPath());
+                    Desktop.getDesktop().open(new File("app/程序说明.pdf"));
+                } catch (IOException ex) {
+                    log.error("打开说明文件失败", ex);
+                    throw new RuntimeException(ex);
+                }
+            }
+        });
 
         taskItemChoosePanel = new WorkItemChoosePanel();
         add(taskItemChoosePanel);
