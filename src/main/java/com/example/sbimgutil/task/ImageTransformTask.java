@@ -21,13 +21,6 @@ import java.util.Set;
 @Slf4j
 public class ImageTransformTask extends BaseTask{
 
-    public static final FileFilter SUPPORTED_FILE_FILTER = file -> {
-        if (file.isDirectory())
-            return true;
-        String lowerCasedName = file.getName().toLowerCase();
-        return Const.SUPORTTED_FORMATS.stream().anyMatch(lowerCasedName::endsWith);
-    };
-
     private final File inFile;
     private final String format;
 
