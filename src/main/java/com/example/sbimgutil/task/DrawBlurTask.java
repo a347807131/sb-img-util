@@ -23,11 +23,14 @@ public class DrawBlurTask extends BaseTask{
 
     @Override
     public void doWork() throws IOException {
-        // TODO: 5/5/2023
         String format = inFile.getName().substring(inFile.getName().lastIndexOf(".") + 1);
         BufferedImage blurBufferedImage = ImageIO.read(blurImageFile);
         BufferedImage bufferedImage = ImageIO.read(inFile);
+
+        // TODO: 5/5/2023
         float scale = bufferedImage.getHeight() / (4f * blurBufferedImage.getHeight());
+
+
         ImageUtils.drawBlurPic(bufferedImage, blurBufferedImage, scale);
         switch (format) {
             case "jp2" -> {

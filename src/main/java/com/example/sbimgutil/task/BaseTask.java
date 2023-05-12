@@ -16,6 +16,7 @@ import javax.imageio.ImageWriter;
 import java.io.File;
 import java.io.FileFilter;
 import java.io.IOException;
+import java.nio.file.Files;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.Iterator;
@@ -48,7 +49,6 @@ public abstract class BaseTask implements ITask {
     @Override
     public void before() throws IOException {
         outFile=new File(outFile.getParentFile(),outFile.getName() + ".tmp");
-        FileUtils.forceMkdirParent(outFile);
         state = TaskStateEnum.RUNNING;
         startDate = LocalDateTime.now();
     }
@@ -69,10 +69,5 @@ public abstract class BaseTask implements ITask {
     public void onError(Throwable e) {
         state = TaskStateEnum.ERROR;
         log.error("任务执行异常",e);
-    }
-
-    @Override
-    public void doWork() throws IOException {
-
     }
 }

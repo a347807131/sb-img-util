@@ -1,10 +1,14 @@
 package com.example.sbimgutil.utils;
 
+import com.itextpdf.kernel.pdf.PdfDocument;
+import com.itextpdf.kernel.pdf.PdfOutline;
+import com.itextpdf.kernel.pdf.PdfReader;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Test;
 
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.net.URL;
 import java.util.LinkedList;
 import java.util.TreeSet;
@@ -60,21 +64,31 @@ public class PdfutilsTest {
     }
 
     @Test
-    public void testTail(){
-                // Create a TreeSet and inserting elements
-                TreeSet<Integer> s = new TreeSet<>();
+    public void testTail() {
+        // Create a TreeSet and inserting elements
+        TreeSet<Integer> s = new TreeSet<>();
 
-                // Adding Element to SortedSet
-                s.add(1);
-                s.add(5);
-                s.add(2);
-                s.add(3);
-                s.add(9);
+        // Adding Element to SortedSet
+        s.add(1);
+        s.add(5);
+        s.add(2);
+        s.add(3);
+        s.add(9);
 
-                // Returning the set with elements
-                // strictly less than the passed value
-                System.out.print("Elements greater than or equal to 5 in set are : "
-                        + s.tailSet(5));
-            }
+        // Returning the set with elements
+        // strictly less than the passed value
+        System.out.print("Elements greater than or equal to 5 in set are : "
+                + s.tailSet(5));
+    }
+
+    @Test
+    public void testExtractToc() throws IOException {
+        PdfReader pdfReader = new PdfReader("C:\\Users\\Gatsby\\Downloads/小镇喧嚣.pdf");
+        PdfDocument pdfDocument = new PdfDocument(pdfReader);
+        PdfOutline outlines = pdfDocument.getOutlines(false);
+        for (PdfOutline outline : outlines.getAllChildren()) {
+            System.out.println(outline.getTitle());
+        }
+    }
 
 }
