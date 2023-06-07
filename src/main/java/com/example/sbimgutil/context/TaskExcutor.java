@@ -95,7 +95,6 @@ public class TaskExcutor {
             }
         }
 
-//        taskGroup.forEach(e->{forkJoinPool.submit(e);});
         // FIXME: 3/7/2023 进度条实现过于丑陋
         CPB = new ConsoleProgressBar(taskGroup.size());
     }
@@ -127,7 +126,7 @@ public class TaskExcutor {
 
     private File genPdfOutFile(File dirFilesBelong, AppConfig.ProcessTask processTask) {
         String outFileName = dirFilesBelong.getName() + ".pdf";
-        String outFilePath = dirFilesBelong.getAbsolutePath()
+        String outFilePath = dirFilesBelong.getParentFile().getAbsolutePath()
                 .replace(new File(processTask.getInDirPath()).getAbsolutePath(), processTask.getOutDirPath());
         return new File(outFilePath, outFileName);
     }

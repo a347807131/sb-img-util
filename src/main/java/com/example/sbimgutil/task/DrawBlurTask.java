@@ -27,9 +27,7 @@ public class DrawBlurTask extends BaseTask{
         BufferedImage blurBufferedImage = ImageIO.read(blurImageFile);
         BufferedImage bufferedImage = ImageIO.read(inFile);
 
-        // TODO: 5/5/2023
         float scale = bufferedImage.getHeight() / (4f * blurBufferedImage.getHeight());
-
 
         ImageUtils.drawBlurPic(bufferedImage, blurBufferedImage, scale);
         switch (format) {

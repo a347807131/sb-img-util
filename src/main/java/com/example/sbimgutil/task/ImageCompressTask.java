@@ -27,7 +27,6 @@ public class ImageCompressTask extends BaseTask {
     //fixme 为何压缩只要8秒，完整却需要20s
     @Override
     public void doWork() throws IOException {
-        FileUtils.forceMkdirParent(outFile);
         BufferedImage bufferedImage = ImageIO.read(inFile);
         // FIXME: 3/6/2023
         if(bufferedImage==null){
@@ -35,8 +34,8 @@ public class ImageCompressTask extends BaseTask {
             return;
         }
         float fsize = bufferedImage.getData().getDataBuffer().getSize()/(1024*1024f);
-        float oriFileSizeM=fsize;
-        float encoding = (float) (5.842e-6 * Math.pow(fsize, 2) - 0.002235 * fsize + 0.2732);
+        float oriFileSizeM = fsize;
+        float encoding = (float) (5.842e-6 * Math.pow(fsize, 2) - 2.235e-3 * fsize + 0.2732);
         float limitM = limit / 1024f;
         if (limitM == 0) {
             OutputStream os = Files.newOutputStream(outFile.toPath());

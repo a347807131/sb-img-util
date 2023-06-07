@@ -48,7 +48,13 @@ public abstract class BaseTask implements ITask {
 
     @Override
     public void before() throws IOException {
-        outFile=new File(outFile.getParentFile(),outFile.getName() + ".tmp");
+        outFile = new File(outFile.getParentFile(), outFile.getName() + ".tmp");
+        if (outFile.exists()) {
+            Files.delete(outFile.toPath());
+        }
+        if (!outFile.getParentFile().exists()) {
+            FileUtils.forceMkdirParent(outFile);
+        }
         state = TaskStateEnum.RUNNING;
         startDate = LocalDateTime.now();
     }

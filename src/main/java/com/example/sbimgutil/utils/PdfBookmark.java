@@ -18,7 +18,7 @@ class PdfBookmark implements Comparable<PdfBookmark> {
     PdfBookmark parent;
     Integer order;
 
-    Set<PdfBookmark> children = new TreeSet<>();
+    Set<PdfBookmark> childrens = new TreeSet<>();
 
     public PdfBookmark(int level, String title, Integer page) {
         this.level = level;
@@ -46,7 +46,7 @@ class PdfBookmark implements Comparable<PdfBookmark> {
     }
 
     public void addChild(PdfBookmark bookmark) {
-        children.add(bookmark);
+        childrens.add(bookmark);
     }
 
     @Override

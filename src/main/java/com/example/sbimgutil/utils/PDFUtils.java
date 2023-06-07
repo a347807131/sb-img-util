@@ -60,8 +60,8 @@ public class PDFUtils {
         if(bookmark==null) return;
         PdfOutline pdfOutlineNextLevel = pdfOutline.addOutline(bookmark.getTitle());
         pdfOutlineNextLevel.addDestination(PdfExplicitDestination.createFit(bookmark.getPage()));
-        for (PdfBookmark child : bookmark.getChildren()) {
-            addCata(pdfOutlineNextLevel,child);
+        for (PdfBookmark child : bookmark.getChildrens()) {
+            addCata(pdfOutlineNextLevel, child);
         }
     }
 
