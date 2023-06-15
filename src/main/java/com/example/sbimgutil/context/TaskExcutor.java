@@ -12,112 +12,95 @@ import java.io.File;
 import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ForkJoinPool;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class TaskExcutor {
 
 
-    TaskScheduleForkJoinPool myTaskJoinPool;
-    Map<String, AppConfig.ProcessTask> processTasks;
+    ForkJoinPool forkJoinPool;
+    AppConfig.ProcessTask processTask;
 
     public static ConsoleProgressBar CPB;
-
-    public TaskExcutor(AppConfig appConfig) throws IOException {
-        processTasks = appConfig.getProcessTasks();
-        myTaskJoinPool = new TaskScheduleForkJoinPool(appConfig.getMaxWorkerNum());
-        init();
-    }
+    private TaskGroup<Runnable> taskGroup;
 
     public TaskExcutor(AppConfig.ProcessTask processTask, String taskName, int maxWorkerNum) throws IOException {
-        myTaskJoinPool = new TaskScheduleForkJoinPool(maxWorkerNum);
-        processTasks = new HashMap<>();
-        processTasks.put(taskName, processTask);
+        forkJoinPool = new ForkJoinPool(maxWorkerNum);
+        this.processTask = processTask;
         init();
     }
 
     public void init() throws IOException {
-        Map<String, AppConfig.ProcessTask> taskMap = processTasks;
-        List<Map.Entry<String, AppConfig.ProcessTask>> taskEntrys = taskMap.entrySet().stream().filter(e -> e.getValue().isEnable()).toList();
+        if (!processTask.isEnable())
+            return;
+        String taskType = processTask.getTaskType();
+        TaskTypeEnum taskTypeEnum = TaskTypeEnum.valueOf(taskType);
 
-        for (Map.Entry<String, AppConfig.ProcessTask> entry : taskEntrys) {
-            if (!entry.getValue().isEnable())
-                continue;
-            AppConfig.ProcessTask taskConfig = entry.getValue();
-            String taskType = taskConfig.getTaskType();
-            TaskTypeEnum taskTypeEnum = TaskTypeEnum.valueOf(taskType);
+        String inDirPath = processTask.getInDirPath();
+        File inDir = new File(inDirPath);
+        List<File> imgFiles = new LinkedList<>();
 
-            String inDirPath = taskConfig.getInDirPath();
-            File inDir = new File(inDirPath);
-            List<File> imgFiles = new LinkedList<>();
+        FileFetchUtils.fetchFileRecursively(imgFiles, inDir,
+                ImageTransformTask.SUPPORTED_FILE_FILTER
+        );
 
-            FileFetchUtils.fetchFileRecursively(imgFiles,inDir,
-                    ImageTransformTask.SUPPORTED_FILE_FILTER
-            );
+        imgFiles.sort(Comparator.comparing(File::getName));
 
-            imgFiles.sort(Comparator.comparing(File::getName));
+        String fileNameRegex = processTask.getFileNameRegex();
 
-            String fileNameRegex = taskConfig.getFileNameRegex();
+        imgFiles = imgFiles.stream().filter(
+                imgFile -> Strings.isBlank(fileNameRegex) || imgFile.getName().matches(fileNameRegex)
+        ).toList();
 
-            imgFiles = imgFiles.stream().filter(
-                    imgFile -> Strings.isBlank(fileNameRegex) || imgFile.getName().matches(fileNameRegex)
-            ).toList();
+        TaskGroup<Runnable> taskGroup = new ProcessTaskGroup(taskType);
 
-            TaskGroup<Runnable> taskGroup = new ProcessTaskGroup(entry.getKey());
-
-            switch (taskTypeEnum) {
-                case PDF_MERGE -> {
-                    LinkedHashMap<File, List<File>> dirToImgFilesMap = loadSortedDirToImgFilesMap(imgFiles);
-                    for (Map.Entry<File, List<File>> entry1 : dirToImgFilesMap.entrySet()) {
-                        File dirThatFilesBelong = entry1.getKey();
-                        File pdfOutFile =
-                                genPdfOutFile(dirThatFilesBelong, taskConfig);
-                        if (pdfOutFile.exists())
-                            continue;
-                        List<File> imgs = entry1.getValue();
-                        String cataDirPath = taskConfig.getCataDirPath();
-                        File cataFile = null;
-                        if (Strings.isNotBlank(cataDirPath)) {
-                            cataFile = new File(cataDirPath,
-                                    dirThatFilesBelong.getAbsolutePath().replace(new File(inDirPath).getAbsolutePath(), "") + ".txt"
-                            );
-                        }
-                        PdfMergeTask task = new PdfMergeTask(imgs, pdfOutFile, cataFile);
-                        taskGroup.add(task);
+        this.taskGroup = taskGroup;
+        switch (taskTypeEnum) {
+            case PDF_MERGE -> {
+                LinkedHashMap<File, List<File>> dirToImgFilesMap = loadSortedDirToImgFilesMap(imgFiles);
+                for (Map.Entry<File, List<File>> entry1 : dirToImgFilesMap.entrySet()) {
+                    File dirThatFilesBelong = entry1.getKey();
+                    File pdfOutFile =
+                            genPdfOutFile(dirThatFilesBelong, processTask);
+                    if (pdfOutFile.exists())
+                        continue;
+                    List<File> imgs = entry1.getValue();
+                    String cataDirPath = processTask.getCataDirPath();
+                    File cataFile = null;
+                    if (Strings.isNotBlank(cataDirPath)) {
+                        cataFile = new File(cataDirPath,
+                                dirThatFilesBelong.getAbsolutePath().replace(new File(inDirPath).getAbsolutePath(), "") + ".txt"
+                        );
                     }
-                }
-                case IMAGE_TRANSFORM, IMAGE_COMPRESS, DRAW_BLUR -> {
-                    //非pdf合并走这边
-                    for (File imgFile : imgFiles) {
-                        File outFile = genOutFile(imgFile, taskConfig);
-                        if (outFile.exists()) {
-                            continue;
-                        }
-                        BaseTask task = switch (taskTypeEnum) {
-                            case IMAGE_TRANSFORM -> {
-                                yield new ImageTransformTask(imgFile, outFile, taskConfig.getFormat());
-                            }
-                            case IMAGE_COMPRESS -> {
-                                yield new ImageCompressTask(imgFile, outFile, taskConfig.getCompressLimit());
-                            }
-                            case DRAW_BLUR -> {
-                                yield new DrawBlurTask(imgFile, outFile, new File(taskConfig.getBlurImagePath()));
-                            }
-                            default -> null;
-                        };
-                        if (task != null)
-                            taskGroup.add(task);
-                    }
+                    PdfMergeTask task = new PdfMergeTask(imgs, pdfOutFile, cataFile);
+                    taskGroup.add(task);
                 }
             }
-            myTaskJoinPool.scheduleBatch(taskGroup);
-            // FIXME: 3/7/2023 进度条实现过于丑陋
-            CPB = new ConsoleProgressBar(taskGroup.size());
+            case IMAGE_TRANSFORM, IMAGE_COMPRESS, DRAW_BLUR -> {
+                //非pdf合并走这边
+                for (File imgFile : imgFiles) {
+                    File outFile = genOutFile(imgFile, processTask);
+                    if (outFile.exists()) {
+                        continue;
+                    }
+                    BaseTask task = switch (taskTypeEnum) {
+                        case IMAGE_TRANSFORM -> new ImageTransformTask(imgFile, outFile, processTask.getFormat());
+                        case IMAGE_COMPRESS -> new ImageCompressTask(imgFile, outFile, processTask.getCompressLimit());
+                        case DRAW_BLUR -> new DrawBlurTask(imgFile, outFile, new File(processTask.getBlurImagePath()));
+                        default -> null;
+                    };
+                    taskGroup.add(task);
+                }
+            }
         }
+
+        // FIXME: 3/7/2023 进度条实现过于丑陋
+        CPB = new ConsoleProgressBar(taskGroup.size());
     }
 
     public void start() throws ExecutionException, InterruptedException {
-        myTaskJoinPool.start();
+        taskGroup.forEach(e -> forkJoinPool.submit(e));
     }
 
     public int getTotalTask() {
@@ -141,23 +124,23 @@ public class TaskExcutor {
         }};
     }
 
-    private File genPdfOutFile(File dirFilesBelong, AppConfig.ProcessTask taskConfig) {
+    private File genPdfOutFile(File dirFilesBelong, AppConfig.ProcessTask processTask) {
         String outFileName = dirFilesBelong.getName() + ".pdf";
-        String outFilePath = dirFilesBelong.getAbsolutePath()
-                .replace(new File(taskConfig.getInDirPath()).getAbsolutePath(), taskConfig.getOutDirPath());
+        String outFilePath = dirFilesBelong.getParentFile().getAbsolutePath()
+                .replace(new File(processTask.getInDirPath()).getAbsolutePath(), processTask.getOutDirPath());
         return new File(outFilePath, outFileName);
     }
 
-    File genOutFile(File inFile, AppConfig.ProcessTask taskConfig) throws IOException {
+    File genOutFile(File inFile, AppConfig.ProcessTask processTask) throws IOException {
         String inFileName = inFile.getName();
         String olDdirPath = inFile.getParentFile().getAbsolutePath();
         String newDirPath = olDdirPath.replace(
-                new File(taskConfig.getInDirPath()).getAbsolutePath(),
-                taskConfig.getOutDirPath()
+                new File(processTask.getInDirPath()).getAbsolutePath(),
+                processTask.getOutDirPath()
         );
-        String outFileName =inFileName;
-        if (Strings.isNotBlank(taskConfig.getFormat())) {
-            outFileName = inFileName.substring(0, inFileName.lastIndexOf(".")) + "." + taskConfig.getFormat();
+        String outFileName = inFileName;
+        if (Strings.isNotBlank(processTask.getFormat())) {
+            outFileName = inFileName.substring(0, inFileName.lastIndexOf(".")) + "." + processTask.getFormat();
         }
         return new File(newDirPath, outFileName);
     }

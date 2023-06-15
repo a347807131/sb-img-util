@@ -34,7 +34,6 @@ public class ImageTransformTask extends BaseTask{
 
     @Override
     public void doWork() throws IOException {
-        FileUtils.forceMkdirParent(outFile);
         BufferedImage bufferedImage = ImageIO.read(inFile);
         switch (format) {
             case "jp2" -> {
