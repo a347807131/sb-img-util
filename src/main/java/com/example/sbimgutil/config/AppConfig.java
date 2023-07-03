@@ -24,20 +24,9 @@ public class AppConfig {
     String cataDirPath;
     Map<String, ProcessTask> processTasks;
 
-    public List<ProcessTask> getEnabledProcessTaskConfigs(){
-        List<ProcessTask> enbaledTasks = processTasks.values().stream().filter(ProcessTask::isEnable).toList();
-        for (ProcessTask task : enbaledTasks) {
-            if (task.getDependOn() != null) {
-                ProcessTask taskDepentOn = processTasks.get(task.getDependOn());
-            }
-        }
-        return null;
-    }
-
     @Data
     static public class ProcessTask{
         String taskType;
-        boolean enable;
         String blurImagePath;
         int compressLimit = 500;
         String outDirPath;

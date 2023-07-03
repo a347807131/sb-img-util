@@ -32,8 +32,6 @@ public class TaskExcutor {
     }
 
     public void init() throws IOException {
-        if (!processTask.isEnable())
-            return;
         String taskType = processTask.getTaskType();
         TaskTypeEnum taskTypeEnum = TaskTypeEnum.valueOf(taskType);
 
