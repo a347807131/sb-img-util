@@ -7,64 +7,40 @@ import javax.swing.*;
 
 public class WorkItemPanel extends JPanel {
 
-    private final CommonInputPanel fileNameRegInputPanel;
-//    private final CommonInputPanel formateInputPanel;
-
-    private FilePathInputPanel pathInputPanel;
-    private FilePathInputPanel pathOutPanel;
+    private final JPanel formatChosePanel;
     private FilePathInputPanel cataDirInputPanel;
     private FilePathInputPanel blurImgFileInputPanel;
-    JComboBox<String> comboBox;
+
 
     WorkItemPanel(AppConfig.ProcessTask processTask) {
         super();
         setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
 
-        pathInputPanel = new FilePathInputPanel("输入文件夹");
-        pathInputPanel.setFilePath(processTask.getInDirPath());
-
-        pathOutPanel = new FilePathInputPanel("输出文件夹");
-        pathOutPanel.setFilePath(processTask.getOutDirPath());
-
         cataDirInputPanel = new FilePathInputPanel("pdf目录所在文件夹");
         cataDirInputPanel.setFilePath(processTask.getCataDirPath());
 
-        blurImgFileInputPanel = new FilePathInputPanel("水印文件位置", JFileChooser.FILES_ONLY);
+        blurImgFileInputPanel = new FilePathInputPanel("水印文件位置", 20, JFileChooser.FILES_ONLY);
         blurImgFileInputPanel.setFilePath(processTask.getBlurImagePath());
 
-        fileNameRegInputPanel = new CommonInputPanel("文件名正则表达式", processTask.getFileNameRegex(), 10);
 
-
-        JPanel formatPanel = new JPanel();
+        formatChosePanel = new JPanel();
         JLabel formatLabel = new JLabel("目标格式");
-        comboBox = new JComboBox<>();
-        comboBox.addItem("");
+        JComboBox<String> formatComboBox = new JComboBox<>();
+        formatComboBox.addItem("");
         for (String format : Const.SUPORTTED_FORMATS) {
-            comboBox.addItem(format);
+            formatComboBox.addItem(format);
         }
 
-        formatPanel.add(formatLabel);
-        formatPanel.add(comboBox);
+        formatChosePanel.add(formatLabel);
+        formatChosePanel.add(formatComboBox);
 
-        add(pathInputPanel);
-        add(pathOutPanel);
         add(cataDirInputPanel);
-        add(fileNameRegInputPanel);
         add(blurImgFileInputPanel);
-        add(formatPanel);
+        add(formatChosePanel);
+
+        cataDirInputPanel.setVisible(false);
+        blurImgFileInputPanel.setVisible(false);
+        formatChosePanel.setVisible(false);
+
     }
-
-    public AppConfig.ProcessTask getProcessTask() {
-        AppConfig.ProcessTask processTask = new AppConfig.ProcessTask();
-        processTask.setInDirPath(pathInputPanel.getFilePath());
-        processTask.setOutDirPath(pathOutPanel.getFilePath());
-        processTask.setCataDirPath(cataDirInputPanel.getFilePath());
-        processTask.setBlurImagePath(blurImgFileInputPanel.getFilePath());
-        processTask.setFileNameRegex(fileNameRegInputPanel.getValue());
-        processTask.setFormat(comboBox.getSelectedItem().toString());
-
-        processTask.setEnable(true);
-        return processTask;
-    }
-
 }

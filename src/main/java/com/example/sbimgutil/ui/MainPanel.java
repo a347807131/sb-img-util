@@ -27,6 +27,11 @@ public class MainPanel extends JPanel {
     WorkItemChoosePanel taskItemChoosePanel;
     private JProgressBar progressBar;
 
+    private FilePathInputPanel pathInputPanel;
+    private FilePathInputPanel pathOutPanel;
+
+    CommonInputPanel fileNameRegInputPanel;
+
 
     public MainPanel(AppConfig appConfig) {
         super();
@@ -58,14 +63,31 @@ public class MainPanel extends JPanel {
         taskItemChoosePanel = new WorkItemChoosePanel();
         add(taskItemChoosePanel);
         String taskTypeName = taskItemChoosePanel.getSelectedTaskType().name();
+
         workNumInputPanel = new CommonInputPanel("最大线程数", String.valueOf(appConfig.getMaxWorkerNum()));
-        add(workNumInputPanel);
+        fileNameRegInputPanel = new CommonInputPanel("文件名正则表达式", "", 10);
+        JPanel nameRegAndWokerNumWrapperPanel = new JPanel();
+        nameRegAndWokerNumWrapperPanel.setLayout(new BoxLayout(nameRegAndWokerNumWrapperPanel, BoxLayout.X_AXIS));
+        nameRegAndWokerNumWrapperPanel.add(fileNameRegInputPanel);
+        nameRegAndWokerNumWrapperPanel.add(workNumInputPanel);
+        add(nameRegAndWokerNumWrapperPanel);
+
+
+        JPanel pathWrapperPanel = new JPanel();
+        pathWrapperPanel.setLayout(new BoxLayout(pathWrapperPanel, BoxLayout.X_AXIS));
+
+        pathInputPanel = new FilePathInputPanel("输入文件夹", 10);
+//        pathInputPanel.setFilePath(processTask.getInDirPath());
+
+        pathOutPanel = new FilePathInputPanel("输出文件夹", 10);
+//        pathOutPanel.setFilePath(processTask.getOutDirPath());
+        pathWrapperPanel.add(pathInputPanel);
+        pathWrapperPanel.add(pathOutPanel);
+        add(pathWrapperPanel);
 
         JPanel middlePanel = new JPanel();
         add(middlePanel);
 //
-        final WorkItemPanel[] workItemPanel = {new WorkItemPanel(appConfig.getProcessTasks().get(taskTypeName))};
-        middlePanel.add(workItemPanel[0]);
 
         JButton startBtn = new JButton("开始");
         add(startBtn);
@@ -73,11 +95,13 @@ public class MainPanel extends JPanel {
         taskItemChoosePanel.addItemListener(e -> {
             String actionCommand = e.getActionCommand();
             TaskTypeEnum taskTypeEnum = TaskTypeEnum.parse(actionCommand);
-            WorkItemPanel workItemPanel1 = new WorkItemPanel(appConfig.getProcessTasks().get(taskTypeEnum.name()));
-
-            middlePanel.remove(workItemPanel[0]);
-            workItemPanel[0] = workItemPanel1;
-            middlePanel.add(workItemPanel[0]);
+            switch (taskTypeEnum) {
+                case IMAGE_COMPRESS -> {
+                    middlePanel.removeAll();
+                    middlePanel.setLayout(new BoxLayout(middlePanel, BoxLayout.Y_AXIS));
+                    middlePanel.add(new ImageCompressPanel());
+                }
+            }
 
             middlePanel.revalidate();
             middlePanel.repaint();

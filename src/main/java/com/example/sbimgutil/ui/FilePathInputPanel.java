@@ -6,15 +6,10 @@ public class FilePathInputPanel extends JPanel {
 
     private final JTextField textField = new JTextField();
     private final JLabel label = new JLabel("File Path");
-    private final JButton button = new JButton("选择文件");
+    private final JButton button = new JButton("选择目标文件夹");
     private final int mode;
+    private int columns = 20;
 
-    public FilePathInputPanel(String labelText, int mode) {
-        super();
-        this.label.setText(labelText);
-        this.mode = mode;
-        init();
-    }
 
     public FilePathInputPanel(String labelText) {
         super();
@@ -23,9 +18,21 @@ public class FilePathInputPanel extends JPanel {
         init();
     }
 
+    public FilePathInputPanel(String labelText, int columns) {
+        this(labelText, columns, JFileChooser.DIRECTORIES_ONLY);
+    }
+
+    public FilePathInputPanel(String labelText, int columns, int mode) {
+        super();
+        this.label.setText(labelText);
+        this.mode = JFileChooser.DIRECTORIES_ONLY;
+        this.columns = columns;
+        init();
+    }
+
     private void init() {
         add(label);
-        textField.setColumns(20);
+        textField.setColumns(columns);
         add(textField);
         add(button);
 
