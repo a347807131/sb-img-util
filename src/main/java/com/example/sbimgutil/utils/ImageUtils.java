@@ -31,18 +31,21 @@ public class ImageUtils {
     }
 
     public static void transformImgToJpg(BufferedImage bufferedImage, OutputStream outputStream, int limit) throws IOException {
-        byte[] bytes =imageToBytes(bufferedImage);
+        byte[] bytes = imageToBytes(bufferedImage);
         // 把图片读入到内存中
-        if(limit>0){
-            bytes = PicCompressUtils.compressPicForScale(bytes,limit);
+        if (limit > 0) {
+            bytes = PicCompressUtils.compressPicForScale(bytes, limit);
         }
-        IOUtils.write(bytes,outputStream);
+        IOUtils.write(bytes, outputStream);
     }
 
-    public static void transformImgToJp2(BufferedImage bufferedImage, File outFile, int limit) throws IOException {
-        float fsize = bufferedImage.getData().getDataBuffer().getSize()/(1024*1024f);
-        float oriFileSizeM=fsize;
-        float encoding = (float) (5.842e-6 * Math.pow(fsize, 2) - 0.002235 * fsize + 0.2732);
+    /**
+     * tiff定制压缩方法
+     */
+    public static void imageCompress(BufferedImage bufferedImage, File outFile, int limit) throws IOException {
+        float fsize = bufferedImage.getData().getDataBuffer().getSize() / (1024 * 1024f);
+        float oriFileSizeM = fsize;
+        float encoding = (float) (5.842e-6 * Math.pow(fsize, 2) - 2.235e-3 * fsize + 0.2732);
         float limitM = limit / 1024f;
         if (limitM == 0) {
             OutputStream os = Files.newOutputStream(outFile.toPath());
@@ -112,9 +115,6 @@ public class ImageUtils {
             throw new RuntimeException(e);
         }
     }
-    public static void transformImgToJp2(BufferedImage bufferedImage, OutputStream outputStream) {
-        transformImgToJp2(bufferedImage,outputStream,0,0);
-    }
 
     public static byte[] imageToBytes(BufferedImage bufferedImage){
         ByteArrayOutputStream out = new ByteArrayOutputStream();
@@ -125,12 +125,19 @@ public class ImageUtils {
         }
         return out.toByteArray();
     }
-    public static BufferedImage bytesToImage(byte[] bytes){
+
+    public static BufferedImage bytesToImage(byte[] bytes) {
         ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(bytes);
         try {
             return ImageIO.read(byteArrayInputStream);
         } catch (IOException e) {
             throw new RuntimeException();
         }
+    }
+
+    public static void cropImage(BufferedImage bufferedImage, Rectangle rectangle) {
+        BufferedImage subimage = bufferedImage.getSubimage(rectangle.x, rectangle.y, rectangle.width, rectangle.height);
+        bufferedImage.setData(subimage.getData());
+
     }
 }

@@ -4,6 +4,7 @@ package com.example.sbimgutil.task;
 import cn.hutool.core.date.LocalDateTimeUtil;
 import com.example.sbimgutil.context.TaskExcutor;
 import com.example.sbimgutil.schedule.ITask;
+import com.example.sbimgutil.utils.ConsoleProgressBar;
 import com.example.sbimgutil.utils.Const;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
@@ -61,14 +62,17 @@ public abstract class BaseTask implements ITask {
 
 
     @Override
-    public void after(){
-        outFile.renameTo(new File(outFile.getParentFile(),outFile.getName().substring(0,outFile.getName().lastIndexOf("."))));
+    public void after() {
+        outFile.renameTo(new File(outFile.getParentFile(), outFile.getName().substring(0, outFile.getName().lastIndexOf("."))));
 
         long between = LocalDateTimeUtil.between(startDate, LocalDateTime.now(), ChronoUnit.SECONDS);
-        log.debug("任务完成:{},执行时间：{}s",taskName,between);
+        log.debug("任务完成:{},执行时间：{}s", taskName, between);
         state = TaskStateEnum.TERMINATED;
 
-        TaskExcutor.getGlobalConsoleProgressBar().iterate();
+        ConsoleProgressBar progressBar = TaskExcutor.getGlobalConsoleProgressBar();
+        if (progressBar != null) {
+            progressBar.iterate();
+        }
     }
 
     @Override
