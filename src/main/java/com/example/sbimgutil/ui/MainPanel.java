@@ -33,7 +33,7 @@ public class MainPanel extends JPanel {
 
     CommonInputPanel fileNameRegInputPanel;
 
-    WorkItemPanel workItemPanel = new WorkItemPanel(null);
+//    WorkItemPanel workItemPanel = new WorkItemPanel(null);
     private FilePathInputPanel cataDirInputPanel;
     private FilePathInputPanel blurImgFileInputPanel;
 
@@ -96,7 +96,7 @@ public class MainPanel extends JPanel {
         blurImgFileInputPanel = new FilePathInputPanel("水印文件位置", 10, JFileChooser.FILES_ONLY);
 //        blurImgFileInputPanel.setFilePath(processTask.getBlurImagePath());
 
-        JPanel labelFileInputPanel = new FilePathInputPanel("裁切标注文件位置", 10, JFileChooser.FILES_ONLY);
+        FilePathInputPanel labelFileInputPanel = new FilePathInputPanel("裁切标注文件位置", 10, JFileChooser.FILES_ONLY);
 
 
         JPanel formatChosePanel = new JPanel();
@@ -154,7 +154,10 @@ public class MainPanel extends JPanel {
             TaskTypeEnum taskType = taskItemChoosePanel.getSelectedTaskType();
             processTask.setTaskType(taskType.name());
             switch (taskType) {
-
+                case DRAW_BLUR -> processTask.setBlurImagePath(blurImgFileInputPanel.getFilePath());
+                case IMAGE_CUT -> processTask.setLabelFilePath(labelFileInputPanel.getFilePath());
+                case PDF_MERGE -> processTask.setCataDirPath(cataDirInputPanel.getFilePath());
+                case IMAGE_TRANSFORM -> processTask.setFormat((String) formatComboBox.getSelectedItem());
             }
             int maxWorkerNum = Integer.parseInt(workNumInputPanel.getValue());
             try {

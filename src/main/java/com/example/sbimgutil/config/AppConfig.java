@@ -35,5 +35,6 @@ public class AppConfig {
         String fileNameRegex;
         String cataDirPath;
         String dependOn;
+        String labelFilePath;
     }
 }
