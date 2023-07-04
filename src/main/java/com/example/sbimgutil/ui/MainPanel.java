@@ -3,6 +3,7 @@ package com.example.sbimgutil.ui;
 import com.example.sbimgutil.config.AppConfig;
 import com.example.sbimgutil.context.TaskExcutor;
 import com.example.sbimgutil.task.TaskTypeEnum;
+import com.example.sbimgutil.utils.Const;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -32,6 +33,10 @@ public class MainPanel extends JPanel {
 
     CommonInputPanel fileNameRegInputPanel;
 
+    WorkItemPanel workItemPanel = new WorkItemPanel(null);
+    private FilePathInputPanel cataDirInputPanel;
+    private FilePathInputPanel blurImgFileInputPanel;
+
 
     public MainPanel(AppConfig appConfig) {
         super();
@@ -60,10 +65,6 @@ public class MainPanel extends JPanel {
             }
         });
 
-        taskItemChoosePanel = new WorkItemChoosePanel();
-        add(taskItemChoosePanel);
-        String taskTypeName = taskItemChoosePanel.getSelectedTaskType().name();
-
         workNumInputPanel = new CommonInputPanel("最大线程数", String.valueOf(appConfig.getMaxWorkerNum()));
         fileNameRegInputPanel = new CommonInputPanel("文件名正则表达式", "", 10);
         JPanel nameRegAndWokerNumWrapperPanel = new JPanel();
@@ -85,33 +86,76 @@ public class MainPanel extends JPanel {
         pathWrapperPanel.add(pathOutPanel);
         add(pathWrapperPanel);
 
-        JPanel middlePanel = new JPanel();
-        add(middlePanel);
-//
+        taskItemChoosePanel = new WorkItemChoosePanel();
+        add(taskItemChoosePanel);
+
+
+        cataDirInputPanel = new FilePathInputPanel("pdf目录所在文件夹", 10);
+//        cataDirInputPanel.setFilePath(processTask.getCataDirPath());
+
+        blurImgFileInputPanel = new FilePathInputPanel("水印文件位置", 10, JFileChooser.FILES_ONLY);
+//        blurImgFileInputPanel.setFilePath(processTask.getBlurImagePath());
+
+        JPanel labelFileInputPanel = new FilePathInputPanel("裁切标注文件位置", 10, JFileChooser.FILES_ONLY);
+
+
+        JPanel formatChosePanel = new JPanel();
+        JLabel formatLabel = new JLabel("目标格式");
+        JComboBox<String> formatComboBox = new JComboBox<>();
+        formatComboBox.addItem("");
+        for (String format : Const.SUPORTTED_FORMATS) {
+            formatComboBox.addItem(format);
+        }
+
+        formatChosePanel.add(formatLabel);
+        formatChosePanel.add(formatComboBox);
+
+        add(cataDirInputPanel);
+        add(blurImgFileInputPanel);
+        add(formatChosePanel);
+        add(labelFileInputPanel);
+
+        formatChosePanel.setVisible(true);
+        cataDirInputPanel.setVisible(false);
+        blurImgFileInputPanel.setVisible(false);
+        labelFileInputPanel.setVisible(false);
+
 
         JButton startBtn = new JButton("开始");
         add(startBtn);
 
         taskItemChoosePanel.addItemListener(e -> {
+            formatChosePanel.setVisible(false);
+            cataDirInputPanel.setVisible(false);
+            blurImgFileInputPanel.setVisible(false);
+            labelFileInputPanel.setVisible(false);
+
             String actionCommand = e.getActionCommand();
             TaskTypeEnum taskTypeEnum = TaskTypeEnum.parse(actionCommand);
-            switch (taskTypeEnum) {
-                case IMAGE_COMPRESS -> {
-                    middlePanel.removeAll();
-                    middlePanel.setLayout(new BoxLayout(middlePanel, BoxLayout.Y_AXIS));
-                    middlePanel.add(new ImageCompressPanel());
-                }
-            }
 
-            middlePanel.revalidate();
-            middlePanel.repaint();
+            JPanel tagetPanel = switch (taskTypeEnum) {
+                case IMAGE_TRANSFORM -> formatChosePanel;
+                case PDF_MERGE -> cataDirInputPanel;
+                case IMAGE_COMPRESS -> null;
+                case DRAW_BLUR -> blurImgFileInputPanel;
+                case IMAGE_CUT -> labelFileInputPanel;
+            };
+            if (tagetPanel != null)
+                tagetPanel.setVisible(true);
         });
 
         startBtn.addActionListener(e -> {
 
-            AppConfig.ProcessTask processTask = workItemPanel[0].getProcessTask();
+            AppConfig.ProcessTask processTask = new AppConfig.ProcessTask();
+            processTask.setFileNameRegex(fileNameRegInputPanel.getValue());
+            processTask.setInDirPath(pathInputPanel.getFilePath());
+            processTask.setOutDirPath(pathOutPanel.getFilePath());
+
             TaskTypeEnum taskType = taskItemChoosePanel.getSelectedTaskType();
             processTask.setTaskType(taskType.name());
+            switch (taskType) {
+
+            }
             int maxWorkerNum = Integer.parseInt(workNumInputPanel.getValue());
             try {
                 TaskExcutor taskExcutor = new TaskExcutor(processTask, taskType.name(), maxWorkerNum);
@@ -125,5 +169,10 @@ public class MainPanel extends JPanel {
                 dialog.setVisible(true);
             }
         });
+    }
+
+    void addWorkTab() {
+
+
     }
 }
