@@ -19,6 +19,7 @@ import java.util.stream.Stream;
 public class TaskExcutor {
 
 
+    private final String taskName;
     ForkJoinPool forkJoinPool;
     AppConfig.ProcessTask processTask;
 
@@ -28,6 +29,7 @@ public class TaskExcutor {
     public TaskExcutor(AppConfig.ProcessTask processTask, String taskName, int maxWorkerNum) throws IOException {
         forkJoinPool = new ForkJoinPool(maxWorkerNum);
         this.processTask = processTask;
+        this.taskName = taskName;
         init();
     }
 
@@ -90,6 +92,9 @@ public class TaskExcutor {
                     };
                     taskGroup.add(task);
                 }
+            }
+            case IMAGE_CUT -> {
+
             }
         }
 
