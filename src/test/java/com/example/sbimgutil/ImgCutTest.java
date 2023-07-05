@@ -1,8 +1,11 @@
 package com.example.sbimgutil;
 
 import com.example.sbimgutil.config.AppConfig;
+import com.example.sbimgutil.context.TaskExcutor;
+import com.example.sbimgutil.schedule.TaskGroup;
 import com.example.sbimgutil.task.ImageCutTask;
 import com.example.sbimgutil.task.Label;
+import com.example.sbimgutil.task.TaskTypeEnum;
 import com.example.sbimgutil.utils.ImageCutterUtil;
 import org.junit.jupiter.api.Test;
 
@@ -14,6 +17,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
 
 public class ImgCutTest {
 
@@ -34,13 +38,6 @@ public class ImgCutTest {
     }
 
     @Test
-    public void t3() {
-        ImageCutTask imageCutTask = new ImageCutTask(new File("blur.png"),
-                new File("./out").toPath(),
-                new Rectangle(new Point(100, 100), new Dimension(100, 100)));
-        imageCutTask.run();
-    }
-    @Test
     public void t4() throws IOException {
         List<String> strings = Files.readAllLines(Path.of("C:\\Users\\Gatsby\\IdeaProjects\\sb-img-util\\src\\test\\resources\\label.txt"));
 
@@ -50,10 +47,19 @@ public class ImgCutTest {
         }
     }
 
+
     @Test
-    public void t5(){
+    public void t5() throws IOException, ExecutionException, InterruptedException {
+
         AppConfig.ProcessTask processTask = new AppConfig.ProcessTask();
+        processTask.setTaskType(TaskTypeEnum.IMAGE_CUT.name());
+        processTask.setInDirPath("D:\\jpg");
+        processTask.setLabelFilePath("D:\\jpg\\0001\\Label.txt");
+        processTask.setOutDirPath("D:\\out");
 
+        TaskExcutor taskExcutor = new TaskExcutor(processTask, "d", 4);
+        taskExcutor.start();
+
+//        taskExcutor.shutdown();
     }
-
 }

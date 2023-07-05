@@ -10,9 +10,12 @@ import org.apache.logging.log4j.util.Strings;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.*;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ForkJoinPool;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -31,6 +34,10 @@ public class TaskExcutor {
         this.processTask = processTask;
         this.taskName = taskName;
         init();
+    }
+
+    public TaskGroup<Runnable> getTaskGroup() {
+        return taskGroup;
     }
 
     public void init() throws IOException {
@@ -94,7 +101,14 @@ public class TaskExcutor {
                 }
             }
             case IMAGE_CUT -> {
-
+                File labelFile = new File(processTask.getLabelFilePath());
+                List<String> labelLines = Files.readAllLines(labelFile.toPath());
+                for (String labelLine : labelLines) {
+                    Label label = Label.parse(inDir.toPath(), labelLine);
+                    File outDir = genOutFile(label.getMarkedImageFile(), processTask).getParentFile();
+                    ImageCutTask imageCutTask = new ImageCutTask(label, outDir.toPath());
+                    taskGroup.add(imageCutTask);
+                }
             }
         }
 
@@ -104,6 +118,10 @@ public class TaskExcutor {
 
     public void start() throws ExecutionException, InterruptedException {
         taskGroup.forEach(e -> forkJoinPool.submit(e));
+    }
+
+    public void await() throws InterruptedException {
+        forkJoinPool.awaitTermination(1000000, TimeUnit.SECONDS);
     }
 
     public int getTotalTask() {
@@ -146,5 +164,9 @@ public class TaskExcutor {
             outFileName = inFileName.substring(0, inFileName.lastIndexOf(".")) + "." + processTask.getFormat();
         }
         return new File(newDirPath, outFileName);
+    }
+
+    public void shutdown() throws InterruptedException {
+        forkJoinPool.awaitTermination(1000000, TimeUnit.SECONDS);
     }
 }
