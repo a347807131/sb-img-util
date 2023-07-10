@@ -1,6 +1,8 @@
 package com.example.sbimgutil.task;
 
+import com.example.sbimgutil.context.TaskExcutor;
 import com.example.sbimgutil.schedule.ITask;
+import com.example.sbimgutil.utils.ConsoleProgressBar;
 import com.example.sbimgutil.utils.ImageCutterUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
@@ -67,6 +69,7 @@ public class ImageCutTask implements ITask {
     @Override
     public void after() {
         log.debug("finished cutting image {} to {}", inFile, outDirPath);
+        TaskExcutor.getGlobalConsoleProgressBar().iterate();
     }
 
     @Override

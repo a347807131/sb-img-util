@@ -128,7 +128,6 @@ public class MainPanel extends JPanel {
             formatChosePanel.setVisible(false);
             cataDirInputPanel.setVisible(false);
             blurImgFileInputPanel.setVisible(false);
-            labelFileInputPanel.setVisible(false);
 
             String actionCommand = e.getActionCommand();
             TaskTypeEnum taskTypeEnum = TaskTypeEnum.parse(actionCommand);
@@ -136,9 +135,8 @@ public class MainPanel extends JPanel {
             JPanel tagetPanel = switch (taskTypeEnum) {
                 case IMAGE_TRANSFORM -> formatChosePanel;
                 case PDF_MERGE -> cataDirInputPanel;
-                case IMAGE_COMPRESS -> null;
+                case IMAGE_COMPRESS, IMAGE_CUT -> null;
                 case DRAW_BLUR -> blurImgFileInputPanel;
-                case IMAGE_CUT -> labelFileInputPanel;
             };
             if (tagetPanel != null)
                 tagetPanel.setVisible(true);
@@ -155,7 +153,6 @@ public class MainPanel extends JPanel {
             processTask.setTaskType(taskType.name());
             switch (taskType) {
                 case DRAW_BLUR -> processTask.setBlurImagePath(blurImgFileInputPanel.getFilePath());
-                case IMAGE_CUT -> processTask.setLabelFilePath(labelFileInputPanel.getFilePath());
                 case PDF_MERGE -> processTask.setCataDirPath(cataDirInputPanel.getFilePath());
                 case IMAGE_TRANSFORM -> processTask.setFormat((String) formatComboBox.getSelectedItem());
             }

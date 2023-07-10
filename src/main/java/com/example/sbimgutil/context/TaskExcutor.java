@@ -23,14 +23,14 @@ public class TaskExcutor {
 
 
     private final String taskName;
-    ForkJoinPool forkJoinPool;
+    TaskScheduleForkJoinPool myForkJoinPool;
     AppConfig.ProcessTask processTask;
 
     public static ConsoleProgressBar CPB;
     private TaskGroup<Runnable> taskGroup;
 
     public TaskExcutor(AppConfig.ProcessTask processTask, String taskName, int maxWorkerNum) throws IOException {
-        forkJoinPool = new ForkJoinPool(maxWorkerNum);
+        myForkJoinPool = new TaskScheduleForkJoinPool(maxWorkerNum);
         this.processTask = processTask;
         this.taskName = taskName;
         init();
@@ -101,28 +101,27 @@ public class TaskExcutor {
                 }
             }
             case IMAGE_CUT -> {
-                File labelFile = new File(processTask.getLabelFilePath());
+                File labelFile = new File(inDirPath, "Label.txt");
                 List<String> labelLines = Files.readAllLines(labelFile.toPath());
                 for (String labelLine : labelLines) {
-                    Label label = Label.parse(inDir.toPath(), labelLine);
+                    Label label = Label.parse(inDir.getParentFile().toPath(), labelLine);
                     File outDir = genOutFile(label.getMarkedImageFile(), processTask).getParentFile();
                     ImageCutTask imageCutTask = new ImageCutTask(label, outDir.toPath());
                     taskGroup.add(imageCutTask);
                 }
             }
         }
+        myForkJoinPool.scheduleBatch(taskGroup);
 
         // FIXME: 3/7/2023 进度条实现过于丑陋
         CPB = new ConsoleProgressBar(taskGroup.size());
     }
 
     public void start() throws ExecutionException, InterruptedException {
-        taskGroup.forEach(e -> forkJoinPool.submit(e));
+        myForkJoinPool.start();
+
     }
 
-    public void await() throws InterruptedException {
-        forkJoinPool.awaitTermination(1000000, TimeUnit.SECONDS);
-    }
 
     public int getTotalTask() {
         return CPB.getTotal();
@@ -166,7 +165,4 @@ public class TaskExcutor {
         return new File(newDirPath, outFileName);
     }
 
-    public void shutdown() throws InterruptedException {
-        forkJoinPool.awaitTermination(1000000, TimeUnit.SECONDS);
-    }
 }

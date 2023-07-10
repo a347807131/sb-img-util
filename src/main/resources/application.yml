@@ -65,5 +65,3 @@ app:
       out-dir-path: ${app.base-out-dir-path}/4 PDF/无水印
       in-dir-path: ${app.base-in-dir-path}
       file-name-regex: #^(?!seka).*$ #不以seka开头的文件名
-      #目录文件所在目录
-      label-file-path: ${app.cata-dir-path}

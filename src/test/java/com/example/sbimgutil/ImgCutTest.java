@@ -48,18 +48,4 @@ public class ImgCutTest {
     }
 
 
-    @Test
-    public void t5() throws IOException, ExecutionException, InterruptedException {
-
-        AppConfig.ProcessTask processTask = new AppConfig.ProcessTask();
-        processTask.setTaskType(TaskTypeEnum.IMAGE_CUT.name());
-        processTask.setInDirPath("D:\\jpg");
-        processTask.setLabelFilePath("D:\\jpg\\0001\\Label.txt");
-        processTask.setOutDirPath("D:\\out");
-
-        TaskExcutor taskExcutor = new TaskExcutor(processTask, "d", 4);
-        taskExcutor.start();
-
-//        taskExcutor.shutdown();
-    }
 }
