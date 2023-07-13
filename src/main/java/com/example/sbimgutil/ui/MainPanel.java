@@ -66,7 +66,7 @@ public class MainPanel extends JPanel {
         });
 
         workNumInputPanel = new CommonInputPanel("最大线程数", String.valueOf(appConfig.getMaxWorkerNum()));
-        fileNameRegInputPanel = new CommonInputPanel("文件名正则表达式", "", 10);
+        fileNameRegInputPanel = new CommonInputPanel("文件名正则表达式", "^(?!seka).*$", 10);
         JPanel nameRegAndWokerNumWrapperPanel = new JPanel();
         nameRegAndWokerNumWrapperPanel.setLayout(new BoxLayout(nameRegAndWokerNumWrapperPanel, BoxLayout.X_AXIS));
         nameRegAndWokerNumWrapperPanel.add(fileNameRegInputPanel);
