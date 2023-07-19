@@ -160,7 +160,7 @@ public class MainPanel extends JPanel {
             try {
                 TaskExcutor taskExcutor = new TaskExcutor(processTask, taskType.name(), maxWorkerNum);
                 taskExcutor.start();
-                JOptionPane.showMessageDialog(this, "任务已经开始");
+                JOptionPane.showMessageDialog(this, "任务完成");
             } catch (Exception ex) {
                 JDialog dialog = new JDialog();
                 dialog.setTitle("错误");
