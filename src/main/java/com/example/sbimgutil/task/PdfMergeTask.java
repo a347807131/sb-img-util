@@ -39,8 +39,8 @@ public class PdfMergeTask extends BaseTask {
                 throw new IOException("cataFile is null" + outFile.getAbsolutePath());
             } else {
                 PDFUtils.mergeIntoPdf(inFiles, cataFile, os);
-                File txtCopiedFile = new File(outFile.getParentFile(), cataFile.getName());
-                Files.copy(cataFile.toPath(), txtCopiedFile.toPath());
+                File copiedCataFile = new File(outFile.getParentFile(), cataFile.getName());
+                Files.copy(cataFile.toPath(), copiedCataFile.toPath());
                 return;
             }
         } catch (Exception e) {

@@ -1,4 +1,4 @@
-package com.example.sbimgutil.task;
+package com.example.sbimgutil.schedule;
 
 import cn.hutool.core.date.LocalDateTimeUtil;
 import com.example.sbimgutil.schedule.TaskGroup;

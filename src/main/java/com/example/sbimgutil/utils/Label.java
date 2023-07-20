@@ -1,11 +1,8 @@
-package com.example.sbimgutil.task;
+package com.example.sbimgutil.utils;
 
 
 import com.alibaba.fastjson2.JSON;
 import lombok.Data;
-import org.springframework.boot.json.GsonJsonParser;
-import org.springframework.boot.json.JacksonJsonParser;
-import org.springframework.boot.json.JsonParser;
 
 import java.io.File;
 import java.nio.file.Path;
@@ -18,7 +15,7 @@ public class Label{
 
 
     @Data
-    static class Mark{
+    public static class Mark {
         String transcription;
         int[][] points;
     }

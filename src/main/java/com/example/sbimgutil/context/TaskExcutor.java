@@ -1,11 +1,14 @@
 package com.example.sbimgutil.context;
 
 import com.example.sbimgutil.config.AppConfig;
+import com.example.sbimgutil.schedule.ProcessTaskGroup;
 import com.example.sbimgutil.schedule.TaskScheduleForkJoinPool;
 import com.example.sbimgutil.schedule.TaskGroup;
 import com.example.sbimgutil.task.*;
 import com.example.sbimgutil.utils.ConsoleProgressBar;
+import com.example.sbimgutil.utils.Const;
 import com.example.sbimgutil.utils.FileFetchUtils;
+import com.example.sbimgutil.utils.Label;
 import org.apache.commons.lang.StringUtils;
 import org.apache.logging.log4j.util.Strings;
 
@@ -15,10 +18,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.*;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ForkJoinPool;
-import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 public class TaskExcutor {
 
@@ -52,10 +52,9 @@ public class TaskExcutor {
         List<File> imgFiles = new LinkedList<>();
 
         FileFetchUtils.fetchFileRecursively(imgFiles, inDir,
-                ImageTransformTask.SUPPORTED_FILE_FILTER
+                Const.SUPPORTED_FILE_FILTER
         );
 
-        // TODO: 7/20/2023  
         imgFiles.sort(Comparator.comparing(File::getName));
 
         String fileNameRegex = processTask.getFileNameRegex();

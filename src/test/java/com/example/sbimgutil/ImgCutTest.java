@@ -1,11 +1,6 @@
 package com.example.sbimgutil;
 
-import com.example.sbimgutil.config.AppConfig;
-import com.example.sbimgutil.context.TaskExcutor;
-import com.example.sbimgutil.schedule.TaskGroup;
-import com.example.sbimgutil.task.ImageCutTask;
-import com.example.sbimgutil.task.Label;
-import com.example.sbimgutil.task.TaskTypeEnum;
+import com.example.sbimgutil.utils.Label;
 import com.example.sbimgutil.utils.ImageCutterUtil;
 import org.junit.jupiter.api.Test;
 
@@ -17,7 +12,6 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
-import java.util.concurrent.ExecutionException;
 
 public class ImgCutTest {
 

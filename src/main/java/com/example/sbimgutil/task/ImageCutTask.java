@@ -2,14 +2,12 @@ package com.example.sbimgutil.task;
 
 import com.example.sbimgutil.context.TaskExcutor;
 import com.example.sbimgutil.schedule.ITask;
-import com.example.sbimgutil.utils.ConsoleProgressBar;
 import com.example.sbimgutil.utils.ImageCutterUtil;
+import com.example.sbimgutil.utils.Label;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
 
-import javax.imageio.ImageIO;
 import java.awt.*;
-import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
@@ -18,7 +16,7 @@ import java.util.Arrays;
 import java.util.List;
 
 @Slf4j
-public class ImageCutTask implements ITask {
+public class ImageCutTask extends BaseTask {
 
     private final File inFile;
     private final List<Rectangle> rectangles;
@@ -28,14 +26,16 @@ public class ImageCutTask implements ITask {
         this.inFile = inFile;
         this.rectangles = Arrays.asList(rectangles);
         this.outDirPath = outDirPath;
+        this.taskName = TaskTypeEnum.IMAGE_CUT.taskCnName + inFile + "->" + outDirPath;
     }
 
     public ImageCutTask(Label label, Path outDirPath) {
-        this.inFile = label.markedImageFile;
+        this.inFile = label.getMarkedImageFile();
         this.outDirPath = outDirPath;
         rectangles = new ArrayList<>();
+        this.taskName = TaskTypeEnum.IMAGE_CUT.taskCnName + inFile + "->" + outDirPath;
         for (Label.Mark mark : label.getMarks()) {
-            int[][] points = mark.points;
+            int[][] points = mark.getPoints();
 
             int width = Math.abs(points[1][0] - points[0][0]);
             int height = Math.abs(points[2][1] - points[0][1]);
@@ -47,6 +47,7 @@ public class ImageCutTask implements ITask {
             Rectangle rectangle = new Rectangle(point, new Dimension(Math.abs(width), Math.abs(height)));
             rectangles.add(rectangle);
         }
+
     }
 
 
@@ -60,21 +61,6 @@ public class ImageCutTask implements ITask {
             }
             ImageCutterUtil.cutImage(inFile, outFile, rectangles.get(i));
         }
-    }
-
-    @Override
-    public void before() throws IOException {
-    }
-
-    @Override
-    public void after() {
-        log.debug("finished cutting image {} to {}", inFile, outDirPath);
-        TaskExcutor.getGlobalConsoleProgressBar().iterate();
-    }
-
-    @Override
-    public void onError(Throwable e) {
-        log.error("error", e);
     }
 }
 
