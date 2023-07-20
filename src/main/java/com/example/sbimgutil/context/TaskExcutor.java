@@ -6,6 +6,7 @@ import com.example.sbimgutil.schedule.TaskGroup;
 import com.example.sbimgutil.task.*;
 import com.example.sbimgutil.utils.ConsoleProgressBar;
 import com.example.sbimgutil.utils.FileFetchUtils;
+import org.apache.commons.lang.StringUtils;
 import org.apache.logging.log4j.util.Strings;
 
 import java.io.File;
@@ -46,12 +47,15 @@ public class TaskExcutor {
 
         String inDirPath = processTask.getInDirPath();
         File inDir = new File(inDirPath);
+        Path outDirPath = Path.of(processTask.getOutDirPath());
+        Path DirPath = Path.of(processTask.getInDirPath());
         List<File> imgFiles = new LinkedList<>();
 
         FileFetchUtils.fetchFileRecursively(imgFiles, inDir,
                 ImageTransformTask.SUPPORTED_FILE_FILTER
         );
 
+        // TODO: 7/20/2023  
         imgFiles.sort(Comparator.comparing(File::getName));
 
         String fileNameRegex = processTask.getFileNameRegex();
@@ -66,19 +70,18 @@ public class TaskExcutor {
         switch (taskTypeEnum) {
             case PDF_MERGE -> {
                 LinkedHashMap<File, List<File>> dirToImgFilesMap = loadSortedDirToImgFilesMap(imgFiles);
-                for (Map.Entry<File, List<File>> entry1 : dirToImgFilesMap.entrySet()) {
-                    File dirThatFilesBelong = entry1.getKey();
+                for (Map.Entry<File, List<File>> entry : dirToImgFilesMap.entrySet()) {
+                    File dirThatFilesBelong = entry.getKey();
                     File pdfOutFile =
                             genPdfOutFile(dirThatFilesBelong, processTask);
                     if (pdfOutFile.exists())
                         continue;
-                    List<File> imgs = entry1.getValue();
+                    List<File> imgs = entry.getValue();
                     String cataDirPath = processTask.getCataDirPath();
                     File cataFile = null;
                     if (Strings.isNotBlank(cataDirPath)) {
-                        cataFile = new File(cataDirPath,
-                                dirThatFilesBelong.getAbsolutePath().replace(new File(inDirPath).getAbsolutePath(), "") + ".txt"
-                        );
+                        String cataFileName = dirThatFilesBelong.getAbsolutePath().replace(new File(inDirPath).getAbsolutePath(), "") + ".txt";
+                        cataFile = new File(cataDirPath, cataFileName);
                     }
                     PdfMergeTask task = new PdfMergeTask(imgs, pdfOutFile, cataFile);
                     taskGroup.add(task);
@@ -119,7 +122,6 @@ public class TaskExcutor {
 
     public void start() throws ExecutionException, InterruptedException {
         myForkJoinPool.start();
-
     }
 
 
@@ -146,23 +148,31 @@ public class TaskExcutor {
 
     private File genPdfOutFile(File dirFilesBelong, AppConfig.ProcessTask processTask) {
         String outFileName = dirFilesBelong.getName() + ".pdf";
-        String outFilePath = dirFilesBelong.getParentFile().getAbsolutePath()
-                .replace(new File(processTask.getInDirPath()).getAbsolutePath(), processTask.getOutDirPath());
-        return new File(outFilePath, outFileName);
+        String midpiece = dirFilesBelong.getAbsolutePath().replace(
+                new File(processTask.getInDirPath()).getAbsolutePath(), ""
+        );
+        Path fleOutDirPath = Path.of(processTask.getOutDirPath(), midpiece);
+        if (!StringUtils.isEmpty(midpiece)) {
+            fleOutDirPath = fleOutDirPath.getParent();
+        }
+        Path outFilePath = fleOutDirPath.resolve(outFileName);
+        return outFilePath.toFile();
     }
 
-    File genOutFile(File inFile, AppConfig.ProcessTask processTask) throws IOException {
+    File genOutFile(File inFile, AppConfig.ProcessTask processTask) {
         String inFileName = inFile.getName();
-        String olDdirPath = inFile.getParentFile().getAbsolutePath();
-        String newDirPath = olDdirPath.replace(
-                new File(processTask.getInDirPath()).getAbsolutePath(),
-                processTask.getOutDirPath()
-        );
         String outFileName = inFileName;
         if (Strings.isNotBlank(processTask.getFormat())) {
             outFileName = inFileName.substring(0, inFileName.lastIndexOf(".")) + "." + processTask.getFormat();
         }
-        return new File(newDirPath, outFileName);
+
+        String olDdirPath = inFile.getParentFile().getAbsolutePath();
+        String midpiece = olDdirPath.replace(
+                new File(processTask.getInDirPath()).getAbsolutePath(),
+                ""
+        );
+
+        return Path.of(processTask.getOutDirPath(), midpiece, outFileName).toFile();
     }
 
 }

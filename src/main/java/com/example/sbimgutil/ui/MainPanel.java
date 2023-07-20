@@ -1,10 +1,12 @@
 package com.example.sbimgutil.ui;
 
+import cn.hutool.core.lang.Assert;
 import com.example.sbimgutil.config.AppConfig;
 import com.example.sbimgutil.context.TaskExcutor;
 import com.example.sbimgutil.task.TaskTypeEnum;
 import com.example.sbimgutil.utils.Const;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -131,7 +133,6 @@ public class MainPanel extends JPanel {
 
             String actionCommand = e.getActionCommand();
             TaskTypeEnum taskTypeEnum = TaskTypeEnum.parse(actionCommand);
-
             JPanel tagetPanel = switch (taskTypeEnum) {
                 case IMAGE_TRANSFORM -> formatChosePanel;
                 case PDF_MERGE -> cataDirInputPanel;
@@ -147,7 +148,8 @@ public class MainPanel extends JPanel {
             AppConfig.ProcessTask processTask = new AppConfig.ProcessTask();
             processTask.setFileNameRegex(fileNameRegInputPanel.getValue());
             processTask.setInDirPath(pathInputPanel.getFilePath());
-            processTask.setOutDirPath(pathOutPanel.getFilePath());
+            String outDirPath = pathOutPanel.getFilePath();
+            processTask.setOutDirPath(outDirPath);
 
             TaskTypeEnum taskType = taskItemChoosePanel.getSelectedTaskType();
             processTask.setTaskType(taskType.name());

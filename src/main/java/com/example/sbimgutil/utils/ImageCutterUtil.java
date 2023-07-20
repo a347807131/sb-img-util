@@ -238,25 +238,6 @@ public class ImageCutterUtil {
      * <p>
      * 不包含文件名的路径
      *
-     * @param file 当前文件对象
-     * @return
-     * @throws IOException
-     */
-    public static String getFilePrefixPath(File file) throws IOException {
-        String path = null;
-        if (!file.exists()) {
-            throw new IOException("not found the file !");
-        }
-        String fileName = file.getName();
-        path = file.getPath().replace(fileName, "");
-        return path;
-    }
-
-    /**
-     * 获取某个文件的前缀路径
-     * <p>
-     * 不包含文件名的路径
-     *
      * @param path 当前文件路径
      * @return 不包含文件名的路径
      * @throws Exception
