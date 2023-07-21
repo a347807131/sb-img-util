@@ -11,9 +11,10 @@ public class SwingApp extends JFrame {
     MainPanel mainPanel;
 
     public SwingApp(MainPanel mainPanel) {
-        super("SwingApp");
+        super("图片批处理程序 author: Gatsby");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setSize(640, 480);
+        setResizable(false);
         setLocationRelativeTo(null);
         this.mainPanel = mainPanel;
         add(mainPanel);

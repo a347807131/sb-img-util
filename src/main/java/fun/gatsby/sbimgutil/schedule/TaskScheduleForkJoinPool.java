@@ -1,5 +1,7 @@
 package fun.gatsby.sbimgutil.schedule;
 
+import java.util.Collection;
+import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
@@ -55,7 +57,7 @@ public class TaskScheduleForkJoinPool extends ForkJoinPool {
         }
     }
 
-    ForkJoinTask<?> runTaskGroup(List<Runnable> tasks) throws ExecutionException, InterruptedException {
+    ForkJoinTask<?> runTaskGroup(Collection<Runnable> tasks) throws ExecutionException, InterruptedException {
         return this.submit(() -> tasks.parallelStream().forEach(Runnable::run));
     }
 

@@ -2,7 +2,7 @@
 logging:
   level:
     root: info
-    com.example: debug
+    fun.gatsby: debug
   file:
     path: ./logs
     name: log.txt

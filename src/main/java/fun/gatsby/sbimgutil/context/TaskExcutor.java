@@ -4,7 +4,6 @@ import fun.gatsby.sbimgutil.config.AppConfig;
 import fun.gatsby.sbimgutil.schedule.ProcessTaskGroup;
 import fun.gatsby.sbimgutil.schedule.TaskScheduleForkJoinPool;
 import fun.gatsby.sbimgutil.schedule.TaskGroup;
-import com.example.sbimgutil.task.*;
 import fun.gatsby.sbimgutil.utils.ConsoleProgressBar;
 import fun.gatsby.sbimgutil.utils.Const;
 import fun.gatsby.sbimgutil.utils.FileFetchUtils;
@@ -123,7 +122,6 @@ public class TaskExcutor {
     public void start() throws ExecutionException, InterruptedException {
         myForkJoinPool.start();
     }
-
 
     public int getTotalTask() {
         return CPB.getTotal();

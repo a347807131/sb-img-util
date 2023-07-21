@@ -48,12 +48,12 @@ public class ConsoleProgressBar {
         last = value;
         int totalV = total.get();
         System.out.print('\r');
-//        System.out.print(ColorEnum.RED.value);
         // 比例
         float rate = value * 1f / totalV;
 
         int len = (int) (rate * barLen);
-        StringBuilder sb = new StringBuilder("Progress: ");
+        StringBuilder sb = new StringBuilder();
+        sb.append(ColorEnum.CYAN.value);
         for (int i = 0; i < len; i++) {
             sb.append(progressChar);
         }

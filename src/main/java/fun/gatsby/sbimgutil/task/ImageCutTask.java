@@ -54,6 +54,7 @@ public class ImageCutTask extends BaseTask {
         for (int i = 0; i < rectangles.size(); i++) {
             String fileName = inFile.getName().replace(".", "-" + i + ".");
             File outFile = new File(outDirPath.toFile(), fileName);
+            if (outFile.exists()) continue;
             if (!outFile.getParentFile().exists()) {
                 FileUtils.forceMkdirParent(outFile);
             }
