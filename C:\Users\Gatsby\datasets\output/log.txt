@@ -1,0 +1,73 @@
+2023-03-06 00:03:55.075  INFO 3550 --- [restartedMain] c.e.sbimgutil.SbImgUtilApplication       : Starting SbImgUtilApplication using Java 11.0.12 on mbp with PID 3550 (/Users/gatsby/IdeaProjects/sb-img-util/target/classes started by gatsby in /Users/gatsby/IdeaProjects/sb-img-util)
+2023-03-06 00:03:55.084  INFO 3550 --- [restartedMain] c.e.sbimgutil.SbImgUtilApplication       : No active profile set, falling back to 1 default profile: "default"
+2023-03-06 00:03:55.132  INFO 3550 --- [restartedMain] .e.DevToolsPropertyDefaultsPostProcessor : Devtools property defaults active! Set 'spring.devtools.add-properties' to 'false' to disable
+2023-03-06 00:03:55.807  INFO 3550 --- [restartedMain] o.s.b.d.a.OptionalLiveReloadServer       : LiveReload server is running on port 35729
+2023-03-06 00:03:55.826  INFO 3550 --- [restartedMain] c.e.sbimgutil.SbImgUtilApplication       : Started SbImgUtilApplication in 1.474 seconds (JVM running for 2.878)
+2023-03-06 00:07:27.081  INFO 3805 --- [restartedMain] c.e.sbimgutil.SbImgUtilApplication       : Starting SbImgUtilApplication using Java 11.0.12 on mbp with PID 3805 (/Users/gatsby/IdeaProjects/sb-img-util/target/classes started by gatsby in /Users/gatsby/IdeaProjects/sb-img-util)
+2023-03-06 00:07:27.116  INFO 3805 --- [restartedMain] c.e.sbimgutil.SbImgUtilApplication       : No active profile set, falling back to 1 default profile: "default"
+2023-03-06 00:07:27.271  INFO 3805 --- [restartedMain] .e.DevToolsPropertyDefaultsPostProcessor : Devtools property defaults active! Set 'spring.devtools.add-properties' to 'false' to disable
+2023-03-06 00:07:27.816  INFO 3805 --- [restartedMain] o.s.b.d.a.OptionalLiveReloadServer       : LiveReload server is running on port 35729
+2023-03-06 00:07:27.839  INFO 3805 --- [restartedMain] c.e.sbimgutil.SbImgUtilApplication       : Started SbImgUtilApplication in 1.299 seconds (JVM running for 2.669)
+2023-03-06 00:08:09.252  INFO 3828 --- [restartedMain] c.e.sbimgutil.SbImgUtilApplication       : Starting SbImgUtilApplication using Java 11.0.12 on mbp with PID 3828 (/Users/gatsby/IdeaProjects/sb-img-util/target/classes started by gatsby in /Users/gatsby/IdeaProjects/sb-img-util)
+2023-03-06 00:08:09.254  INFO 3828 --- [restartedMain] c.e.sbimgutil.SbImgUtilApplication       : No active profile set, falling back to 1 default profile: "default"
+2023-03-06 00:08:09.289  INFO 3828 --- [restartedMain] .e.DevToolsPropertyDefaultsPostProcessor : Devtools property defaults active! Set 'spring.devtools.add-properties' to 'false' to disable
+2023-03-06 00:08:09.749  INFO 3828 --- [restartedMain] o.s.b.d.a.OptionalLiveReloadServer       : LiveReload server is running on port 35729
+2023-03-06 00:08:09.803  INFO 3828 --- [restartedMain] c.e.sbimgutil.SbImgUtilApplication       : Started SbImgUtilApplication in 1.143 seconds (JVM running for 3.27)
+2023-03-06 00:29:42.615  WARN 3828 --- [RMI TCP Accept-0] sun.rmi.transport.tcp                    : RMI TCP Accept-0: accept loop for ServerSocket[addr=0.0.0.0/0.0.0.0,localport=51246] throws
+
+java.io.IOException: The server sockets created using the LocalRMIServerSocketFactory only accept connections from clients running on the host where the RMI remote objects have been exported.
+	at jdk.management.agent/sun.management.jmxremote.LocalRMIServerSocketFactory$1.accept(LocalRMIServerSocketFactory.java:114) ~[na:na]
+	at java.rmi/sun.rmi.transport.tcp.TCPTransport$AcceptLoop.executeAcceptLoop(TCPTransport.java:394) ~[na:na]
+	at java.rmi/sun.rmi.transport.tcp.TCPTransport$AcceptLoop.run(TCPTransport.java:366) ~[na:na]
+	at java.base/java.lang.Thread.run(Thread.java:829) ~[na:na]
+
+2023-03-06 00:33:44.689  INFO 4477 --- [restartedMain] c.e.sbimgutil.SbImgUtilApplication       : Starting SbImgUtilApplication using Java 11.0.12 on mbp with PID 4477 (/Users/gatsby/IdeaProjects/sb-img-util/target/classes started by gatsby in /Users/gatsby/IdeaProjects/sb-img-util)
+2023-03-06 00:33:44.691  INFO 4477 --- [restartedMain] c.e.sbimgutil.SbImgUtilApplication       : No active profile set, falling back to 1 default profile: "default"
+2023-03-06 00:33:44.757  INFO 4477 --- [restartedMain] .e.DevToolsPropertyDefaultsPostProcessor : Devtools property defaults active! Set 'spring.devtools.add-properties' to 'false' to disable
+2023-03-06 00:33:45.261  INFO 4477 --- [restartedMain] o.s.b.d.a.OptionalLiveReloadServer       : LiveReload server is running on port 35729
+2023-03-06 00:33:45.277  INFO 4477 --- [restartedMain] c.e.sbimgutil.SbImgUtilApplication       : Started SbImgUtilApplication in 1.048 seconds (JVM running for 2.107)
+2023-03-06 00:34:04.618  INFO 4485 --- [restartedMain] c.e.sbimgutil.SbImgUtilApplication       : Starting SbImgUtilApplication using Java 11.0.12 on mbp with PID 4485 (/Users/gatsby/IdeaProjects/sb-img-util/target/classes started by gatsby in /Users/gatsby/IdeaProjects/sb-img-util)
+2023-03-06 00:34:04.623  INFO 4485 --- [restartedMain] c.e.sbimgutil.SbImgUtilApplication       : No active profile set, falling back to 1 default profile: "default"
+2023-03-06 00:34:04.671  INFO 4485 --- [restartedMain] .e.DevToolsPropertyDefaultsPostProcessor : Devtools property defaults active! Set 'spring.devtools.add-properties' to 'false' to disable
+2023-03-06 00:34:05.206  INFO 4485 --- [restartedMain] o.s.b.d.a.OptionalLiveReloadServer       : LiveReload server is running on port 35729
+2023-03-06 00:34:05.225  INFO 4485 --- [restartedMain] c.e.sbimgutil.SbImgUtilApplication       : Started SbImgUtilApplication in 1.236 seconds (JVM running for 2.955)
+2023-03-06 00:37:12.760  INFO 4574 --- [restartedMain] c.e.sbimgutil.SbImgUtilApplication       : Starting SbImgUtilApplication using Java 11.0.12 on mbp with PID 4574 (/Users/gatsby/IdeaProjects/sb-img-util/target/classes started by gatsby in /Users/gatsby/IdeaProjects/sb-img-util)
+2023-03-06 00:37:12.764  INFO 4574 --- [restartedMain] c.e.sbimgutil.SbImgUtilApplication       : No active profile set, falling back to 1 default profile: "default"
+2023-03-06 00:37:12.875  INFO 4574 --- [restartedMain] .e.DevToolsPropertyDefaultsPostProcessor : Devtools property defaults active! Set 'spring.devtools.add-properties' to 'false' to disable
+2023-03-06 00:37:13.423  INFO 4574 --- [restartedMain] o.s.b.d.a.OptionalLiveReloadServer       : LiveReload server is running on port 35729
+2023-03-06 00:37:13.438  INFO 4574 --- [restartedMain] c.e.sbimgutil.SbImgUtilApplication       : Started SbImgUtilApplication in 1.178 seconds (JVM running for 2.488)
+2023-03-06 00:37:34.042  INFO 4582 --- [restartedMain] c.e.sbimgutil.SbImgUtilApplication       : Starting SbImgUtilApplication using Java 11.0.12 on mbp with PID 4582 (/Users/gatsby/IdeaProjects/sb-img-util/target/classes started by gatsby in /Users/gatsby/IdeaProjects/sb-img-util)
+2023-03-06 00:37:34.044  INFO 4582 --- [restartedMain] c.e.sbimgutil.SbImgUtilApplication       : No active profile set, falling back to 1 default profile: "default"
+2023-03-06 00:37:34.108  INFO 4582 --- [restartedMain] .e.DevToolsPropertyDefaultsPostProcessor : Devtools property defaults active! Set 'spring.devtools.add-properties' to 'false' to disable
+2023-03-06 00:37:34.676  INFO 4582 --- [restartedMain] o.s.b.d.a.OptionalLiveReloadServer       : LiveReload server is running on port 35729
+2023-03-06 00:37:34.699  INFO 4582 --- [restartedMain] c.e.sbimgutil.SbImgUtilApplication       : Started SbImgUtilApplication in 1.294 seconds (JVM running for 2.889)
+2023-03-06 00:37:56.919  INFO 4595 --- [restartedMain] c.e.sbimgutil.SbImgUtilApplication       : Starting SbImgUtilApplication using Java 11.0.12 on mbp with PID 4595 (/Users/gatsby/IdeaProjects/sb-img-util/target/classes started by gatsby in /Users/gatsby/IdeaProjects/sb-img-util)
+2023-03-06 00:37:56.921  INFO 4595 --- [restartedMain] c.e.sbimgutil.SbImgUtilApplication       : No active profile set, falling back to 1 default profile: "default"
+2023-03-06 00:37:56.977  INFO 4595 --- [restartedMain] .e.DevToolsPropertyDefaultsPostProcessor : Devtools property defaults active! Set 'spring.devtools.add-properties' to 'false' to disable
+2023-03-06 00:37:57.534  INFO 4595 --- [restartedMain] o.s.b.d.a.OptionalLiveReloadServer       : LiveReload server is running on port 35729
+2023-03-06 00:37:57.554  INFO 4595 --- [restartedMain] c.e.sbimgutil.SbImgUtilApplication       : Started SbImgUtilApplication in 1.206 seconds (JVM running for 2.463)
+2023-03-06 00:39:04.579  INFO 4630 --- [restartedMain] c.e.sbimgutil.SbImgUtilApplication       : Starting SbImgUtilApplication using Java 11.0.12 on mbp with PID 4630 (/Users/gatsby/IdeaProjects/sb-img-util/target/classes started by gatsby in /Users/gatsby/IdeaProjects/sb-img-util)
+2023-03-06 00:39:04.582  INFO 4630 --- [restartedMain] c.e.sbimgutil.SbImgUtilApplication       : No active profile set, falling back to 1 default profile: "default"
+2023-03-06 00:39:04.622  INFO 4630 --- [restartedMain] .e.DevToolsPropertyDefaultsPostProcessor : Devtools property defaults active! Set 'spring.devtools.add-properties' to 'false' to disable
+2023-03-06 00:39:05.108  INFO 4630 --- [restartedMain] o.s.b.d.a.OptionalLiveReloadServer       : LiveReload server is running on port 35729
+2023-03-06 00:39:05.125  INFO 4630 --- [restartedMain] c.e.sbimgutil.SbImgUtilApplication       : Started SbImgUtilApplication in 1.009 seconds (JVM running for 2.39)
+2023-03-06 00:40:11.209  INFO 4658 --- [restartedMain] c.e.sbimgutil.SbImgUtilApplication       : Starting SbImgUtilApplication using Java 11.0.12 on mbp with PID 4658 (/Users/gatsby/IdeaProjects/sb-img-util/target/classes started by gatsby in /Users/gatsby/IdeaProjects/sb-img-util)
+2023-03-06 00:40:11.210  INFO 4658 --- [restartedMain] c.e.sbimgutil.SbImgUtilApplication       : No active profile set, falling back to 1 default profile: "default"
+2023-03-06 00:40:11.252  INFO 4658 --- [restartedMain] .e.DevToolsPropertyDefaultsPostProcessor : Devtools property defaults active! Set 'spring.devtools.add-properties' to 'false' to disable
+2023-03-06 00:40:11.737  INFO 4658 --- [restartedMain] o.s.b.d.a.OptionalLiveReloadServer       : LiveReload server is running on port 35729
+2023-03-06 00:40:11.754  INFO 4658 --- [restartedMain] c.e.sbimgutil.SbImgUtilApplication       : Started SbImgUtilApplication in 1.074 seconds (JVM running for 2.581)
+2023-03-06 00:41:55.658  INFO 4696 --- [restartedMain] c.e.sbimgutil.SbImgUtilApplication       : Starting SbImgUtilApplication using Java 11.0.12 on mbp with PID 4696 (/Users/gatsby/IdeaProjects/sb-img-util/target/classes started by gatsby in /Users/gatsby/IdeaProjects/sb-img-util)
+2023-03-06 00:41:55.660  INFO 4696 --- [restartedMain] c.e.sbimgutil.SbImgUtilApplication       : No active profile set, falling back to 1 default profile: "default"
+2023-03-06 00:41:55.709  INFO 4696 --- [restartedMain] .e.DevToolsPropertyDefaultsPostProcessor : Devtools property defaults active! Set 'spring.devtools.add-properties' to 'false' to disable
+2023-03-06 00:41:56.271  INFO 4696 --- [restartedMain] o.s.b.d.a.OptionalLiveReloadServer       : LiveReload server is running on port 35729
+2023-03-06 00:41:56.288  INFO 4696 --- [restartedMain] c.e.sbimgutil.SbImgUtilApplication       : Started SbImgUtilApplication in 1.148 seconds (JVM running for 2.938)
+2023-03-06 00:42:59.592  INFO 4720 --- [restartedMain] c.e.sbimgutil.SbImgUtilApplication       : Starting SbImgUtilApplication using Java 11.0.12 on mbp with PID 4720 (/Users/gatsby/IdeaProjects/sb-img-util/target/classes started by gatsby in /Users/gatsby/IdeaProjects/sb-img-util)
+2023-03-06 00:42:59.594  INFO 4720 --- [restartedMain] c.e.sbimgutil.SbImgUtilApplication       : No active profile set, falling back to 1 default profile: "default"
+2023-03-06 00:42:59.660  INFO 4720 --- [restartedMain] .e.DevToolsPropertyDefaultsPostProcessor : Devtools property defaults active! Set 'spring.devtools.add-properties' to 'false' to disable
+2023-03-06 00:43:00.255  INFO 4720 --- [restartedMain] o.s.b.d.a.OptionalLiveReloadServer       : LiveReload server is running on port 35729
+2023-03-06 00:43:00.276  INFO 4720 --- [restartedMain] c.e.sbimgutil.SbImgUtilApplication       : Started SbImgUtilApplication in 1.384 seconds (JVM running for 3.181)
+2023-03-06 00:43:24.145  INFO 4731 --- [restartedMain] c.e.sbimgutil.SbImgUtilApplication       : Starting SbImgUtilApplication using Java 11.0.12 on mbp with PID 4731 (/Users/gatsby/IdeaProjects/sb-img-util/target/classes started by gatsby in /Users/gatsby/IdeaProjects/sb-img-util)
+2023-03-06 00:43:24.147  INFO 4731 --- [restartedMain] c.e.sbimgutil.SbImgUtilApplication       : No active profile set, falling back to 1 default profile: "default"
+2023-03-06 00:43:24.200  INFO 4731 --- [restartedMain] .e.DevToolsPropertyDefaultsPostProcessor : Devtools property defaults active! Set 'spring.devtools.add-properties' to 'false' to disable
+2023-03-06 00:43:24.778  INFO 4731 --- [restartedMain] o.s.b.d.a.OptionalLiveReloadServer       : LiveReload server is running on port 35729
+2023-03-06 00:43:24.803  INFO 4731 --- [restartedMain] c.e.sbimgutil.SbImgUtilApplication       : Started SbImgUtilApplication in 1.23 seconds (JVM running for 2.905)

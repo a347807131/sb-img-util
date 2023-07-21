@@ -1,8 +1,7 @@
 
 logging:
-  config: classpath:logback-spring.xml
   level:
-    com.example: DEBUG
+    fun.gatsby: DEBUG
 
 app:
   #输入目录
