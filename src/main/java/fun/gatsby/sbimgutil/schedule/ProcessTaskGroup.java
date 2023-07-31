@@ -12,7 +12,6 @@ public class ProcessTaskGroup extends TaskGroup<Runnable> {
 
     LocalDateTime startDateTime;
 
-
     public ProcessTaskGroup(String name) {
         super();
         this.name = name;

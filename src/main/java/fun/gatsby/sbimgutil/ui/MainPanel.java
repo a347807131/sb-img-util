@@ -15,7 +15,6 @@ import java.io.File;
 import java.io.IOException;
 
 @Slf4j
-@Component
 public class MainPanel extends JPanel {
     final
     AppConfig appConfig;
@@ -30,13 +29,11 @@ public class MainPanel extends JPanel {
 
     CommonInputPanel fileNameRegInputPanel;
 
-//    WorkItemPanel workItemPanel = new WorkItemPanel(null);
     private FilePathInputPanel cataDirInputPanel;
     private FilePathInputPanel blurImgFileInputPanel;
 
 
     public MainPanel(AppConfig appConfig) {
-        super();
         this.appConfig = appConfig;
         setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
         init();
@@ -44,7 +41,6 @@ public class MainPanel extends JPanel {
 
     private void init() {
 
-//        JLabel label = new JLabel("<HTML><U>使用说明</U></HTML>");
         JLabel label = new JLabel("<HTML><U>使用说明</U></HTML>");
         label.setForeground(Color.BLUE);
         label.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
@@ -74,10 +70,8 @@ public class MainPanel extends JPanel {
         pathWrapperPanel.setLayout(new BoxLayout(pathWrapperPanel, BoxLayout.X_AXIS));
 
         pathInputPanel = new FilePathInputPanel("输入文件夹", 10);
-//        pathInputPanel.setFilePath(processTask.getInDirPath());
 
         pathOutPanel = new FilePathInputPanel("输出文件夹", 10);
-//        pathOutPanel.setFilePath(processTask.getOutDirPath());
         pathWrapperPanel.add(pathInputPanel);
         pathWrapperPanel.add(pathOutPanel);
         add(pathWrapperPanel);
@@ -160,14 +154,8 @@ public class MainPanel extends JPanel {
                 JDialog dialog = new JDialog();
                 dialog.setTitle("错误");
                 dialog.add(new JLabel(ex.getMessage()));
-                dialog.pack();
                 dialog.setVisible(true);
             }
         });
-    }
-
-    void addWorkTab() {
-
-
     }
 }

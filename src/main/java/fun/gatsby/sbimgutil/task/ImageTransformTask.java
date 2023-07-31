@@ -45,7 +45,7 @@ public class ImageTransformTask extends BaseTask{
                 BufferedImage bf = ImageIO.read(inFile);
                 ImageIO.write(bf, "jpeg2000", outFile);
             }
-            case "jpg" -> {
+            case "jpg", "jpeg" -> {
                 this.transformToJpg();
             }
             case "tif", "tiff" -> {

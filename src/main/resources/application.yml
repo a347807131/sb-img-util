@@ -7,14 +7,11 @@ logging:
     path: ./logs
     name: log.txt
 
-
-#spring:
-#  profiles:
-#    active: dev
-
 app:
   readme-url: "https://www.zybuluo.com/Civin/note/2542177"
   version: @app.version@
+  author: JGatsby, Civin@bupt.cn
+  name: "图片批处理程序"
   #输入目录
   base-in-dir-path: 请替换为你的输入目录
   #输出目录
@@ -66,4 +63,5 @@ app:
       task-type: PDF_MERGE
       out-dir-path: ${app.base-out-dir-path}/4 PDF/无水印
       in-dir-path: ${app.base-in-dir-path}
+      label-file-path:
       file-name-regex: #^(?!seka).*$ #不以seka开头的文件名

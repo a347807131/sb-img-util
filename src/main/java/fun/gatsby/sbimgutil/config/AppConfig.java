@@ -19,11 +19,11 @@ import java.util.stream.Collectors;
 public class AppConfig {
     String readmeUrl;
     String version;
+    String author;
+    String name;
     int maxWorkerNum;
     String baseInDirPath;
     String baseOutDirPath;
-    String blurImagePath;
-    String cataDirPath;
     Map<String, ProcessTask> processTasks;
 
     @Data
@@ -36,6 +36,7 @@ public class AppConfig {
         String format;
         String fileNameRegex;
         String cataDirPath;
+        String labelFilePath;
         String dependOn;
     }
 }
