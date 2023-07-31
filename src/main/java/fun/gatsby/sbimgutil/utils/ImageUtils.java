@@ -30,15 +30,6 @@ public class ImageUtils {
         drawBlurPic(oriBufferedImage, scaledBlurBufferedImage);
     }
 
-    public static void transformImgToJpg(BufferedImage bufferedImage, OutputStream outputStream, int limit) throws IOException {
-        byte[] bytes = imageToBytes(bufferedImage);
-        // 把图片读入到内存中
-        if (limit > 0) {
-            bytes = PicCompressUtils.compressPicForScale(bytes, limit);
-        }
-        IOUtils.write(bytes, outputStream);
-    }
-
     /**
      * tiff定制压缩方法
      */
@@ -133,11 +124,5 @@ public class ImageUtils {
         } catch (IOException e) {
             throw new RuntimeException();
         }
-    }
-
-    public static void cropImage(BufferedImage bufferedImage, Rectangle rectangle) {
-        BufferedImage subimage = bufferedImage.getSubimage(rectangle.x, rectangle.y, rectangle.width, rectangle.height);
-        bufferedImage.setData(subimage.getData());
-
     }
 }

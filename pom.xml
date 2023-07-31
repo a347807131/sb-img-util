@@ -10,12 +10,15 @@
     </parent>
     <groupId>fun.gatsby</groupId>
     <artifactId>sb-img-util</artifactId>
-    <version>2.2.1-SNAPSHOT</version>
+    <version>${app.version}</version>
     <name>sb-img-util</name>
     <description>sb-img-util</description>
     <packaging>jar</packaging>
     <properties>
         <java.version>17</java.version>
+        <revision>2.2.1</revision>
+        <changelist></changelist>  <!-- Remove "-SNAPSHOT" for release -->
+        <app.version>${revision}${changelist}</app.version>
     </properties>
     <repositories>
         <repository>
@@ -59,7 +62,6 @@
             <groupId>com.github.jai-imageio</groupId>
             <artifactId>jai-imageio-jpeg2000</artifactId>
             <version>1.4.0</version>
-            <scope>compile</scope>
         </dependency>
         <dependency>
             <groupId>commons-io</groupId>
@@ -130,9 +132,47 @@
             <artifactId>pdftest</artifactId>
             <version>7.0.4</version>
         </dependency>
+        <!-- https://mvnrepository.com/artifact/org.apache.commons/commons-imaging -->
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-imaging</artifactId>
+            <version>1.0-alpha3</version>
+        </dependency>
+
     </dependencies>
 
+    <profiles>
+        <profile>
+            <id>dev</id>
+            <properties>
+                <!-- 环境标识，需要与配置文件的名称相对应 -->
+                <activatedProperties>dev</activatedProperties>
+            </properties>
+            <activation>
+                <!-- 默认环境 -->
+                <activeByDefault>true</activeByDefault>
+            </activation>
+        </profile>
+        <profile>
+            <id>prod</id>
+            <properties>
+                <activatedProperties>prod</activatedProperties>
+            </properties>
+        </profile>
+    </profiles>
     <build>
+
+        <resources>
+            <resource>
+                <directory>src/main/resources</directory>
+                <includes>
+                    <!-- 配置资源文件 -->
+                    <include>**/*.yml</include>
+                </includes>
+                <!-- 启用过滤器，过滤器会解析需要过滤的的资源文件，将其中的变量替换成真实的值 -->
+                <filtering>true</filtering>
+            </resource>
+        </resources>
         <plugins>
             <plugin>
                 <groupId>org.springframework.boot</groupId>

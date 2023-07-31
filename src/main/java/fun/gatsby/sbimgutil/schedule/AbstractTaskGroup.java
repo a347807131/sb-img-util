@@ -9,27 +9,21 @@ public abstract class AbstractTaskGroup<R> extends LinkedList<Runnable> {
 
     protected volatile TaskStateEnum state = TaskStateEnum.NEW;
 
-    /**
-     * 剩余未完成的任务的数量
-     */
-    protected AtomicInteger taskCountAwait = new AtomicInteger(0);
-
-    public AbstractTaskGroup() {
-    }
-
     public TaskStateEnum getState() {
         return state;
     }
 
+    public AbstractTaskGroup() {
+
+    }
+
     public AbstractTaskGroup(Collection<? extends Runnable> taskQueue) {
         this.addAll(taskQueue);
-        this.taskCountAwait.addAndGet(taskQueue.size());
     }
 
     @Override
     public boolean add(Runnable task) {
         var taskWrapper = this.wrapTask(task);
-        this.taskCountAwait.addAndGet(1);
         return super.add(taskWrapper);
     }
 
@@ -39,7 +33,6 @@ public abstract class AbstractTaskGroup<R> extends LinkedList<Runnable> {
         for (Runnable task : tasks) {
             list.add(this.wrapTask(task));
         }
-        this.taskCountAwait.addAndGet(list.size());
         return super.addAll(list);
     }
 
@@ -75,9 +68,5 @@ public abstract class AbstractTaskGroup<R> extends LinkedList<Runnable> {
      */
     protected Runnable wrapTask(Runnable task) {
         return task;
-    }
-
-    public List<Runnable> toList(){
-        return this;
     }
 }

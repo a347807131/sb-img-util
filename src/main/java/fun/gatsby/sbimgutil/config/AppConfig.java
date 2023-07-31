@@ -17,6 +17,8 @@ import java.util.stream.Collectors;
 @Configuration
 @ConfigurationProperties(prefix = "app")
 public class AppConfig {
+    String readmeUrl;
+    String version;
     int maxWorkerNum;
     String baseInDirPath;
     String baseOutDirPath;
@@ -25,7 +27,7 @@ public class AppConfig {
     Map<String, ProcessTask> processTasks;
 
     @Data
-    static public class ProcessTask{
+    static public class ProcessTask {
         String taskType;
         String blurImagePath;
         int compressLimit = 500;

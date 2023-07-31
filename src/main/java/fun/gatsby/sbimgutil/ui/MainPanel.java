@@ -44,6 +44,7 @@ public class MainPanel extends JPanel {
 
     private void init() {
 
+//        JLabel label = new JLabel("<HTML><U>使用说明</U></HTML>");
         JLabel label = new JLabel("<HTML><U>使用说明</U></HTML>");
         label.setForeground(Color.BLUE);
         label.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
@@ -51,12 +52,10 @@ public class MainPanel extends JPanel {
         label.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
+                String url = appConfig.getReadmeUrl();
                 try {
-//                    URL resource = ClassLoader.getSystemClassLoader().getResource("程序说明.pdf");
-//                    System.out.println(resource.getPath());
-                    Desktop.getDesktop().open(new File("app/程序说明.pdf"));
+                    Runtime.getRuntime().exec("cmd /c start " + url);
                 } catch (IOException ex) {
-                    log.error("打开说明文件失败", ex);
                     throw new RuntimeException(ex);
                 }
             }
@@ -99,10 +98,9 @@ public class MainPanel extends JPanel {
         JPanel formatChosePanel = new JPanel();
         JLabel formatLabel = new JLabel("目标格式");
         JComboBox<String> formatComboBox = new JComboBox<>();
-        formatComboBox.addItem("");
-        for (String format : Const.SUPORTTED_FORMATS) {
-            formatComboBox.addItem(format);
-        }
+        formatComboBox.addItem("jpg");
+        formatComboBox.addItem("jp2");
+        formatComboBox.addItem("tif");
 
         formatChosePanel.add(formatLabel);
         formatChosePanel.add(formatComboBox);

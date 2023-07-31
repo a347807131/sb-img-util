@@ -13,6 +13,8 @@ logging:
 #    active: dev
 
 app:
+  readme-url: "https://www.zybuluo.com/Civin/note/2542177"
+  version: @app.version@
   #输入目录
   base-in-dir-path: 请替换为你的输入目录
   #输出目录
