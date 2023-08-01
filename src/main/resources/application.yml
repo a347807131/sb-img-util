@@ -7,6 +7,10 @@ logging:
     path: ./logs
     name: log.txt
 
+spring:
+  profiles:
+    active: @activated-profile@
+
 app:
   readme-url: "https://www.zybuluo.com/Civin/note/2542177"
   version: @app.version@

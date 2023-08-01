@@ -9,6 +9,9 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 
+/**
+ * jp2压缩
+ */
 @Slf4j
 public class ImageCompressTask extends BaseTask {
     private final File inFile;

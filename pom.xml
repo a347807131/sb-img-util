@@ -140,7 +140,7 @@
             <id>dev</id>
             <properties>
                 <!-- 环境标识，需要与配置文件的名称相对应 -->
-                <activatedProperties>dev</activatedProperties>
+                <activated-profile>dev</activated-profile>
             </properties>
             <activation>
                 <!-- 默认环境 -->
@@ -150,7 +150,7 @@
         <profile>
             <id>prod</id>
             <properties>
-                <activatedProperties>prod</activatedProperties>
+                <activated-profile>prod</activated-profile>
             </properties>
         </profile>
     </profiles>
