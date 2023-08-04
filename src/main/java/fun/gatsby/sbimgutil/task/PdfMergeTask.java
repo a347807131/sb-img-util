@@ -13,7 +13,7 @@ import java.util.List;
 public class PdfMergeTask extends BaseTask {
 
     private List<File> inFiles;
-    private File cataFile=null;
+    private File cataFile;
 
     public PdfMergeTask(List<File> inFiles, File outFile, File cataFile) {
         this.inFiles = inFiles;
