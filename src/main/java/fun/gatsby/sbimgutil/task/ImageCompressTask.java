@@ -21,7 +21,7 @@ public class ImageCompressTask extends BaseTask {
         this.inFile = inFile;
         this.outFile = outFile;
         this.limit = limit;
-        taskName = "压缩图片: " + inFile.getName() + " to " + outFile.getAbsolutePath();
+        name = "压缩图片: " + inFile.getName() + " to " + outFile.getAbsolutePath();
     }
 
 

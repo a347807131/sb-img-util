@@ -30,7 +30,7 @@ public class ImageTransformTask extends BaseTask{
         this.inFile = inFile;
         this.format = format;
         this.outFile = outFile;
-        taskName = "格式转换: " + inFile.getName() + " to " + outFile.getAbsolutePath();
+        name = "格式转换: " + inFile.getName() + " to " + outFile.getAbsolutePath();
     }
 
     int oriWDpi, oriHDpi;

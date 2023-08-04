@@ -6,7 +6,7 @@ public class FilePathInputPanel extends JPanel {
 
     private final JTextField textField = new JTextField();
     private final JLabel label = new JLabel("File Path");
-    private final JButton button = new JButton("选择目标文件夹");
+    private final JButton button = new JButton("选择");
     private final int mode;
     private int columns = 20;
 

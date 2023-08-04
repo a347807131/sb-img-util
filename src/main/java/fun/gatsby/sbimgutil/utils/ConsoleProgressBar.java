@@ -53,7 +53,7 @@ public class ConsoleProgressBar {
 
         int len = (int) (rate * barLen);
         StringBuilder sb = new StringBuilder();
-        sb.append(ColorEnum.CYAN.value);
+//        sb.append(ColorEnum.CYAN.value);
         for (int i = 0; i < len; i++) {
             sb.append(progressChar);
         }

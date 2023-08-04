@@ -28,7 +28,7 @@ public abstract class BaseTask implements ITask {
     }
 
     private LocalDateTime startDate;
-    protected String taskName;
+    protected String name;
     protected TaskStateEnum state = TaskStateEnum.NEW;
     protected File outFile;
 
@@ -55,7 +55,7 @@ public abstract class BaseTask implements ITask {
             outFile.renameTo(new File(outFile.getParentFile(), outFile.getName().substring(0, outFile.getName().lastIndexOf("."))));
 
         long between = LocalDateTimeUtil.between(startDate, LocalDateTime.now(), ChronoUnit.SECONDS);
-        log.debug("任务完成:{},执行耗时：{}s", taskName, between);
+        log.debug("任务完成:{},执行耗时：{}s", name, between);
         state = TaskStateEnum.FINISHED;
 
         ConsoleProgressBar progressBar = TaskExcutor.getGlobalConsoleProgressBar();
@@ -68,5 +68,10 @@ public abstract class BaseTask implements ITask {
     public void onError(Throwable e) {
         state = TaskStateEnum.ERROR;
         log.error("任务执行异常",e);
+    }
+
+    @Override
+    public String toString() {
+        return name;
     }
 }
