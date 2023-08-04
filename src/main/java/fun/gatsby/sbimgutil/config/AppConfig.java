@@ -37,6 +37,7 @@ public class AppConfig {
         String fileNameRegex;
         String cataDirPath;
         String labelFilePath;
+        boolean recursive = false;
         String dependOn;
     }
 }

@@ -6,6 +6,7 @@ import lombok.extern.slf4j.Slf4j;
 
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
+import java.util.LinkedList;
 
 @Slf4j
 public class ProcessTaskGroup extends TaskGroup<Runnable> {
@@ -25,5 +26,11 @@ public class ProcessTaskGroup extends TaskGroup<Runnable> {
             String hms = ConsoleProgressBar.genHMS(between);
             log.info("任务组: {} 执行完毕，总共耗时: {}, 平均单个任务耗时: {} s", name, hms, between / this.size());
         };
+    }
+
+
+    LinkedList<String> errTasks = new LinkedList<>();
+    @Override
+    protected void onTaskException(Runnable task, Exception e) {
     }
 }

@@ -37,23 +37,24 @@ public class TaskExcutor {
         init();
     }
 
-    public TaskGroup<Runnable> getTaskGroup() {
-        return taskGroup;
-    }
-
     public void init() throws IOException {
         String taskType = processTask.getTaskType();
         TaskTypeEnum taskTypeEnum = TaskTypeEnum.valueOf(taskType);
 
         String inDirPath = processTask.getInDirPath();
         File inDir = new File(inDirPath);
-        Path outDirPath = Path.of(processTask.getOutDirPath());
-        Path DirPath = Path.of(processTask.getInDirPath());
+        Path outPath = Path.of(processTask.getOutDirPath());
+        Path inPath = Path.of(processTask.getInDirPath());
         List<File> imgFiles = new LinkedList<>();
 
-        FileFetchUtils.fetchFileRecursively(imgFiles, inDir,
-                Const.SUPPORTED_FILE_FILTER
-        );
+        if(processTask.isRecursive())
+            FileFetchUtils.fetchFileRecursively(imgFiles, inDir,
+                    Const.SUPPORTED_FILE_FILTER
+            );
+        else
+            FileFetchUtils.fetchFile(imgFiles, inDir,
+                    Const.SUPPORTED_FILE_FILTER
+            );
 
         imgFiles.sort(Comparator.comparing(File::getName));
 

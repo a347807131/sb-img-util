@@ -31,6 +31,7 @@ public class MainPanel extends JPanel {
 
     private FilePathInputPanel cataDirInputPanel;
     private FilePathInputPanel blurImgFileInputPanel;
+    private JRadioButton recursiveChooseBtn;
 
 
     public MainPanel(AppConfig appConfig) {
@@ -59,10 +60,13 @@ public class MainPanel extends JPanel {
 
         workNumInputPanel = new CommonInputPanel("最大线程数", String.valueOf(appConfig.getMaxWorkerNum()));
         fileNameRegInputPanel = new CommonInputPanel("文件名正则表达式", "^(?!seka).*$", 10);
+        recursiveChooseBtn = new JRadioButton("递归处理输入文件夹", true);
+
         JPanel nameRegAndWokerNumWrapperPanel = new JPanel();
         nameRegAndWokerNumWrapperPanel.setLayout(new BoxLayout(nameRegAndWokerNumWrapperPanel, BoxLayout.X_AXIS));
         nameRegAndWokerNumWrapperPanel.add(fileNameRegInputPanel);
         nameRegAndWokerNumWrapperPanel.add(workNumInputPanel);
+        nameRegAndWokerNumWrapperPanel.add(recursiveChooseBtn);
         add(nameRegAndWokerNumWrapperPanel);
 
 
@@ -137,6 +141,7 @@ public class MainPanel extends JPanel {
             processTask.setInDirPath(pathInputPanel.getFilePath());
             String outDirPath = pathOutPanel.getFilePath();
             processTask.setOutDirPath(outDirPath);
+            processTask.setRecursive(recursiveChooseBtn.isSelected());
 
             TaskTypeEnum taskType = taskItemChoosePanel.getSelectedTaskType();
             processTask.setTaskType(taskType.name());
