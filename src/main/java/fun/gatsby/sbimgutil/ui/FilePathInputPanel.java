@@ -12,7 +12,6 @@ public class FilePathInputPanel extends JPanel {
 
 
     public FilePathInputPanel(String labelText) {
-        super();
         this.label.setText(labelText);
         this.mode = JFileChooser.DIRECTORIES_ONLY;
         init();

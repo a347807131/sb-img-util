@@ -25,7 +25,6 @@ public abstract class BaseTask implements ITask {
     //bugfixed
     static {
         ImageIO.getImageWritersByFormatName("jpeg2000").next();
-        ImageIO.getImageWritersByFormatName("tiff").next();
     }
 
     private LocalDateTime startDate;
