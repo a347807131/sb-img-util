@@ -21,23 +21,27 @@ public class AppConfig {
     String version;
     String author;
     String name;
-    int maxWorkerNum;
-    String baseInDirPath;
-    String baseOutDirPath;
+    String loggingFilePath;
+
     Map<String, ProcessTask> processTasks;
+
+    GlobalTaskConfig globalTaskConfig;
+
+    @Data
+    static public class GlobalTaskConfig {
+        int maxWorkerNum;
+        String inDirPath;
+        String outDirPath;
+        boolean recursive = true;
+        String fileNameRegex;
+    }
 
     @Data
     static public class ProcessTask {
-        String taskType;
         String blurImagePath;
         int compressLimit = 500;
-        String outDirPath;
-        String inDirPath;
         String format;
-        String fileNameRegex;
         String cataDirPath;
         String labelFilePath;
-        boolean recursive = false;
-        String dependOn;
     }
 }

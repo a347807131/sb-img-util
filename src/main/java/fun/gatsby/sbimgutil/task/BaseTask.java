@@ -51,11 +51,13 @@ public abstract class BaseTask implements ITask {
 
     @Override
     public void after() {
-        if (outFile != null && outFile.exists())
-            outFile.renameTo(new File(outFile.getParentFile(), outFile.getName().substring(0, outFile.getName().lastIndexOf("."))));
+        if (outFile != null && outFile.exists()) {
+            String fileName = outFile.getName().substring(0, outFile.getName().lastIndexOf("."));
+            outFile.renameTo(new File(outFile.getParentFile(),fileName));
+        }
 
         long between = LocalDateTimeUtil.between(startDate, LocalDateTime.now(), ChronoUnit.SECONDS);
-        log.debug("任务完成:{},执行耗时：{}s", name, between);
+        log.debug("任务完成:[{}] ,执行耗时：{}s", name, between);
         state = TaskStateEnum.FINISHED;
 
         ConsoleProgressBar progressBar = TaskExcutor.getGlobalConsoleProgressBar();

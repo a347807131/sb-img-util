@@ -19,16 +19,18 @@ public class ProcessTaskGroup extends TaskGroup<Runnable> {
         this.name = name;
 
         preTask = () -> {
-            log.debug("任务组 :{} 开始执行", name);
+            log.debug("任务组:[{}] 开始执行", name);
             startDateTime = LocalDateTime.now();
         };
 
         postTask = () -> {
             long between = LocalDateTimeUtil.between(startDateTime, LocalDateTime.now(), ChronoUnit.SECONDS);
             String hms = ConsoleProgressBar.genHMS(between);
-            log.info("任务组: {} 执行完毕，总共耗时: {}, 平均单个任务耗时: {} s", name, hms, between / this.size());
+            log.info("任务组:[{}]  执行完毕，总共耗时: {}, 平均单个任务耗时: {} s, 出错任务数:{}",
+                    name, hms, between / this.size(),errTasks.size()
+            );
             if(!errTasks.isEmpty())
-                log.warn("任务组: {} 出错任务统计,共计:{}条,详情如下:\n{}",
+                log.warn("任务组:[{}] 出错任务统计,共计:{}条,详情如下:\n{}",
                         name,
                         errTasks.size(),
                         String.join("\n", errTasks)

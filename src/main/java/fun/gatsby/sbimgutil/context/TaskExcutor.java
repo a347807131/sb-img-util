@@ -1,7 +1,9 @@
 package fun.gatsby.sbimgutil.context;
 
+import cn.hutool.core.lang.func.VoidFunc0;
 import fun.gatsby.sbimgutil.config.AppConfig;
 import fun.gatsby.sbimgutil.schedule.ProcessTaskGroup;
+import fun.gatsby.sbimgutil.schedule.Scheduler;
 import fun.gatsby.sbimgutil.schedule.TaskScheduleForkJoinPool;
 import fun.gatsby.sbimgutil.schedule.TaskGroup;
 import fun.gatsby.sbimgutil.utils.ConsoleProgressBar;
@@ -13,6 +15,7 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.logging.log4j.util.Strings;
 
 import java.io.File;
+import java.io.FileFilter;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -23,31 +26,31 @@ import java.util.stream.Collectors;
 public class TaskExcutor {
 
 
-    private final String taskName;
+    private final TaskTypeEnum taskType;
+    private final AppConfig.GlobalTaskConfig gtc;
     TaskScheduleForkJoinPool myForkJoinPool;
     AppConfig.ProcessTask processTask;
 
     public static ConsoleProgressBar CPB;
     private TaskGroup<Runnable> taskGroup;
 
-    public TaskExcutor(AppConfig.ProcessTask processTask, String taskName, int maxWorkerNum) throws IOException {
-        myForkJoinPool = new TaskScheduleForkJoinPool(maxWorkerNum);
+    public TaskExcutor(AppConfig.ProcessTask processTask, TaskTypeEnum taskType, AppConfig.GlobalTaskConfig gtc) throws IOException {
+        myForkJoinPool = new TaskScheduleForkJoinPool(gtc.getMaxWorkerNum());
+        this.gtc=gtc;
         this.processTask = processTask;
-        this.taskName = taskName;
+        this.taskType = taskType;
         init();
     }
 
     public void init() throws IOException {
-        String taskType = processTask.getTaskType();
-        TaskTypeEnum taskTypeEnum = TaskTypeEnum.valueOf(taskType);
 
-        String inDirPath = processTask.getInDirPath();
+        String inDirPath = gtc.getInDirPath();
         File inDir = new File(inDirPath);
-        Path outPath = Path.of(processTask.getOutDirPath());
-        Path inPath = Path.of(processTask.getInDirPath());
+        Path outPath = Path.of(gtc.getOutDirPath());
+        Path inPath = Path.of(gtc.getInDirPath());
         List<File> imgFiles = new LinkedList<>();
 
-        if(processTask.isRecursive())
+        if(gtc.isRecursive())
             FileFetchUtils.fetchFileRecursively(imgFiles, inDir,
                     Const.SUPPORTED_FILE_FILTER
             );
@@ -58,16 +61,16 @@ public class TaskExcutor {
 
         imgFiles.sort(Comparator.comparing(File::getName));
 
-        String fileNameRegex = processTask.getFileNameRegex();
+        String fileNameRegex = gtc.getFileNameRegex();
 
         imgFiles = imgFiles.stream().filter(
                 imgFile -> Strings.isBlank(fileNameRegex) || imgFile.getName().matches(fileNameRegex)
         ).toList();
 
-        TaskGroup<Runnable> taskGroup = new ProcessTaskGroup(taskType);
+        TaskGroup<Runnable> taskGroup = new ProcessTaskGroup(taskType.taskCnName);
 
         this.taskGroup = taskGroup;
-        switch (taskTypeEnum) {
+        switch (taskType) {
             case PDF_MERGE -> {
                 LinkedHashMap<File, List<File>> dirToImgFilesMap = loadSortedDirToImgFilesMap(imgFiles);
                 for (Map.Entry<File, List<File>> entry : dirToImgFilesMap.entrySet()) {
@@ -94,7 +97,7 @@ public class TaskExcutor {
                     if (outFile.exists()) {
                         continue;
                     }
-                    BaseTask task = switch (taskTypeEnum) {
+                    BaseTask task = switch (taskType) {
                         case IMAGE_TRANSFORM -> new ImageTransformTask(imgFile, outFile, processTask.getFormat());
                         case IMAGE_COMPRESS -> new ImageCompressTask(imgFile, outFile, processTask.getCompressLimit());
                         case DRAW_BLUR -> new DrawBlurTask(imgFile, outFile, new File(processTask.getBlurImagePath()));
@@ -114,8 +117,8 @@ public class TaskExcutor {
                 }
             }
         }
-        myForkJoinPool.scheduleBatch(taskGroup);
 
+        myForkJoinPool.scheduleBatch(taskGroup);
         // FIXME: 3/7/2023 进度条实现过于丑陋
         CPB = new ConsoleProgressBar(taskGroup.size());
     }
@@ -148,9 +151,9 @@ public class TaskExcutor {
     private File genPdfOutFile(File dirFilesBelong, AppConfig.ProcessTask processTask) {
         String outFileName = dirFilesBelong.getName() + ".pdf";
         String midpiece = dirFilesBelong.getAbsolutePath().replace(
-                new File(processTask.getInDirPath()).getAbsolutePath(), ""
+                new File(gtc.getInDirPath()).getAbsolutePath(), ""
         );
-        Path fleOutDirPath = Path.of(processTask.getOutDirPath(), midpiece);
+        Path fleOutDirPath = Path.of(gtc.getOutDirPath(), midpiece);
         if (!StringUtils.isEmpty(midpiece)) {
             fleOutDirPath = fleOutDirPath.getParent();
         }
@@ -167,11 +170,11 @@ public class TaskExcutor {
 
         String olDdirPath = inFile.getParentFile().getAbsolutePath();
         String midpiece = olDdirPath.replace(
-                new File(processTask.getInDirPath()).getAbsolutePath(),
+                new File(gtc.getInDirPath()).getAbsolutePath(),
                 ""
         );
 
-        return Path.of(processTask.getOutDirPath(), midpiece, outFileName).toFile();
+        return Path.of(gtc.getOutDirPath(), midpiece, outFileName).toFile();
     }
 
 }

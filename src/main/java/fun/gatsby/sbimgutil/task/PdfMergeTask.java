@@ -19,7 +19,7 @@ public class PdfMergeTask extends BaseTask {
         this.inFiles = inFiles;
         this.outFile = outFile;
         this.cataFile = cataFile;
-        this.name = "合并pdf: " + outFile.getAbsolutePath();
+        this.name = "合并pdf -> " + outFile.getAbsolutePath();
     }
     public PdfMergeTask(List<File> inFiles, File outFile) {
         this.inFiles = inFiles;
