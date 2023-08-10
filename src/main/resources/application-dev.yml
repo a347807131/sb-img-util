@@ -6,9 +6,10 @@ logging:
 app:
   global-task-config:
     #输入目录
-    in-dir-path: D:\8-2复杂处理图例
+    in-dir-path: D:\原始备份\图片处理模板\8-2复杂处理图例
     #输出目录
     out-dir-path: D:\output
+    enforce: true
 
   process-tasks:
     IMAGE_TRANSFORM:

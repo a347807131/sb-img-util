@@ -3,13 +3,15 @@
 NAME="sb-img-util"
 VERSION="2.2.2"
 VENDOR="JGatsby， Civin@bupt.cn"
-#JAVA_HOME="C:/Users/Gatsby/scoop/apps/openjdk17/17.0.2-8"
+JDK_PATH_UNIX="$2"
+export JAVA_HOME=$JDK_PATH_UNIX
+
 
 rm -rf "build/$NAME"
 
 JPKGCMD="${JAVA_HOME}/bin/jpackage"
 $JPKGCMD --type app-image --name "$NAME" --input target \
---main-jar "${NAME}-${VERSION}.jar" --win-console --icon logo.ico  \
+--main-jar "${NAME}-${VERSION}.jar"  --icon logo.ico  \
  --arguments "--spring.profiles.active=prod" --dest ./build
 
 cp Licence.txt "build/$NAME"

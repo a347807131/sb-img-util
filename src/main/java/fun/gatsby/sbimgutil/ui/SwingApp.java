@@ -1,11 +1,11 @@
 package fun.gatsby.sbimgutil.ui;
 
 import fun.gatsby.sbimgutil.config.AppConfig;
+import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 
 import javax.swing.*;
 
-@Component
 public class SwingApp extends JFrame {
 
     final

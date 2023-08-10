@@ -34,6 +34,7 @@ public class AppConfig {
         String outDirPath;
         boolean recursive = true;
         String fileNameRegex;
+        boolean enforce=false;
     }
 
     @Data

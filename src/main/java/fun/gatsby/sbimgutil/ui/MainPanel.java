@@ -156,6 +156,7 @@ public class MainPanel extends JPanel {
                 case IMAGE_COMPRESS -> null;
                 case IMAGE_CUT -> labelFileInputPanel;
                 case DRAW_BLUR -> blurImgFileInputPanel;
+                default -> null;
             };
             if (tagetPanel != null)
                 tagetPanel.setVisible(true);
@@ -181,7 +182,7 @@ public class MainPanel extends JPanel {
             gtc.setMaxWorkerNum(maxWorkerNum);
             try {
                 TaskExcutor taskExcutor = new TaskExcutor(processTask, taskType, gtc);
-                taskExcutor.start();
+                taskExcutor.excute();
                 JOptionPane.showMessageDialog(this, "任务完成");
             } catch (Exception ex) {
                 JDialog dialog = new JDialog();
