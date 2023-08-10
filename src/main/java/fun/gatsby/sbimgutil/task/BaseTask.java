@@ -2,7 +2,7 @@ package fun.gatsby.sbimgutil.task;
 
 
 import cn.hutool.core.date.LocalDateTimeUtil;
-import fun.gatsby.sbimgutil.context.TaskExcutor;
+import fun.gatsby.sbimgutil.context.TaskExecutor;
 import fun.gatsby.sbimgutil.schedule.ITask;
 import fun.gatsby.sbimgutil.schedule.TaskStateEnum;
 import fun.gatsby.sbimgutil.utils.ConsoleProgressBar;
@@ -10,13 +10,11 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
 
 import javax.imageio.ImageIO;
-import javax.imageio.ImageWriter;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
-import java.util.Iterator;
 
 
 @Slf4j
@@ -60,7 +58,7 @@ public abstract class BaseTask implements ITask {
         log.debug("任务完成:[{}] ,执行耗时：{}s", name, between);
         state = TaskStateEnum.FINISHED;
 
-        ConsoleProgressBar progressBar = TaskExcutor.getGlobalConsoleProgressBar();
+        ConsoleProgressBar progressBar = TaskExecutor.getGlobalConsoleProgressBar();
         if (progressBar != null) {
             progressBar.iterate();
         }

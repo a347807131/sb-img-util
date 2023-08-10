@@ -44,7 +44,8 @@ public class TaskScheduleForkJoinPool extends ForkJoinPool {
             if(node.state == TaskStateEnum.FINISHED)
                 continue;
             //不会阻塞
-            ForkJoinTask<?> forkJoinTask = runTaskGroup(node.childrens);
+            ForkJoinTask<?> forkJoinTask =
+                    this.submit(() -> node.childrens.parallelStream().forEach(Runnable::run));
             node.state = TaskStateEnum.RUNNING;
 //            if (node.denpendOnLast)
             try {
@@ -53,12 +54,7 @@ public class TaskScheduleForkJoinPool extends ForkJoinPool {
             } catch (Exception e) {
                 node.state=TaskStateEnum.ERROR;
             }
-
         }
-    }
-
-    ForkJoinTask<?> runTaskGroup(Collection<Runnable> tasks) throws ExecutionException, InterruptedException {
-        return this.submit(() -> tasks.parallelStream().forEach(Runnable::run));
     }
 
     static class Node {
@@ -68,9 +64,6 @@ public class TaskScheduleForkJoinPool extends ForkJoinPool {
     }
 
     public int getTaskCount(){
-        AtomicInteger count = new AtomicInteger();
-        nodes.forEach(e-> count.addAndGet(e.childrens.size()));
-        return count.get();
+        return nodes.stream().mapToInt(e->e.childrens.size()).sum();
     }
-
 }

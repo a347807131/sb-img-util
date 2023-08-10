@@ -1,10 +1,18 @@
 package fun.gatsby.sbimgutil;
 
 import fun.gatsby.sbimgutil.config.AppConfig;
+import fun.gatsby.sbimgutil.context.TaskExecutor;
+import fun.gatsby.sbimgutil.task.TaskTypeEnum;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.context.annotation.Profile;
 
+import java.io.IOException;
+import java.util.Map;
+import java.util.concurrent.ExecutionException;
+
+@Profile("dev")
 @SpringBootTest
 class SbImgUtilApplicationTests {
 
@@ -13,6 +21,17 @@ class SbImgUtilApplicationTests {
     @Test
     void contextLoads() {
         System.out.println();
+    }
+
+    @Test
+    void testTaskExecutor() throws IOException, ExecutionException, InterruptedException {
+        Map<String, AppConfig.ProcessTask> processTasks = appConfig.getProcessTasks();
+        AppConfig.GlobalTaskConfig gtc = appConfig.getGlobalTaskConfig();
+        AppConfig.ProcessTask processTask = new AppConfig.ProcessTask();
+        processTask.setFormat(processTasks.get(TaskTypeEnum.IMAGE_TRANSFORM.name()).getFormat());
+        processTask.setCompressLimit(processTasks.get(TaskTypeEnum.IMAGE_COMPRESS.name()).getCompressLimit());
+        TaskExecutor excutor = new TaskExecutor(gtc,processTask, TaskTypeEnum.IMAGE_TRANSFORM,TaskTypeEnum.IMAGE_COMPRESS);
+        excutor.excute();
     }
 
 }

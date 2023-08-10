@@ -1,17 +1,14 @@
 package fun.gatsby.sbimgutil.ui;
 
 import fun.gatsby.sbimgutil.config.AppConfig;
-import fun.gatsby.sbimgutil.context.TaskExcutor;
+import fun.gatsby.sbimgutil.context.TaskExecutor;
 import fun.gatsby.sbimgutil.task.TaskTypeEnum;
-import fun.gatsby.sbimgutil.utils.Const;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.stereotype.Component;
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.io.File;
 import java.io.IOException;
 import java.util.Objects;
 
@@ -181,7 +178,7 @@ public class MainPanel extends JPanel {
             int maxWorkerNum = Integer.parseInt(workNumInputPanel.getValue());
             gtc.setMaxWorkerNum(maxWorkerNum);
             try {
-                TaskExcutor taskExcutor = new TaskExcutor(processTask, taskType, gtc);
+                TaskExecutor taskExcutor = new TaskExecutor(gtc,processTask, taskType);
                 taskExcutor.excute();
                 JOptionPane.showMessageDialog(this, "任务完成");
             } catch (Exception ex) {
