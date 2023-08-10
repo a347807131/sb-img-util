@@ -1,17 +1,14 @@
 package fun.gatsby.sbimgutil.ui;
 
 import fun.gatsby.sbimgutil.config.AppConfig;
-import fun.gatsby.sbimgutil.context.TaskExcutor;
+import fun.gatsby.sbimgutil.context.TaskExecutor;
 import fun.gatsby.sbimgutil.task.TaskTypeEnum;
-import fun.gatsby.sbimgutil.utils.Const;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.stereotype.Component;
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.io.File;
 import java.io.IOException;
 import java.util.Objects;
 
@@ -34,6 +31,7 @@ public class MainPanel extends JPanel {
     private FilePathInputPanel blurImgFileInputPanel;
     private JRadioButton recursiveChooseBtn;
     private FilePathInputPanel labelFileInputPanel;
+    private JRadioButton enforceChooseBtn;
 
 
     public MainPanel(AppConfig appConfig) {
@@ -81,13 +79,15 @@ public class MainPanel extends JPanel {
 
         workNumInputPanel = new CommonInputPanel("最大线程数", String.valueOf(gtc.getMaxWorkerNum()));
         fileNameRegInputPanel = new CommonInputPanel("文件名正则表达式", gtc.getFileNameRegex(), 10);
-        recursiveChooseBtn = new JRadioButton("递归处理", gtc.isRecursive());
+        recursiveChooseBtn = new JRadioButton("递归文件处理", gtc.isRecursive());
+        enforceChooseBtn = new JRadioButton("强制覆盖处理", gtc.isRecursive());
 
         JPanel nameRegAndWokerNumWrapperPanel = new JPanel();
         nameRegAndWokerNumWrapperPanel.setLayout(new BoxLayout(nameRegAndWokerNumWrapperPanel, BoxLayout.X_AXIS));
         nameRegAndWokerNumWrapperPanel.add(fileNameRegInputPanel);
         nameRegAndWokerNumWrapperPanel.add(workNumInputPanel);
         nameRegAndWokerNumWrapperPanel.add(recursiveChooseBtn);
+        nameRegAndWokerNumWrapperPanel.add(enforceChooseBtn);
         add(nameRegAndWokerNumWrapperPanel);
 
 
@@ -170,6 +170,7 @@ public class MainPanel extends JPanel {
             String outDirPath = pathOutPanel.getFilePath();
             gtc.setOutDirPath(outDirPath);
             gtc.setRecursive(recursiveChooseBtn.isSelected());
+            gtc.setEnforce(enforceChooseBtn.isSelected());
 
             TaskTypeEnum taskType = taskItemChoosePanel.getSelectedTaskType();
             switch (taskType) {
@@ -181,7 +182,7 @@ public class MainPanel extends JPanel {
             int maxWorkerNum = Integer.parseInt(workNumInputPanel.getValue());
             gtc.setMaxWorkerNum(maxWorkerNum);
             try {
-                TaskExcutor taskExcutor = new TaskExcutor(processTask, taskType, gtc);
+                TaskExecutor taskExcutor = new TaskExecutor(gtc,processTask, taskType);
                 taskExcutor.excute();
                 JOptionPane.showMessageDialog(this, "任务完成");
             } catch (Exception ex) {

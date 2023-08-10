@@ -24,14 +24,14 @@ public class ImageCutTask extends BaseTask {
         this.inFile = inFile;
         this.rectangles = Arrays.asList(rectangles);
         this.outDirPath = outDirPath;
-        this.name = TaskTypeEnum.IMAGE_CUT.taskCnName + inFile + "->" + outDirPath;
+        this.name = TaskTypeEnum.IMAGE_CUT.taskCnName + inFile.getAbsolutePath();
     }
 
-    public ImageCutTask(fun.gatsby.sbimgutil.utils.Label label, Path outDirPath) {
+    public ImageCutTask(Label label, Path outDirPath) {
         this.inFile = label.getMarkedImageFile();
         this.outDirPath = outDirPath;
         rectangles = new ArrayList<>();
-        this.name = TaskTypeEnum.IMAGE_CUT.taskCnName + inFile + "->" + outDirPath;
+        this.name = TaskTypeEnum.IMAGE_CUT.taskCnName + inFile ;
         for (Label.Mark mark : label.getMarks()) {
             int[][] points = mark.getPoints();
 
@@ -45,7 +45,6 @@ public class ImageCutTask extends BaseTask {
             Rectangle rectangle = new Rectangle(point, new Dimension(Math.abs(width), Math.abs(height)));
             rectangles.add(rectangle);
         }
-
     }
 
 

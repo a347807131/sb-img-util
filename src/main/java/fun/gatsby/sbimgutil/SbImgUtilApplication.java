@@ -19,7 +19,7 @@ public class SbImgUtilApplication {
     public static void main(String[] args) throws Exception {
 
         var ctx = new SpringApplicationBuilder(SbImgUtilApplication.class)
-                .headless(false).web(WebApplicationType.NONE).run(args);
+                .headless(false).run(args);
 
         SbImgUtilApplication.ctx = ctx;
         AppConfig appConfig = ctx.getBean(AppConfig.class);

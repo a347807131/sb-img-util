@@ -1,11 +1,8 @@
 package fun.gatsby.sbimgutil.context;
 
-import cn.hutool.core.lang.func.VoidFunc0;
 import fun.gatsby.sbimgutil.config.AppConfig;
 import fun.gatsby.sbimgutil.schedule.ProcessTaskGroup;
-import fun.gatsby.sbimgutil.schedule.Scheduler;
 import fun.gatsby.sbimgutil.schedule.TaskScheduleForkJoinPool;
-import fun.gatsby.sbimgutil.schedule.TaskGroup;
 import fun.gatsby.sbimgutil.utils.ConsoleProgressBar;
 import fun.gatsby.sbimgutil.utils.Const;
 import fun.gatsby.sbimgutil.utils.FileFetchUtils;
@@ -15,34 +12,31 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.logging.log4j.util.Strings;
 
 import java.io.File;
-import java.io.FileFilter;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.*;
 import java.util.concurrent.ExecutionException;
-import java.util.stream.Collectors;
 
-public class TaskExcutor {
+public class TaskExecutor {
 
-
-    private final TaskTypeEnum taskType;
     private final AppConfig.GlobalTaskConfig gtc;
-    TaskScheduleForkJoinPool myForkJoinPool;
+    TaskScheduleForkJoinPool forkJoinPool;
     AppConfig.ProcessTask processTask;
-
     public static ConsoleProgressBar CPB;
-    private TaskGroup<Runnable> taskGroup;
 
-    public TaskExcutor(AppConfig.ProcessTask processTask, TaskTypeEnum taskType, AppConfig.GlobalTaskConfig gtc) throws IOException {
-        myForkJoinPool = new TaskScheduleForkJoinPool(gtc.getMaxWorkerNum());
+    public TaskExecutor(AppConfig.GlobalTaskConfig gtc, AppConfig.ProcessTask processTask, TaskTypeEnum...taskTypes) throws IOException {
+        this.forkJoinPool = new TaskScheduleForkJoinPool(gtc.getMaxWorkerNum());
         this.gtc=gtc;
         this.processTask = processTask;
-        this.taskType = taskType;
-        init();
+        for (TaskTypeEnum taskType : taskTypes) {
+            List<Runnable> tasks = loadTasks(taskType);
+            this.forkJoinPool.scheduleBatch(tasks);
+        }
+        CPB = new ConsoleProgressBar(this.forkJoinPool.getTaskCount());
     }
 
-    public void init() throws IOException {
+    public List<Runnable> loadTasks(TaskTypeEnum taskType) throws IOException {
 
         String inDirPath = gtc.getInDirPath();
         File inDir = new File(inDirPath);
@@ -60,14 +54,12 @@ public class TaskExcutor {
             );
 
         imgFiles.sort(Comparator.comparing(File::getName));
-
         String fileNameRegex = gtc.getFileNameRegex();
-
         imgFiles = imgFiles.stream().filter(
                 imgFile -> Strings.isBlank(fileNameRegex) || imgFile.getName().matches(fileNameRegex)
         ).toList();
 
-        this.taskGroup = new ProcessTaskGroup(taskType.taskCnName);
+        var tasks = new ProcessTaskGroup(taskType.taskCnName);
         switch (taskType) {
             case PDF_MERGE -> {
                 LinkedHashMap<File, List<File>> dirToImgFilesMap = loadSortedDirToImgFilesMap(imgFiles);
@@ -85,7 +77,7 @@ public class TaskExcutor {
                         cataFile = new File(cataDirPath, cataFileName);
                     }
                     PdfMergeTask task = new PdfMergeTask(imgs, outFile, cataFile);
-                    taskGroup.add(task);
+                    tasks.add(task);
                 }
             }
             case IMAGE_TRANSFORM, IMAGE_COMPRESS, DRAW_BLUR,BOOK_IMAGE_FIX -> {
@@ -102,9 +94,10 @@ public class TaskExcutor {
                         case BOOK_IMAGE_FIX -> new BookImageFixTask(imgFile, outFile);
                         default -> null;
                     };
-                    taskGroup.add(task);
+                    tasks.add(task);
                 }
             }
+            // FIXME: 2023/8/11 指定文件路径问题
             case IMAGE_CUT -> {
                 File labelFile;
                 if(processTask.getLabelFilePath()==null)
@@ -112,21 +105,20 @@ public class TaskExcutor {
                 else
                     labelFile = new File(processTask.getLabelFilePath());
                 List<String> labelLines = Files.readAllLines(labelFile.toPath());
+                Path parentDirPath = inDir.getParentFile().toPath();
                 for (String labelLine : labelLines) {
-                    Label label = Label.parse(inDir.getParentFile().toPath(), labelLine);
+                    Label label = Label.parse(parentDirPath, labelLine);
                     File outDir = genOutFile(label.getMarkedImageFile()).getParentFile();
                     ImageCutTask imageCutTask = new ImageCutTask(label, outDir.toPath());
-                    taskGroup.add(imageCutTask);
+                    tasks.add(imageCutTask);
                 }
             }
         }
-
-        myForkJoinPool.scheduleBatch(taskGroup);
-        CPB = new ConsoleProgressBar(taskGroup.size());
+        return tasks;
     }
 
     public void excute() throws ExecutionException, InterruptedException {
-        myForkJoinPool.start();
+        forkJoinPool.start();
     }
 
     public static ConsoleProgressBar getGlobalConsoleProgressBar() {
@@ -141,7 +133,6 @@ public class TaskExcutor {
                     m.computeIfAbsent(parent, v->new LinkedList<>()).add(k);
                 },
                 LinkedHashMap::putAll
-
         );
     }
 
@@ -174,5 +165,4 @@ public class TaskExcutor {
         );
         return Path.of(gtc.getOutDirPath(), midpiece, outFileName).toFile();
     }
-
 }

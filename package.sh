@@ -4,11 +4,11 @@ NAME="sb-img-util"
 VERSION="2.2.2"
 VENDOR="JGatsby， Civin@bupt.cn"
 JDK_PATH_UNIX="$2"
+
+if [ -z "$JDK_PATH_UNIX" ]; then
+   JDK_PATH_UNIX=${JAVA_HOME}
+fi
 export JAVA_HOME=$JDK_PATH_UNIX
-
-
-rm -rf "build/$NAME"
-
 JPKGCMD="${JAVA_HOME}/bin/jpackage"
 $JPKGCMD --type app-image --name "$NAME" --input target \
 --main-jar "${NAME}-${VERSION}.jar"  --icon logo.ico  \

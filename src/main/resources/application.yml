@@ -2,7 +2,8 @@
 logging:
   level:
     root: info
-    fun.gatsby: debug
+    fun.gatsby: info
+
   file:
     path: logs
 

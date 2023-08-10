@@ -22,12 +22,13 @@ public class BookImageFixTask extends BaseTask{
 
     static RestTemplate restTemplate=new RestTemplate();
     File inFile;
+    String name;
 
     public BookImageFixTask(File inFile, File outFile) {
         this.inFile = inFile;
         this.outFile = outFile;
+        this.name="修复图片:"+inFile.getAbsolutePath();
     }
-
 
     @Override
     public void doWork() throws Throwable {
