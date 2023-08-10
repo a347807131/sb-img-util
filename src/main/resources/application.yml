@@ -28,6 +28,7 @@ app:
     file-name-regex: ^(?!seka).*$ #不以seka开头的文件名
 
     recursive: true #是否递归处理子目录
+    enforce: false #是否强制覆盖已存在的文件
   #处理项
   #任务类型 目前只有4重类型：IMAGE_TRANSFORM、IMAGE_COMPRESS、DRAW_BLUR、PDF_MERGE
   process-tasks:

@@ -1,5 +1,6 @@
 package fun.gatsby.sbimgutil.context;
 
+import cn.hutool.core.lang.func.VoidFunc0;
 import fun.gatsby.sbimgutil.config.AppConfig;
 import fun.gatsby.sbimgutil.schedule.ProcessTaskGroup;
 import fun.gatsby.sbimgutil.schedule.Scheduler;
@@ -14,6 +15,7 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.logging.log4j.util.Strings;
 
 import java.io.File;
+import java.io.FileFilter;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -65,17 +67,15 @@ public class TaskExcutor {
                 imgFile -> Strings.isBlank(fileNameRegex) || imgFile.getName().matches(fileNameRegex)
         ).toList();
 
-        TaskGroup<Runnable> taskGroup = new ProcessTaskGroup(taskType.taskCnName);
-
-        this.taskGroup = taskGroup;
+        this.taskGroup = new ProcessTaskGroup(taskType.taskCnName);
         switch (taskType) {
             case PDF_MERGE -> {
                 LinkedHashMap<File, List<File>> dirToImgFilesMap = loadSortedDirToImgFilesMap(imgFiles);
                 for (Map.Entry<File, List<File>> entry : dirToImgFilesMap.entrySet()) {
                     File dirThatFilesBelong = entry.getKey();
-                    File pdfOutFile =
-                            genPdfOutFile(dirThatFilesBelong, processTask);
-                    if (pdfOutFile.exists())
+                    File outFile =
+                            genPdfOutFile(dirThatFilesBelong);
+                    if (outFile.exists() && !gtc.isEnforce())
                         continue;
                     List<File> imgs = entry.getValue();
                     String cataDirPath = processTask.getCataDirPath();
@@ -84,48 +84,49 @@ public class TaskExcutor {
                         String cataFileName = dirThatFilesBelong.getAbsolutePath().replace(new File(inDirPath).getAbsolutePath(), "") + ".txt";
                         cataFile = new File(cataDirPath, cataFileName);
                     }
-                    PdfMergeTask task = new PdfMergeTask(imgs, pdfOutFile, cataFile);
+                    PdfMergeTask task = new PdfMergeTask(imgs, outFile, cataFile);
                     taskGroup.add(task);
                 }
             }
-            case IMAGE_TRANSFORM, IMAGE_COMPRESS, DRAW_BLUR -> {
+            case IMAGE_TRANSFORM, IMAGE_COMPRESS, DRAW_BLUR,BOOK_IMAGE_FIX -> {
                 //非pdf合并走这边
                 for (File imgFile : imgFiles) {
-                    File outFile = genOutFile(imgFile, processTask);
-                    if (outFile.exists()) {
+                    File outFile = genOutFile(imgFile, processTask.getFormat());
+                    if (outFile.exists() && !gtc.isEnforce()) {
                         continue;
                     }
                     BaseTask task = switch (taskType) {
                         case IMAGE_TRANSFORM -> new ImageTransformTask(imgFile, outFile, processTask.getFormat());
                         case IMAGE_COMPRESS -> new ImageCompressTask(imgFile, outFile, processTask.getCompressLimit());
                         case DRAW_BLUR -> new DrawBlurTask(imgFile, outFile, new File(processTask.getBlurImagePath()));
+                        case BOOK_IMAGE_FIX -> new BookImageFixTask(imgFile, outFile);
                         default -> null;
                     };
                     taskGroup.add(task);
                 }
             }
             case IMAGE_CUT -> {
-                File labelFile = new File(inDirPath, "Label.txt");
+                File labelFile;
+                if(processTask.getLabelFilePath()==null)
+                    labelFile = new File(inDirPath, "Label.txt");
+                else
+                    labelFile = new File(processTask.getLabelFilePath());
                 List<String> labelLines = Files.readAllLines(labelFile.toPath());
                 for (String labelLine : labelLines) {
                     Label label = Label.parse(inDir.getParentFile().toPath(), labelLine);
-                    File outDir = genOutFile(label.getMarkedImageFile(), processTask).getParentFile();
+                    File outDir = genOutFile(label.getMarkedImageFile()).getParentFile();
                     ImageCutTask imageCutTask = new ImageCutTask(label, outDir.toPath());
                     taskGroup.add(imageCutTask);
                 }
             }
         }
-        // FIXME: 3/7/2023 进度条实现过于丑陋
+
+        myForkJoinPool.scheduleBatch(taskGroup);
         CPB = new ConsoleProgressBar(taskGroup.size());
     }
 
-    public void start() throws ExecutionException, InterruptedException {
-        myForkJoinPool.scheduleBatch(taskGroup);
+    public void excute() throws ExecutionException, InterruptedException {
         myForkJoinPool.start();
-    }
-
-    public int getTotalTask() {
-        return CPB.getTotal();
     }
 
     public static ConsoleProgressBar getGlobalConsoleProgressBar() {
@@ -133,19 +134,18 @@ public class TaskExcutor {
     }
 
     LinkedHashMap<File, List<File>> loadSortedDirToImgFilesMap(List<File> imgFiles) {
+        return imgFiles.parallelStream().collect(
+                LinkedHashMap::new,
+                (m,k)-> {
+                    File parent = k.getParentFile();
+                    m.computeIfAbsent(parent, v->new LinkedList<>()).add(k);
+                },
+                LinkedHashMap::putAll
 
-        Map<File, List<File>> volumeToImgFilesMap = imgFiles.parallelStream().collect(
-                Collectors.groupingBy(File::getParentFile)
         );
-
-        List<Map.Entry<File, List<File>>> sortedEntries = volumeToImgFilesMap.entrySet().stream()
-                .sorted(Map.Entry.comparingByKey()).toList();
-        return new LinkedHashMap<>(sortedEntries.size()) {{
-            sortedEntries.forEach(e -> put(e.getKey(), e.getValue()));
-        }};
     }
 
-    private File genPdfOutFile(File dirFilesBelong, AppConfig.ProcessTask processTask) {
+    private File genPdfOutFile(File dirFilesBelong) {
         String outFileName = dirFilesBelong.getName() + ".pdf";
         String midpiece = dirFilesBelong.getAbsolutePath().replace(
                 new File(gtc.getInDirPath()).getAbsolutePath(), ""
@@ -157,20 +157,21 @@ public class TaskExcutor {
         Path outFilePath = fleOutDirPath.resolve(outFileName);
         return outFilePath.toFile();
     }
+    File genOutFile(File inFile) {
+        return genOutFile(inFile,null);
+    }
 
-    File genOutFile(File inFile, AppConfig.ProcessTask processTask) {
+    File genOutFile(File inFile,String format) {
         String inFileName = inFile.getName();
         String outFileName = inFileName;
-        if (Strings.isNotBlank(processTask.getFormat())) {
+        if (Strings.isNotBlank(format)) {
             outFileName = inFileName.substring(0, inFileName.lastIndexOf(".")) + "." + processTask.getFormat();
         }
-
         String olDdirPath = inFile.getParentFile().getAbsolutePath();
         String midpiece = olDdirPath.replace(
                 new File(gtc.getInDirPath()).getAbsolutePath(),
                 ""
         );
-
         return Path.of(gtc.getOutDirPath(), midpiece, outFileName).toFile();
     }
 

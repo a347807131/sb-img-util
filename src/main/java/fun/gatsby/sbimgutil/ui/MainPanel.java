@@ -81,7 +81,7 @@ public class MainPanel extends JPanel {
 
         workNumInputPanel = new CommonInputPanel("最大线程数", String.valueOf(gtc.getMaxWorkerNum()));
         fileNameRegInputPanel = new CommonInputPanel("文件名正则表达式", gtc.getFileNameRegex(), 10);
-        recursiveChooseBtn = new JRadioButton("递归处理输入文件夹", gtc.isRecursive());
+        recursiveChooseBtn = new JRadioButton("递归处理", gtc.isRecursive());
 
         JPanel nameRegAndWokerNumWrapperPanel = new JPanel();
         nameRegAndWokerNumWrapperPanel.setLayout(new BoxLayout(nameRegAndWokerNumWrapperPanel, BoxLayout.X_AXIS));
@@ -156,6 +156,7 @@ public class MainPanel extends JPanel {
                 case IMAGE_COMPRESS -> null;
                 case IMAGE_CUT -> labelFileInputPanel;
                 case DRAW_BLUR -> blurImgFileInputPanel;
+                default -> null;
             };
             if (tagetPanel != null)
                 tagetPanel.setVisible(true);
@@ -181,7 +182,7 @@ public class MainPanel extends JPanel {
             gtc.setMaxWorkerNum(maxWorkerNum);
             try {
                 TaskExcutor taskExcutor = new TaskExcutor(processTask, taskType, gtc);
-                taskExcutor.start();
+                taskExcutor.excute();
                 JOptionPane.showMessageDialog(this, "任务完成");
             } catch (Exception ex) {
                 JDialog dialog = new JDialog();
