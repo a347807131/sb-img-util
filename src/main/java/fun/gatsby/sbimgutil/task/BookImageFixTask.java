@@ -19,14 +19,15 @@ import java.util.Map;
 
 @Slf4j
 public class BookImageFixTask extends BaseTask{
-    static String url="http://127.0.0.1:8868/img_process/book_image_fix";
+    static String url="http://127.0.0.1:8868";
+   static final String API_ADDRESS=  "/img_process/book_image_fix";
 
     static RestTemplate restTemplate=new RestTemplate();
     File inFile;
 //
-//    static {
-//        PyApiProcessManager.getInstance();
-//    }
+    static {
+        url=PyApiProcessManager.getInstance().getPyApiServerUrl()+API_ADDRESS;
+    }
 
     public BookImageFixTask(File inFile, File outFile) {
         this.inFile = inFile;

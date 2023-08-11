@@ -8,6 +8,9 @@ logging:
     path: logs
 
 spring:
+  devtools:
+    livereload:
+      enabled: false
   profiles:
     active: @activated-profile@
 

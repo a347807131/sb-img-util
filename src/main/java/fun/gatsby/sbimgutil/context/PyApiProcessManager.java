@@ -1,14 +1,15 @@
 package fun.gatsby.sbimgutil.context;
 
-import jakarta.annotation.PostConstruct;
-import jakarta.annotation.PreDestroy;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.net.InetAddress;
+import java.net.Socket;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
+
 
 @Slf4j
 public class PyApiProcessManager {
@@ -16,8 +17,10 @@ public class PyApiProcessManager {
     static PyApiProcessManager instance=null;
 
     private Process process;
+    private int port;
 
     private PyApiProcessManager(){
+
         try {
             init();
         }catch (Exception e){
@@ -33,13 +36,25 @@ public class PyApiProcessManager {
         return instance;
     }
 
+    public String getPyApiServerUrl(){
+        return "http://127.0.0.1:%s".formatted(port);
+    }
+
     void init() throws IOException {
+
+        port = getUsablePort(8868);
+
         log.info("imageProcessApiPy process start initing, please wait 10s.");
         Path appDir = Path.of("pyApi");
         Path exePath=appDir.resolve("app.exe");
-        ProcessBuilder processBuilder = new ProcessBuilder(exePath.toString(),"--port=8868");
+
+        ProcessBuilder processBuilder = new ProcessBuilder(exePath.toString(),
+                "--port="+port
+//                "--rembg_model="+"u2net"
+        );
         processBuilder.directory(appDir.toFile());
-        processBuilder.environment().put("U2NET_HOME","models");
+        Path modelDirPah = appDir.resolve("models");
+        processBuilder.environment().put("U2NET_HOME",modelDirPah.toFile().getAbsolutePath());
         process = processBuilder.start();
         var reader = new BufferedReader(new InputStreamReader(process.getInputStream(), StandardCharsets.UTF_8));
 
@@ -48,11 +63,11 @@ public class PyApiProcessManager {
         while (!ocrReady) {
             line = reader.readLine();
             log.debug("line: " + line);
-            if (line.contains("Serving")) {
+            if (line.contains("Serving") || line.contains("Running")) {
                 ocrReady = true;
             }
         }
-        log.info("imageProcessApiPy process inited");
+        log.info("imageProcessApiPy process inited, running at port "+port);
     }
     public void destroy(){
         if(process.isAlive()) {
@@ -63,5 +78,37 @@ public class PyApiProcessManager {
 
     public static boolean loaded(){
         return instance!=null;
+    }
+
+
+    /**
+     * 根据输入端口号，递增递归查询可使用端口
+     * @param port  端口号
+     * @return  如果被占用，递归；否则返回可使用port
+     */
+    public static int getUsablePort(int port) throws IOException {
+        boolean flag = false;
+        Socket socket = null;
+        InetAddress theAddress = InetAddress.getByName("127.0.0.1");
+        try{
+            socket = new Socket(theAddress, port);
+            flag = true;
+        } catch (IOException e) {
+            //如果测试端口号没有被占用，那么会抛出异常，通过下文flag来返回可用端口
+        } finally {
+            if(socket!=null) {
+                //new了socket最好释放
+                socket.close();
+            }
+        }
+
+        if (flag) {
+            //端口被占用，port + 1递归
+            port = port + 1;
+            return getUsablePort(port);
+        } else {
+            //可用端口
+            return port;
+        }
     }
 }
