@@ -83,7 +83,9 @@ public class TaskExecutor {
             case IMAGE_TRANSFORM, IMAGE_COMPRESS, DRAW_BLUR,BOOK_IMAGE_FIX -> {
                 //非pdf合并走这边
                 for (File imgFile : imgFiles) {
-                    File outFile = genOutFile(imgFile, processTask.getFormat());
+                    File outFile = genOutFile(imgFile,
+                            taskType.equals(TaskTypeEnum.IMAGE_TRANSFORM)? processTask.getFormat():null
+                    );
                     if (outFile.exists() && !gtc.isEnforce()) {
                         continue;
                     }

@@ -1,6 +1,7 @@
 package fun.gatsby.sbimgutil.task;
 
 import cn.hutool.core.lang.Assert;
+import fun.gatsby.sbimgutil.context.PyApiProcessManager;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.io.FileSystemResource;
@@ -18,11 +19,14 @@ import java.util.Map;
 
 @Slf4j
 public class BookImageFixTask extends BaseTask{
-    static String url="http://localhost:5000/img_process/book_image_fix";
+    static String url="http://127.0.0.1:8868/img_process/book_image_fix";
 
     static RestTemplate restTemplate=new RestTemplate();
     File inFile;
-    String name;
+//
+//    static {
+//        PyApiProcessManager.getInstance();
+//    }
 
     public BookImageFixTask(File inFile, File outFile) {
         this.inFile = inFile;
