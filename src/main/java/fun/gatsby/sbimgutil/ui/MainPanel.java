@@ -31,6 +31,7 @@ public class MainPanel extends JPanel {
     private FilePathInputPanel blurImgFileInputPanel;
     private JRadioButton recursiveChooseBtn;
     private FilePathInputPanel labelFileInputPanel;
+    private JRadioButton enforceChooseBtn;
 
 
     public MainPanel(AppConfig appConfig) {
@@ -78,13 +79,15 @@ public class MainPanel extends JPanel {
 
         workNumInputPanel = new CommonInputPanel("最大线程数", String.valueOf(gtc.getMaxWorkerNum()));
         fileNameRegInputPanel = new CommonInputPanel("文件名正则表达式", gtc.getFileNameRegex(), 10);
-        recursiveChooseBtn = new JRadioButton("递归处理", gtc.isRecursive());
+        recursiveChooseBtn = new JRadioButton("递归文件处理", gtc.isRecursive());
+        enforceChooseBtn = new JRadioButton("强制覆盖处理", gtc.isRecursive());
 
         JPanel nameRegAndWokerNumWrapperPanel = new JPanel();
         nameRegAndWokerNumWrapperPanel.setLayout(new BoxLayout(nameRegAndWokerNumWrapperPanel, BoxLayout.X_AXIS));
         nameRegAndWokerNumWrapperPanel.add(fileNameRegInputPanel);
         nameRegAndWokerNumWrapperPanel.add(workNumInputPanel);
         nameRegAndWokerNumWrapperPanel.add(recursiveChooseBtn);
+        nameRegAndWokerNumWrapperPanel.add(enforceChooseBtn);
         add(nameRegAndWokerNumWrapperPanel);
 
 
@@ -167,6 +170,7 @@ public class MainPanel extends JPanel {
             String outDirPath = pathOutPanel.getFilePath();
             gtc.setOutDirPath(outDirPath);
             gtc.setRecursive(recursiveChooseBtn.isSelected());
+            gtc.setEnforce(enforceChooseBtn.isSelected());
 
             TaskTypeEnum taskType = taskItemChoosePanel.getSelectedTaskType();
             switch (taskType) {

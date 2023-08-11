@@ -10,6 +10,9 @@ import java.util.concurrent.ForkJoinTask;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.atomic.AtomicInteger;
 
+/**
+ * 一批一批的地执行任务
+ */
 public class TaskScheduleForkJoinPool extends ForkJoinPool {
 
     public TaskScheduleForkJoinPool() {

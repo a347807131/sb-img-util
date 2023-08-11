@@ -16,8 +16,7 @@ import java.io.IOException;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
 
-@Profile("dev")
-@SpringBootTest
+@SpringBootTest(properties = "spring.profiles.active=dev")
 class SbImgUtilApplicationTests {
 
     @Autowired
@@ -29,7 +28,7 @@ class SbImgUtilApplicationTests {
     AppConfig.ProcessTask processTask=null;
 
     @PostConstruct
-    void initProcessTask() {
+    void init() {
         Map<String, AppConfig.ProcessTask> processTasks = appConfig.getProcessTasks();
         processTask = new AppConfig.ProcessTask();
         processTask.setFormat(processTasks.get(TaskTypeEnum.IMAGE_TRANSFORM.name()).getFormat());
@@ -40,8 +39,11 @@ class SbImgUtilApplicationTests {
     @Test
     void testTaskExecutor() throws IOException, ExecutionException, InterruptedException {
         AppConfig.GlobalTaskConfig gtc = appConfig.getGlobalTaskConfig();
-        TaskExecutor excutor = new TaskExecutor(gtc,processTask, TaskTypeEnum.IMAGE_TRANSFORM,TaskTypeEnum.IMAGE_COMPRESS);
+        TaskExecutor excutor = new TaskExecutor(gtc,processTask,
+//                TaskTypeEnum.IMAGE_TRANSFORM,
+//                TaskTypeEnum.IMAGE_COMPRESS,
+                TaskTypeEnum.BOOK_IMAGE_FIX
+        );
         excutor.excute();
     }
-
 }

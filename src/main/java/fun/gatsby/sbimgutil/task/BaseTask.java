@@ -51,7 +51,11 @@ public abstract class BaseTask implements ITask {
     public void after() {
         if (outFile != null && outFile.exists()) {
             String fileName = outFile.getName().substring(0, outFile.getName().lastIndexOf("."));
-            outFile.renameTo(new File(outFile.getParentFile(),fileName));
+            File finalFile = new File(outFile.getParentFile(), fileName);
+            if(finalFile.exists()){
+                finalFile.delete();
+            }
+            outFile.renameTo(finalFile);
         }
 
         long between = LocalDateTimeUtil.between(startDate, LocalDateTime.now(), ChronoUnit.SECONDS);

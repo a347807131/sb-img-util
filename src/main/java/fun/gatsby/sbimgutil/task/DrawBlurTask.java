@@ -18,7 +18,7 @@ public class DrawBlurTask extends BaseTask{
         this.inFile = inFile;
         this.outFile = outFile;
         this.blurImageFile = blurImageFile;
-        name= "绘制水印图: "+inFile.getName()+" -> "+outFile.getAbsolutePath();
+        name= "绘制水印图: "+inFile.getAbsolutePath();
     }
 
     @Override
