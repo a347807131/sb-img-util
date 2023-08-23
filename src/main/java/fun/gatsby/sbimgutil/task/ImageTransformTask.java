@@ -33,13 +33,13 @@ public class ImageTransformTask extends BaseTask{
         name = "格式转换: " + inFile.getAbsolutePath();
     }
 
-    int oriWDpi, oriHDpi;
+    int oriWDpi=600, oriHDpi=600;
 
     @Override
     public void doWork() throws Exception {
-        ImageInfo imageInfo = Imaging.getImageInfo(inFile);
-        oriWDpi = imageInfo.getPhysicalWidthDpi();
-        oriHDpi = imageInfo.getPhysicalHeightDpi();
+//        ImageInfo imageInfo = Imaging.getImageInfo(inFile);
+//        oriWDpi = imageInfo.getPhysicalWidthDpi();
+//        oriHDpi = imageInfo.getPhysicalHeightDpi();
         switch (format) {
             case "jp2" -> {
                 BufferedImage bf = ImageIO.read(inFile);

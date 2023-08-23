@@ -17,6 +17,7 @@ import java.nio.file.Files;
 import java.util.Base64;
 import java.util.Map;
 
+// TODO: 8/23/2023  
 @Slf4j
 public class BookImageFixTask extends BaseTask{
     static String url="http://127.0.0.1:8868";
@@ -26,7 +27,7 @@ public class BookImageFixTask extends BaseTask{
     File inFile;
 //
     static {
-        url=PyApiProcessManager.getInstance().getPyApiServerUrl()+API_ADDRESS;
+//        url=PyApiProcessManager.getInstance().getPyApiServerUrl()+API_ADDRESS;
     }
 
     public BookImageFixTask(File inFile, File outFile) {

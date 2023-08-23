@@ -23,7 +23,7 @@ $JPKGCMD --type app-image --name "$NAME" --input target \
 cp Licence.txt "$OUTPUT_PATH/$NAME"
 cp logo.ico "$OUTPUT_PATH/$NAME"
 cp "README.MD" "$OUTPUT_PATH/$NAME"
-cp -r pyApi "$OUTPUT_PATH/$NAME"
+#cp -r pyApi "$OUTPUT_PATH/$NAME"
 
 echo "-------------处理完成--------------"
 
