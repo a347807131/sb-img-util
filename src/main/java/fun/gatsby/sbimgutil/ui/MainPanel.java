@@ -3,13 +3,19 @@ package fun.gatsby.sbimgutil.ui;
 import fun.gatsby.sbimgutil.config.AppConfig;
 import fun.gatsby.sbimgutil.context.TaskExecutor;
 import fun.gatsby.sbimgutil.task.TaskTypeEnum;
+import fun.gatsby.sbimgutil.ui.util.GuiUtils;
 import lombok.extern.slf4j.Slf4j;
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
+import java.io.File;
 import java.io.IOException;
+import java.net.URI;
+import java.net.URL;
 import java.util.Objects;
+
+import static fun.gatsby.sbimgutil.ui.util.Insertable.*;
 
 @Slf4j
 public class MainPanel extends JPanel {
@@ -35,7 +41,6 @@ public class MainPanel extends JPanel {
 
     public MainPanel(AppConfig appConfig) {
         this.appConfig = appConfig;
-
         setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
         init();
     }
@@ -49,10 +54,11 @@ public class MainPanel extends JPanel {
         label.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
-                String url = appConfig.getReadmeUrl();
                 try {
-                    Runtime.getRuntime().exec("cmd /c start " + url);
+                    URI uri = URI.create(appConfig.getReadmeUrl());
+                    GuiUtils.openInDefaultBrowser(MainPanel.this, uri.toURL());
                 } catch (IOException ex) {
+                    log.error("打开使用说明失败", ex);
                     throw new RuntimeException(ex);
                 }
             }
@@ -64,16 +70,21 @@ public class MainPanel extends JPanel {
         logLabel.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
-                String url = appConfig.getLoggingFilePath();
-                try {
-                    Runtime.getRuntime().exec("cmd /c explorer " + url);
-                } catch (IOException ex) {
-                    throw new RuntimeException(ex);
-                }
+                var url = appConfig.getLoggingFilePath();
+                GuiUtils.openSystemExplorer(MainPanel.this, new File(url));
             }
         });
 
         AppConfig.GlobalTaskConfig gtc = appConfig.getGlobalTaskConfig();
+
+        pathInputPanel = new FilePathInputPanel("输入文件夹", 10);
+        pathInputPanel.setFilePath(gtc.getInDirPath());
+        pathOutPanel = new FilePathInputPanel("输出文件夹", 10);
+        pathOutPanel.setFilePath(gtc.getOutDirPath());
+        add(
+            GuiUtils.getFlowLayoutPanel(
+                FlowLayout.TRAILING, BLOCK_SEPARATOR, ITEM_SEPARATOR_SMALL, pathInputPanel, pathOutPanel)
+        );
 
 
         workNumInputPanel = new CommonInputPanel("最大线程数", String.valueOf(gtc.getMaxWorkerNum()));
@@ -81,29 +92,17 @@ public class MainPanel extends JPanel {
         recursiveChooseBtn = new JRadioButton("递归文件处理", gtc.isRecursive());
         enforceChooseBtn = new JRadioButton("强制覆盖处理", gtc.isRecursive());
 
-        JPanel nameRegAndWokerNumWrapperPanel = new JPanel();
-        nameRegAndWokerNumWrapperPanel.setLayout(new BoxLayout(nameRegAndWokerNumWrapperPanel, BoxLayout.X_AXIS));
-        nameRegAndWokerNumWrapperPanel.add(fileNameRegInputPanel);
-        nameRegAndWokerNumWrapperPanel.add(workNumInputPanel);
-        nameRegAndWokerNumWrapperPanel.add(recursiveChooseBtn);
-        nameRegAndWokerNumWrapperPanel.add(enforceChooseBtn);
-        add(nameRegAndWokerNumWrapperPanel);
-
-
-        JPanel pathWrapperPanel = new JPanel();
-        pathWrapperPanel.setLayout(new BoxLayout(pathWrapperPanel, BoxLayout.X_AXIS));
-
-        pathInputPanel = new FilePathInputPanel("输入文件夹", 10);
-        pathInputPanel.setFilePath(gtc.getInDirPath());
-        pathOutPanel = new FilePathInputPanel("输出文件夹", 10);
-        pathOutPanel.setFilePath(gtc.getOutDirPath());
-        pathWrapperPanel.add(pathInputPanel);
-        pathWrapperPanel.add(pathOutPanel);
-        add(pathWrapperPanel);
+        add(
+            GuiUtils.getFlowLayoutPanel(
+                FlowLayout.TRAILING, BLOCK_SEPARATOR, ITEM_SEPARATOR_SMALL,
+                workNumInputPanel,
+                fileNameRegInputPanel,
+                recursiveChooseBtn,
+                enforceChooseBtn)
+        );
 
         taskItemChoosePanel = new WorkItemChoosePanel();
         add(taskItemChoosePanel);
-
 
         cataDirInputPanel = new FilePathInputPanel("pdf目录所在文件夹", 10);
         cataDirInputPanel.setFilePath(appConfig.getProcessTasks().get(TaskTypeEnum.PDF_MERGE.name()).getCataDirPath());
@@ -125,10 +124,12 @@ public class MainPanel extends JPanel {
         formatChosePanel.add(formatLabel);
         formatChosePanel.add(formatComboBox);
 
-        add(cataDirInputPanel);
-        add(blurImgFileInputPanel);
-        add(formatChosePanel);
-        add(labelFileInputPanel);
+        add(GuiUtils.getHorizontalBoxLayoutPanel(
+                cataDirInputPanel,
+                blurImgFileInputPanel,
+                labelFileInputPanel,
+                formatChosePanel
+        ));
 
         formatChosePanel.setVisible(true);
         cataDirInputPanel.setVisible(false);
