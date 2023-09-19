@@ -71,7 +71,7 @@ public abstract class BaseTask implements ITask {
     @Override
     public void onError(Throwable e) {
         state = TaskStateEnum.ERROR;
-        log.error("任务执行异常",e);
+        log.error("任务"+name+"执行异常",e);
     }
 
     @Override

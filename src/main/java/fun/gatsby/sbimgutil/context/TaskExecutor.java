@@ -8,6 +8,7 @@ import fun.gatsby.sbimgutil.utils.Const;
 import fun.gatsby.sbimgutil.utils.FileFetchUtils;
 import fun.gatsby.sbimgutil.utils.Label;
 import fun.gatsby.sbimgutil.task.*;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
 import org.apache.logging.log4j.util.Strings;
 
@@ -17,7 +18,9 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.*;
 import java.util.concurrent.ExecutionException;
+import java.util.stream.Collectors;
 
+@Slf4j
 public class TaskExecutor {
 
     private final AppConfig.GlobalTaskConfig gtc;
@@ -58,6 +61,8 @@ public class TaskExecutor {
         imgFiles = imgFiles.stream().filter(
                 imgFile -> Strings.isBlank(fileNameRegex) || imgFile.getName().matches(fileNameRegex)
         ).toList();
+
+        log.info("本次任务将处理{}个文件", imgFiles.size());
 
         var tasks = new ProcessTaskGroup(taskType.taskCnName);
         switch (taskType) {

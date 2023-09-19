@@ -90,7 +90,7 @@ public class MainPanel extends JPanel {
         workNumInputPanel = new CommonInputPanel("最大线程数", String.valueOf(gtc.getMaxWorkerNum()));
         fileNameRegInputPanel = new CommonInputPanel("文件名正则表达式", gtc.getFileNameRegex(), 10);
         recursiveChooseBtn = new JRadioButton("递归文件处理", gtc.isRecursive());
-        enforceChooseBtn = new JRadioButton("强制覆盖处理", gtc.isRecursive());
+        enforceChooseBtn = new JRadioButton("强制覆盖处理", gtc.isEnforce());
 
         add(
             GuiUtils.getFlowLayoutPanel(

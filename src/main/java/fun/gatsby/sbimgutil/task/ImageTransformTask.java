@@ -46,7 +46,8 @@ public class ImageTransformTask extends BaseTask{
                 ImageIO.write(bf, "jpeg2000", outFile);
             }
             case "jpg", "jpeg" -> {
-                this.transformToJpg();
+                BufferedImage bf = ImageIO.read(inFile);
+                ImageIO.write(bf, "jpeg", outFile);
             }
             case "tif", "tiff" -> {
                 this.transformToTif();
@@ -100,6 +101,11 @@ public class ImageTransformTask extends BaseTask{
             IIOMetadata metadata = writer.getDefaultImageMetadata(ImageTypeSpecifier.createFromRenderedImage(bf), param);
             IIOMetadataNode root = (IIOMetadataNode) metadata.getAsTree(metadata.getNativeMetadataFormatName());
             IIOMetadataNode jfif = (IIOMetadataNode) root.getElementsByTagName("app0JFIF").item(0);
+            if(jfif==null){
+                log.debug("{} jfif 标签为空添加jfif",name);
+                jfif = new IIOMetadataNode("app0JFIF");
+                root.appendChild(jfif);
+            }
             jfif.setAttribute("resUnits", "1");
             jfif.setAttribute("Xdensity", String.valueOf(oriWDpi));
             jfif.setAttribute("Ydensity", String.valueOf(oriHDpi));

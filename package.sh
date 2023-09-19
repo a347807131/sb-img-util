@@ -1,6 +1,6 @@
 #!/bin/bash
 
-NAME="sb-img-util"
+APP_NAME="sb-img-util"
 
 VERSION=$(grep -i "version: " "target/classes/application.yml" | sed 's/^.*: //')
 echo "current version: $VERSION"
@@ -16,14 +16,17 @@ export JAVA_HOME=$JDK_PATH_UNIX
 rm -rf "build"
 
 JPKGCMD="${JAVA_HOME}/bin/jpackage"
-$JPKGCMD --type app-image --name "$NAME" --input target \
---main-jar "${NAME}-${VERSION}.jar"  --icon logo.ico --win-console  \
+$JPKGCMD --type app-image --name "$APP_NAME" --input target \
+--main-jar "${APP_NAME}-${VERSION}.jar"  --icon logo.ico --win-console  \
  --arguments "--spring.profiles.active=prod" --dest "build"
 
-cp Licence.txt "$OUTPUT_PATH/$NAME"
-cp logo.ico "$OUTPUT_PATH/$NAME"
-cp "README.MD" "$OUTPUT_PATH/$NAME"
+cp Licence.txt "$OUTPUT_PATH/$APP_NAME"
+cp logo.ico "$OUTPUT_PATH/$APP_NAME"
+cp "README.MD" "$OUTPUT_PATH/$APP_NAME"
 #cp -r pyApi "$OUTPUT_PATH/$NAME"
+
+APP_JAR_DIR="$OUTPUT_PATH/$APP_NAME/app"
+rm -rf ${APP_JAR_DIR}/classes ${APP_JAR_DIR}/generated-sources  ${APP_JAR_DIR}/generated-test-sources ${APP_JAR_DIR}/maven-archiver ${APP_JAR_DIR}/maven-status ${APP_JAR_DIR}/test-classes
 
 echo "-------------处理完成--------------"
 
