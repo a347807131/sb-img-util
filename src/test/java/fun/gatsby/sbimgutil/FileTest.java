@@ -1,5 +1,6 @@
 package fun.gatsby.sbimgutil;
 
+import fun.gatsby.sbimgutil.task.FiveBackspaceReplaceTask;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Test;
 
@@ -20,5 +21,15 @@ public class FileTest {
     public void t2() {
         Path path = Path.of("C:/", "/a/b", "b");
         System.out.println(path);
+    }
+
+
+    @Test
+
+    public void t3(){
+        File in = new File("D:\\原始备份\\New folder\\5 目录\\27030151\\0001.txt");
+        File out = new File("out.txt");
+        FiveBackspaceReplaceTask fiveBackspaceReplaceTask = new FiveBackspaceReplaceTask(in,out);
+        fiveBackspaceReplaceTask.run();
     }
 }

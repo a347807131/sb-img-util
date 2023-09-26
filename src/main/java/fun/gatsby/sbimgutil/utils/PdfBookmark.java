@@ -11,7 +11,7 @@ import java.util.TreeSet;
  */
 @NoArgsConstructor
 @Data
-class PdfBookmark implements Comparable<PdfBookmark> {
+public class PdfBookmark implements Comparable<PdfBookmark> {
     Integer page;
     String title;
     Integer level;

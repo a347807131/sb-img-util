@@ -85,7 +85,7 @@ public class TaskExecutor {
                     tasks.add(task);
                 }
             }
-            case IMAGE_TRANSFORM, IMAGE_COMPRESS, DRAW_BLUR,BOOK_IMAGE_FIX -> {
+            case IMAGE_TRANSFORM, IMAGE_COMPRESS, DRAW_BLUR,BOOK_IMAGE_FIX ,FIVE_BACKSPACE_REPLACE-> {
                 //非pdf合并走这边
                 for (File imgFile : imgFiles) {
                     File outFile = genOutFile(imgFile,
@@ -99,6 +99,7 @@ public class TaskExecutor {
                         case IMAGE_COMPRESS -> new ImageCompressTask(imgFile, outFile, processTask.getCompressLimit());
                         case DRAW_BLUR -> new DrawBlurTask(imgFile, outFile, new File(processTask.getBlurImagePath()));
                         case BOOK_IMAGE_FIX -> new BookImageFixTask(imgFile, outFile);
+                        case FIVE_BACKSPACE_REPLACE -> new FiveBackspaceReplaceTask(imgFile, outFile);
                         default -> null;
                     };
                     tasks.add(task);

@@ -7,9 +7,9 @@ app:
   global-task-config:
     #输入目录
 #    in-dir-path: D:\8-2复杂处理图例
-    in-dir-path: D:\原始备份\图片处理模板\格式转换错误示例
+    in-dir-path: C:\Users\Gatsby\Downloads\5 目录(1)
     #输出目录
-    out-dir-path: D:\output
+    out-dir-path: D:\目录文件
     enforce: true
 
   process-tasks:

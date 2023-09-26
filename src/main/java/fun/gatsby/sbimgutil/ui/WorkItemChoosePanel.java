@@ -1,6 +1,7 @@
 package fun.gatsby.sbimgutil.ui;
 
 import fun.gatsby.sbimgutil.task.TaskTypeEnum;
+import fun.gatsby.sbimgutil.utils.Const;
 
 import javax.swing.*;
 import java.awt.event.ActionListener;
@@ -15,7 +16,7 @@ public class WorkItemChoosePanel extends JPanel {
     public WorkItemChoosePanel() {
         super();
         group = new ButtonGroup();
-        List<TaskTypeEnum> typeEnums = Arrays.stream(TaskTypeEnum.values()).filter(taskTypeEnum -> taskTypeEnum != TaskTypeEnum.BOOK_IMAGE_FIX).toList();
+        List<TaskTypeEnum> typeEnums = Const.ENABLED_TASK_TYPES;
         for (TaskTypeEnum taskTypeEnum : typeEnums) {
             JRadioButton radioButton = new JRadioButton(taskTypeEnum.taskCnName);
             radioButton.setActionCommand(taskTypeEnum.name());

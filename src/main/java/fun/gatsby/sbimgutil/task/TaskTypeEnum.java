@@ -6,7 +6,8 @@ public enum TaskTypeEnum {
     IMAGE_COMPRESS("JP2图片压缩"),
     DRAW_BLUR("绘制水印"),
     IMAGE_CUT("图片裁剪"),
-    BOOK_IMAGE_FIX("书籍图片修复")
+    BOOK_IMAGE_FIX("书籍图片修复"),
+    FIVE_BACKSPACE_REPLACE("五个空格替换"),
     ;
     public final String taskCnName;
 
