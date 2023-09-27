@@ -18,7 +18,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.*;
 import java.util.concurrent.ExecutionException;
-import java.util.stream.Collectors;
 
 @Slf4j
 public class TaskExecutor {
@@ -28,18 +27,18 @@ public class TaskExecutor {
     AppConfig.ProcessTask processTask;
     public static ConsoleProgressBar CPB;
 
-    public TaskExecutor(AppConfig.GlobalTaskConfig gtc, AppConfig.ProcessTask processTask, TaskTypeEnum...taskTypes) throws IOException {
+    public TaskExecutor(AppConfig.GlobalTaskConfig gtc, AppConfig.ProcessTask processTask,Class<? extends BaseTask>...classes) throws IOException {
         this.forkJoinPool = new TaskScheduleForkJoinPool(gtc.getMaxWorkerNum());
         this.gtc=gtc;
         this.processTask = processTask;
-        for (TaskTypeEnum taskType : taskTypes) {
-            List<Runnable> tasks = loadTasks(taskType);
+        for (Class<? extends BaseTask> taskClass : classes) {
+            List<Runnable> tasks = loadTasks(taskClass);
             this.forkJoinPool.scheduleBatch(tasks);
         }
         CPB = new ConsoleProgressBar(this.forkJoinPool.getTaskCount());
     }
 
-    public List<Runnable> loadTasks(TaskTypeEnum taskType) throws IOException {
+    public List<Runnable> loadTasks(Class<? extends BaseTask> taskClass) throws IOException {
 
         String inDirPath = gtc.getInDirPath();
         File inDir = new File(inDirPath);
@@ -64,9 +63,9 @@ public class TaskExecutor {
 
         log.info("本次任务将处理{}个文件", imgFiles.size());
 
-        var tasks = new ProcessTaskGroup(taskType.taskCnName);
-        switch (taskType) {
-            case PDF_MERGE -> {
+        var tasks = new ProcessTaskGroup(taskClass.getName());
+        switch (taskClass) {
+            case PdfMergeTask.class -> {
                 LinkedHashMap<File, List<File>> dirToImgFilesMap = loadSortedDirToImgFilesMap(imgFiles);
                 for (Map.Entry<File, List<File>> entry : dirToImgFilesMap.entrySet()) {
                     File dirThatFilesBelong = entry.getKey();
@@ -85,21 +84,22 @@ public class TaskExecutor {
                     tasks.add(task);
                 }
             }
-            case IMAGE_TRANSFORM, IMAGE_COMPRESS, DRAW_BLUR,BOOK_IMAGE_FIX ,FIVE_BACKSPACE_REPLACE-> {
+            case ImageTransformTask.class, ImageCompressTask.class,
+                    DrawBlurTask.class, BookImageFixTask.class , FiveBackspaceReplaceTask.class-> {
                 //非pdf合并走这边
                 for (File imgFile : imgFiles) {
                     File outFile = genOutFile(imgFile,
-                            taskType.equals(TaskTypeEnum.IMAGE_TRANSFORM)? processTask.getFormat():null
+                            tasks.equals(ImageTransformTask.class)? processTask.getFormat():null
                     );
                     if (outFile.exists() && !gtc.isEnforce()) {
                         continue;
                     }
-                    BaseTask task = switch (taskType) {
-                        case IMAGE_TRANSFORM -> new ImageTransformTask(imgFile, outFile, processTask.getFormat());
-                        case IMAGE_COMPRESS -> new ImageCompressTask(imgFile, outFile, processTask.getCompressLimit());
-                        case DRAW_BLUR -> new DrawBlurTask(imgFile, outFile, new File(processTask.getBlurImagePath()));
-                        case BOOK_IMAGE_FIX -> new BookImageFixTask(imgFile, outFile);
-                        case FIVE_BACKSPACE_REPLACE -> new FiveBackspaceReplaceTask(imgFile, outFile);
+                    BaseTask task = switch (taskClass) {
+                        case ImageTransformTask.class -> new ImageTransformTask(imgFile, outFile, processTask.getFormat());
+                        case ImageCompressTask.class -> new ImageCompressTask(imgFile, outFile, processTask.getCompressLimit());
+                        case DrawBlurTask.class -> new DrawBlurTask(imgFile, outFile, new File(processTask.getBlurImagePath()));
+                        case BookImageFixTask.class -> new BookImageFixTask(imgFile, outFile);
+                        case FiveBackspaceReplaceTask.class -> new FiveBackspaceReplaceTask(imgFile, outFile);
                         default -> null;
                     };
                     tasks.add(task);
