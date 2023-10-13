@@ -39,7 +39,8 @@ public class PdfutilsTest {
         PDFUtils.mergeIntoPdf(
                 files,
                 new File("C:/Users/Gatsby/datasets/图片处理模板/4 PDF/无水印/27030166/0001.txt"),
-                new FileOutputStream(outFile));
+                new FileOutputStream(outFile)
+        );
     }
 
     @Test

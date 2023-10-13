@@ -32,6 +32,8 @@ public class TaskExecutor {
         this.forkJoinPool = new TaskScheduleForkJoinPool(gtc.getMaxWorkerNum());
         this.gtc=gtc;
         this.processTask = processTask;
+        if (Objects.equals(gtc.getInDirPath(),gtc.getOutDirPath()))
+            throw new IOException("输入输出目录不能相同");
         for (TaskTypeEnum taskType : taskTypes) {
             List<Runnable> tasks = loadTasks(taskType);
             this.forkJoinPool.scheduleBatch(tasks);
@@ -63,6 +65,7 @@ public class TaskExecutor {
         ).toList();
 
         log.info("本次任务将处理{}个文件", imgFiles.size());
+        log.info("输入：{},输出: {}",inPath,outPath);
 
         var tasks = new ProcessTaskGroup(taskType.taskCnName);
         switch (taskType) {
@@ -88,9 +91,8 @@ public class TaskExecutor {
             case IMAGE_TRANSFORM, IMAGE_COMPRESS, DRAW_BLUR,BOOK_IMAGE_FIX ,FIVE_BACKSPACE_REPLACE-> {
                 //非pdf合并走这边
                 for (File imgFile : imgFiles) {
-                    File outFile = genOutFile(imgFile,
-                            taskType.equals(TaskTypeEnum.IMAGE_TRANSFORM)? processTask.getFormat():null
-                    );
+                    String format= taskType==TaskTypeEnum.IMAGE_TRANSFORM || taskType==TaskTypeEnum.IMAGE_COMPRESS? processTask.getFormat():null;
+                     File outFile = genOutFile(imgFile, format);
                     if (outFile.exists() && !gtc.isEnforce()) {
                         continue;
                     }
@@ -134,7 +136,7 @@ public class TaskExecutor {
     }
 
     LinkedHashMap<File, List<File>> loadSortedDirToImgFilesMap(List<File> imgFiles) {
-        return imgFiles.parallelStream().collect(
+        return imgFiles.stream().collect(
                 LinkedHashMap::new,
                 (m,k)-> {
                     File parent = k.getParentFile();

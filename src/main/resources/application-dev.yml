@@ -6,10 +6,10 @@ logging:
 app:
   global-task-config:
     #输入目录
-#    in-dir-path: D:\8-2复杂处理图例
-    in-dir-path: C:\Users\Gatsby\Downloads\5 目录(1)
+#    in-dir-path:  D:\原始备份\图片处理模板\1 扫描原图（TIFF格式）
+    in-dir-path:  D:\out
     #输出目录
-    out-dir-path: D:\目录文件
+    out-dir-path: D:\pdfout
     enforce: true
 
   process-tasks:
@@ -20,6 +20,7 @@ app:
     IMAGE_COMPRESS:
       #压缩限制大小
       compress-limit: 500
+      format: jp2
 
     DRAW_BLUR:
       blur-image-path: D:\datasets\图片处理模板\2 模糊图

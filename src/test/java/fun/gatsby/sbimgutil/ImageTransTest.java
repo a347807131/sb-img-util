@@ -17,6 +17,8 @@ import org.w3c.dom.Node;
 
 import javax.imageio.*;
 import java.awt.*;
+import java.awt.geom.AffineTransform;
+import java.awt.image.AffineTransformOp;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
@@ -119,5 +121,32 @@ public class ImageTransTest {
         ImageTransformTask imageTransformTask = new ImageTransformTask(inFile, tempFile.toFile(), "tif");
         imageTransformTask.doWork();
         Runtime.getRuntime().exec("explorer /select," + tempFile);
+    }
+
+    @Test
+    public void t11() throws IOException {
+        File inFile = Path.of("src/test/resources/image", "0001.jpg").toFile();
+        BufferedImage bf = ImageIO.read(inFile);
+
+        BufferedImage bufferedImage1 = new BufferedImage(1000,1000,BufferedImage.TYPE_INT_RGB);
+        Image image = bf.getScaledInstance(1000, 1000,Image.SCALE_AREA_AVERAGING);
+        bufferedImage1.getGraphics().drawImage(image,0,0,null);
+
+        ImageIO.write(bufferedImage1,"jp2",new File("temp.jp2"));
+
+    }
+
+    @Test
+    public void t12() throws IOException {
+        File inFile = Path.of("src/test/resources/image", "0001.jpg").toFile();
+        BufferedImage bf = ImageIO.read(inFile);
+
+        AffineTransform affineTransform = AffineTransform.getScaleInstance(0.1f, 0.1f);
+
+        AffineTransformOp op = new AffineTransformOp(affineTransform, null);
+        BufferedImage bf2 = new BufferedImage(bf.getWidth(),bf.getHeight(),BufferedImage.TYPE_INT_RGB);
+        BufferedImage bfout = op.filter(bf, null);
+
+        ImageIO.write(bfout,"jp",new File("temp.jpg"));
     }
 }
