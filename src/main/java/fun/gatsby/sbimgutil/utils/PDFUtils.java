@@ -1,7 +1,10 @@
 package fun.gatsby.sbimgutil.utils;
 
+import com.itextpdf.io.font.FontConstants;
 import com.itextpdf.io.image.ImageData;
 import com.itextpdf.io.image.ImageDataFactory;
+import com.itextpdf.kernel.font.PdfFont;
+import com.itextpdf.kernel.font.PdfFontFactory;
 import com.itextpdf.kernel.geom.PageSize;
 import com.itextpdf.kernel.pdf.PdfDocument;
 import com.itextpdf.kernel.pdf.PdfOutline;
@@ -9,9 +12,14 @@ import com.itextpdf.kernel.pdf.PdfPage;
 import com.itextpdf.kernel.pdf.PdfWriter;
 import com.itextpdf.kernel.pdf.canvas.PdfCanvas;
 import com.itextpdf.kernel.pdf.navigation.PdfExplicitDestination;
+import com.itextpdf.layout.Canvas;
+import com.itextpdf.layout.Document;
+import com.itextpdf.layout.element.ListItem;
+import fun.gatsby.lang.tuple.Tuple3;
 import lombok.extern.slf4j.Slf4j;
-
+import com.itextpdf.layout.element.Paragraph;
 import java.io.*;
+import java.nio.file.Files;
 import java.util.*;
 
 @Slf4j
@@ -62,5 +70,32 @@ public class PDFUtils {
 
     public static void mergeIntoPdf(Collection<File> imgFiles, OutputStream os) throws Exception {
         mergeIntoPdf(imgFiles,null,os);
+    }
+
+
+    public static void createOutPdfbyPageTuples(File outFile, File cataFile, LinkedList<Tuple3<Integer, Integer, List<Label.Mark>>> pageTuples) throws Exception {
+        PdfFont font = PdfFontFactory.createFont(FontConstants.TIMES_ROMAN);
+        try (
+                OutputStream os = Files.newOutputStream(outFile.toPath());
+                PdfWriter pdfWriter = new PdfWriter(os);
+                PdfDocument pdfDoc = new PdfDocument(pdfWriter);
+                Document doc = new Document(pdfDoc)
+        ){
+            PdfOutline rootOutLines = pdfDoc.getOutlines(false);
+            if(cataFile!=null && cataFile.exists()) {
+                PdfBookmark rootBookMark = CataParser.parseTxt(cataFile);
+                addCata(rootOutLines, rootBookMark);
+            }else {
+                log.debug("目录文件{}不存在或空，不作添加目录处理",cataFile);
+            }
+            for (Tuple3<Integer, Integer, List<Label.Mark>> pageTuple : pageTuples) {
+                PageSize pageSize = new PageSize(pageTuple.getT1(), pageTuple.getT2());
+                Paragraph paragraph = new Paragraph();
+
+                // TODO: 11/2/2023  
+                PdfPage pdfPage = pdfDoc.addNewPage(pageSize);
+                PdfCanvas canvas = new PdfCanvas(pdfPage);
+            }
+        }
     }
 }

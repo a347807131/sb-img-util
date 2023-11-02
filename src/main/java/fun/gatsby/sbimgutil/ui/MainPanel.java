@@ -115,7 +115,7 @@ public class MainPanel extends JPanel {
             if(component instanceof TaskItemTabbedPanel.ItemPanel itemPanel){
                 Map.Entry<TaskTypeEnum, AppConfig.ProcessTask> entry = itemPanel.getValidEntry();
                 try {
-                    TaskExecutor taskExcutor = new TaskExecutor(gtc,entry.getValue(), entry.getKey());
+                    TaskExecutor taskExcutor = new TaskExecutor(gtc,appConfig.getProcessTasks(), entry.getKey());
                     taskExcutor.excute();
                     JOptionPane.showMessageDialog(this, "任务完成");
                 } catch (Exception ex) {

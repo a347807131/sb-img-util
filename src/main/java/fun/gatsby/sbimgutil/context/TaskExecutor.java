@@ -18,20 +18,19 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.*;
 import java.util.concurrent.ExecutionException;
-import java.util.stream.Collectors;
 
 @Slf4j
 public class TaskExecutor {
 
     private final AppConfig.GlobalTaskConfig gtc;
+    private final Map<String, AppConfig.ProcessTask> taskMap;
     TaskScheduleForkJoinPool forkJoinPool;
-    AppConfig.ProcessTask processTask;
     public static ConsoleProgressBar CPB;
 
-    public TaskExecutor(AppConfig.GlobalTaskConfig gtc, AppConfig.ProcessTask processTask, TaskTypeEnum...taskTypes) throws IOException {
+    public TaskExecutor(AppConfig.GlobalTaskConfig gtc, Map<String, AppConfig.ProcessTask> taskMap, TaskTypeEnum...taskTypes) throws IOException {
         this.forkJoinPool = new TaskScheduleForkJoinPool(gtc.getMaxWorkerNum());
         this.gtc=gtc;
-        this.processTask = processTask;
+        this.taskMap=taskMap;
         for (TaskTypeEnum taskType : taskTypes) {
             List<Runnable> tasks = loadTasks(taskType);
             this.forkJoinPool.scheduleBatch(tasks);
@@ -39,7 +38,9 @@ public class TaskExecutor {
         CPB = new ConsoleProgressBar(this.forkJoinPool.getTaskCount());
     }
 
+
     public List<Runnable> loadTasks(TaskTypeEnum taskType) throws IOException {
+        final AppConfig.ProcessTask processTask=taskMap.get(taskType.name());
 
         String inDirPath = gtc.getInDirPath();
         File inDir = new File(inDirPath);
@@ -85,8 +86,30 @@ public class TaskExecutor {
                     tasks.add(task);
                 }
             }
+            case SEARCH_ABLE_PDF_GENERATE -> {
+                var labelFiles = new LinkedList<File>();
+                FileFetchUtils.fetchFileRecursively(labelFiles, inDir, file -> {
+                    if(file.isDirectory())
+                        return true;
+                    return file.getName().equals("Label.txt");
+                });
+
+                for (File labelFile : labelFiles) {
+                    File dirThatFilesBelong = labelFile.getParentFile();
+                    File outFile = genPdfOutFile(dirThatFilesBelong);
+                    if (outFile.exists() && !gtc.isEnforce())
+                        continue;
+                    String cataDirPath = processTask.getCataDirPath();
+                    File cataFile = null;
+                    if (Strings.isNotBlank(cataDirPath)) {
+                        String cataFileName = dirThatFilesBelong.getAbsolutePath().replace(new File(inDirPath).getAbsolutePath(), "") + ".txt";
+                        cataFile = new File(cataDirPath, cataFileName);
+                    }
+                    var task = new SearchablePdfGenerateTask(outFile,labelFile,cataFile);
+                    tasks.add(task);
+                }
+            }
             case IMAGE_TRANSFORM, IMAGE_COMPRESS, DRAW_BLUR,BOOK_IMAGE_FIX ,FIVE_BACKSPACE_REPLACE-> {
-                //非pdf合并走这边
                 for (File imgFile : imgFiles) {
                     File outFile = genOutFile(imgFile,
                             taskType.equals(TaskTypeEnum.IMAGE_TRANSFORM)? processTask.getFormat():null
@@ -105,7 +128,6 @@ public class TaskExecutor {
                     tasks.add(task);
                 }
             }
-            // FIXME: 2023/8/11 指定文件路径问题
             case IMAGE_CUT -> {
                 File labelFile;
                 if(processTask.getLabelFilePath()==null)
@@ -164,7 +186,7 @@ public class TaskExecutor {
         String inFileName = inFile.getName();
         String outFileName = inFileName;
         if (Strings.isNotBlank(format)) {
-            outFileName = inFileName.substring(0, inFileName.lastIndexOf(".")) + "." + processTask.getFormat();
+            outFileName = inFileName.substring(0, inFileName.lastIndexOf(".")) + "." +format;
         }
         String olDdirPath = inFile.getParentFile().getAbsolutePath();
         String midpiece = olDdirPath.replace(

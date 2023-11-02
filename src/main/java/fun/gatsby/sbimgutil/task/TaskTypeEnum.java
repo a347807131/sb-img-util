@@ -8,6 +8,7 @@ public enum TaskTypeEnum {
     IMAGE_CUT("图片裁剪"),
     BOOK_IMAGE_FIX("书籍图片修复"),
     FIVE_BACKSPACE_REPLACE("五个空格替换"),
+    SEARCH_ABLE_PDF_GENERATE("生成双层pdf"),
     ;
     public final String taskCnName;
 

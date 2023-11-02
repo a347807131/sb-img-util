@@ -20,10 +20,10 @@ public class Label{
         int[][] points;
     }
 
-    public static Label parse(Path fileDirPath,String labelValue){
+    public static Label parse(Path rootDir,String labelValue){
         String[] subStrings = labelValue.split("\t");
         String fileRelativePath = subStrings[0];
-        File file = new File(fileDirPath.toFile(), fileRelativePath);
+        File file = new File(rootDir.toFile(), fileRelativePath);
         List<Mark> marks = JSON.parseArray(subStrings[1], Mark.class);
         Label label = new Label();
         label.markedImageFile=file;

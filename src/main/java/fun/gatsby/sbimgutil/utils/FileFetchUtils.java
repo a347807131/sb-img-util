@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.FileFilter;
 import java.io.FilenameFilter;
 import java.util.Collection;
+import java.util.LinkedList;
 import java.util.List;
 
 public class FileFetchUtils {

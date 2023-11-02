@@ -1,5 +1,6 @@
 package fun.gatsby.sbimgutil.utils;
 
+import fun.gatsby.sbimgutil.ui.MainPanel;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 

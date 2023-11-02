@@ -29,20 +29,16 @@ class SbImgUtilApplicationTests {
 
     @PostConstruct
     void init() {
-        Map<String, AppConfig.ProcessTask> processTasks = appConfig.getProcessTasks();
-        processTask = new AppConfig.ProcessTask();
-        processTask.setFormat(processTasks.get(TaskTypeEnum.IMAGE_TRANSFORM.name()).getFormat());
-        processTask.setCompressLimit(processTasks.get(TaskTypeEnum.IMAGE_COMPRESS.name()).getCompressLimit());
     }
 
 
     @Test
     void testTaskExecutor() throws IOException, ExecutionException, InterruptedException {
         AppConfig.GlobalTaskConfig gtc = appConfig.getGlobalTaskConfig();
-        TaskExecutor excutor = new TaskExecutor(gtc,processTask,
-                TaskTypeEnum.FIVE_BACKSPACE_REPLACE
-//                TaskTypeEnum.IMAGE_COMPRESS,
-//                TaskTypeEnum.BOOK_IMAGE_FIX
+        TaskExecutor excutor = new TaskExecutor(
+                gtc,
+                appConfig.getProcessTasks(),
+                TaskTypeEnum.SEARCH_ABLE_PDF_GENERATE
         );
         excutor.excute();
     }
