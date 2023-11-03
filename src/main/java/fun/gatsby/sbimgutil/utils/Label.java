@@ -11,11 +11,11 @@ import java.util.List;
 @Data
 public class Label{
     File markedImageFile;
-    List<Mark> marks;
+    List<Detection> detections;
 
 
     @Data
-    public static class Mark {
+    public class Detection {
         String transcription;
         int[][] points;
     }
@@ -24,10 +24,10 @@ public class Label{
         String[] subStrings = labelValue.split("\t");
         String fileRelativePath = subStrings[0];
         File file = new File(rootDir.toFile(), fileRelativePath);
-        List<Mark> marks = JSON.parseArray(subStrings[1], Mark.class);
         Label label = new Label();
+        List<Detection> marks = JSON.parseArray(subStrings[1], Label.Detection.class);
         label.markedImageFile=file;
-        label.marks = marks;
+        label.detections = marks;
         return label;
     }
 }

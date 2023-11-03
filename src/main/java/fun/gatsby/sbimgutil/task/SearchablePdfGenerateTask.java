@@ -25,7 +25,7 @@ public class SearchablePdfGenerateTask extends BaseTask{
 
     public SearchablePdfGenerateTask(File outFile, File labelFile , File cataFile){
         this.labelFile=labelFile;
-        this.outFile = outFile;
+        this.outFile = new File(outFile.getAbsolutePath()+ ".xml");
         this.cataFile = cataFile;
         this.name = "双层pdf制作 -> " + outFile.getAbsolutePath();
         this.rootPath = labelFile.getParentFile().getParentFile().toPath();
@@ -33,16 +33,12 @@ public class SearchablePdfGenerateTask extends BaseTask{
     @Override
     public void doWork() throws Throwable {
 
-        var pageTuples = new LinkedList<Tuple3<Integer, Integer, List<Label.Mark>>>();
         List<String> labelLines = Files.readAllLines(labelFile.toPath());
+        LinkedList<Label> labels = new LinkedList<>();
         for (String labelLine : labelLines) {
             Label label = Label.parse(rootPath, labelLine);
-            List<Label.Mark> marks = label.getMarks();
-            ImageInfo imageInfo = Imaging.getImageInfo(label.getMarkedImageFile());
-            int width = imageInfo.getWidth();
-            int height = imageInfo.getHeight();
-            pageTuples.add(Tuples.of(width, height, marks));
+            labels.add(label);
         }
-        PDFUtils.createOutPdfbyPageTuples(outFile,cataFile,pageTuples);
+        PDFUtils.createOutXmlbyPageTuples( outFile,cataFile,labels);
     }
 }

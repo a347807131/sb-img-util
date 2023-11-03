@@ -32,8 +32,8 @@ public class ImageCutTask extends BaseTask {
         this.outDirPath = outDirPath;
         rectangles = new ArrayList<>();
         this.name = TaskTypeEnum.IMAGE_CUT.taskCnName + inFile ;
-        for (Label.Mark mark : label.getMarks()) {
-            int[][] points = mark.getPoints();
+        for (Label.Detection detection : label.getDetections()) {
+            int[][] points = detection.getPoints();
 
             int width = Math.abs(points[1][0] - points[0][0]);
             int height = Math.abs(points[2][1] - points[0][1]);
