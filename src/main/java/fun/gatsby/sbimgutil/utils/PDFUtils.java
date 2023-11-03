@@ -100,20 +100,21 @@ public class PDFUtils {
         }
     }
 
-    public static void createOutXmlbyPageTuples(File outFile,File cataFile, LinkedList<Label> labels) throws IOException, ImageReadException {
+    public static void createOutXmlbyLabels(File outFile,File cataFile, LinkedList<Label> labels) throws IOException, ImageReadException {
 
         StringBuilder sb = new StringBuilder();
         sb.append("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n");
         for (var label : labels) {
             ImageInfo imageInfo = Imaging.getImageInfo(label.getMarkedImageFile());
-            sb.append("\t<page" + " size=\"A4\" " + "width=\"")
-                    .append(imageInfo.getHeight()).append("\" height=\"")
-                    .append(imageInfo.getWidth()).append("\"").append(" pageName=\"")
-                    .append(label.getMarkedImageFile().getName()).append("\"")
-                    .append(">\n");
+            sb.append(
+                    "\t<page width=\"%s\"  height=\"%s\" pageName=\"%s\">\n"
+                    .formatted(imageInfo.getWidth(), imageInfo.getHeight(), label.getMarkedImageFile().getName())
+            );
             for (Label.Detection detection : label.getDetections()) {
-                sb.append("\t\t<detection>\n");
-                    sb.append("\t\t\t").append(detection.getTranscription()).append("\n");
+                int[][] points = detection.getPoints();
+                String pointsStr = Arrays.deepToString(points);
+                sb.append("\t\t<detection points=\"%s\">\n".formatted(pointsStr));
+                    sb.append("\t\t\t%s\n".formatted(detection.getTranscription()));
                 sb.append("\t\t</detection>\n");
             }
             sb.append("\t</page>\n");

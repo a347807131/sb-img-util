@@ -105,7 +105,7 @@ public class TaskExecutor {
                         String cataFileName = dirThatFilesBelong.getAbsolutePath().replace(new File(inDirPath).getAbsolutePath(), "") + ".txt";
                         cataFile = new File(cataDirPath, cataFileName);
                     }
-                    var task = new SearchablePdfGenerateTask(outFile,labelFile,cataFile);
+                    var task = new OcrRetXmlGenerateTask(outFile,labelFile,cataFile);
                     tasks.add(task);
                 }
             }
