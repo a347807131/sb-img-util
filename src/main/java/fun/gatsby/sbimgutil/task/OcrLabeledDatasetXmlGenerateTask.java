@@ -9,13 +9,13 @@ import java.nio.file.Path;
 import java.util.LinkedList;
 import java.util.List;
 
-public class OcrRetXmlGenerateTask extends BaseTask{
+public class OcrLabeledDatasetXmlGenerateTask extends BaseTask{
 
     private final File cataFile;
     private final File labelFile;
     private final Path rootPath;
 
-    public OcrRetXmlGenerateTask(File outFile, File labelFile , File cataFile){
+    public OcrLabeledDatasetXmlGenerateTask(File outFile, File labelFile , File cataFile){
         this.labelFile=labelFile;
         this.outFile = new File(outFile.getAbsolutePath()+ ".xml");
         this.cataFile = cataFile;

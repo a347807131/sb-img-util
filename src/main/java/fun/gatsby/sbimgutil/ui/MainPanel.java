@@ -113,7 +113,7 @@ public class MainPanel extends JPanel {
 
             Component component = taskItemTabbedPanel.getSelectedComponent();
             if(component instanceof TaskItemTabbedPanel.ItemPanel itemPanel){
-                Map.Entry<TaskTypeEnum, AppConfig.ProcessTask> entry = itemPanel.getValidEntry();
+                Map.Entry<TaskTypeEnum, AppConfig.ProcessTask> entry = itemPanel.getValidProcessTaskEntry();
                 try {
                     TaskExecutor taskExcutor = new TaskExecutor(gtc,appConfig.getProcessTasks(), entry.getKey());
                     taskExcutor.excute();

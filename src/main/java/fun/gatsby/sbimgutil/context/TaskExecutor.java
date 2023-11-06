@@ -86,7 +86,7 @@ public class TaskExecutor {
                     tasks.add(task);
                 }
             }
-            case SEARCH_ABLE_PDF_GENERATE -> {
+            case OCR_LABELED_DATASET_XML_GENERATE -> {
                 var labelFiles = new LinkedList<File>();
                 FileFetchUtils.fetchFileRecursively(labelFiles, inDir, file -> {
                     if(file.isDirectory())
@@ -105,7 +105,28 @@ public class TaskExecutor {
                         String cataFileName = dirThatFilesBelong.getAbsolutePath().replace(new File(inDirPath).getAbsolutePath(), "") + ".txt";
                         cataFile = new File(cataDirPath, cataFileName);
                     }
-                    var task = new OcrRetXmlGenerateTask(outFile,labelFile,cataFile);
+                    var task = new OcrLabeledDatasetXmlGenerateTask(outFile,labelFile,cataFile);
+                    tasks.add(task);
+                }
+            }
+            case LABELED_DATASET_COLLECT -> {
+                var labelFiles = new LinkedList<File>();
+                FileFetchUtils.fetchFileRecursively(labelFiles, inDir, file -> {
+                    if(file.isDirectory())
+                        return true;
+                    return file.getName().equals("Label.txt") && file.toPath().resolve("../rec_gt.txt").toFile().exists();
+                });
+
+                for (File labelFile : labelFiles) {
+                    File dirThatFilesBelong = labelFile.getParentFile();
+                    File outFile = genPdfOutFile(dirThatFilesBelong);
+                    if (outFile.exists() && !gtc.isEnforce())
+                        continue;
+                    var task = new LabeledDatasetCollectTask(
+                            labelFile,
+                            outPath,
+                            processTask.getRateOfTrain()
+                    );
                     tasks.add(task);
                 }
             }

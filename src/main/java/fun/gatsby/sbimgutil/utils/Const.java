@@ -25,6 +25,8 @@ public interface Const {
             PDF_MERGE,
             IMAGE_COMPRESS,
             DRAW_BLUR,
-            IMAGE_CUT
+            IMAGE_CUT,
+            FIVE_BACKSPACE_REPLACE,
+            OCR_LABELED_DATASET_XML_GENERATE
     );
 }

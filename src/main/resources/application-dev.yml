@@ -6,7 +6,7 @@ logging:
 app:
   global-task-config:
     #输入目录
-    in-dir-path: D:\原始备份\六臣注文选.南北朝.萧统编.存卷17.18.41.42.47.48.57至60.总六十卷.庆应义塾图书馆藏.南宋时期建阳刊本--371页
+    in-dir-path: D:\原始备份\temp\
     #输出目录
     out-dir-path: D:\out
     enforce: true
@@ -33,4 +33,6 @@ app:
     SEARCH_ABLE_PDF_GENERATE:
       #目录文件所在目录
       cata-dir-path: D:\datasets\图片处理模板\3 目录文件
+    LABELED_DATASET_COLLECT:
+      rate-of-train: 0.9f
 

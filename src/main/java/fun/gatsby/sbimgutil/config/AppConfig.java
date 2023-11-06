@@ -44,5 +44,6 @@ public class AppConfig {
         String format;
         String cataDirPath;
         String labelFilePath;
+        float rateOfTrain;
     }
 }
