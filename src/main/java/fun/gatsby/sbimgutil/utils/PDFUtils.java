@@ -105,11 +105,16 @@ public class PDFUtils {
         StringBuilder sb = new StringBuilder();
         sb.append("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n");
         for (var label : labels) {
-            ImageInfo imageInfo = Imaging.getImageInfo(label.getMarkedImageFile());
-            sb.append(
-                    "\t<page width=\"%s\"  height=\"%s\" pageName=\"%s\">\n"
-                    .formatted(imageInfo.getWidth(), imageInfo.getHeight(), label.getMarkedImageFile().getName())
-            );
+            try {
+                ImageInfo imageInfo = Imaging.getImageInfo(label.getMarkedImageFile());
+                sb.append(
+                        "\t<page width=\"%s\"  height=\"%s\" pageName=\"%s\">\n"
+                                .formatted(imageInfo.getWidth(), imageInfo.getHeight(), label.getMarkedImageFile().getName())
+                );
+            }catch (Exception e) {
+                log.warn("图片文件无法解析"+label.getMarkedImageFile()+ e);
+                continue;
+            }
             for (Label.Detection detection : label.getDetections()) {
                 int[][] points = detection.getPoints();
                 String pointsStr = Arrays.deepToString(points);

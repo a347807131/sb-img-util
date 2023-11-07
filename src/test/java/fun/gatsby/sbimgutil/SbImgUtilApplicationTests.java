@@ -38,7 +38,7 @@ class SbImgUtilApplicationTests {
         TaskExecutor excutor = new TaskExecutor(
                 gtc,
                 appConfig.getProcessTasks(),
-                TaskTypeEnum.LABELED_DATASET_COLLECT
+                TaskTypeEnum.OCR_LABELED_DATASET_XML_GENERATE
         );
         excutor.excute();
     }
