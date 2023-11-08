@@ -91,7 +91,7 @@ public class TaskExecutor {
                 FileFetchUtils.fetchFileRecursively(labelFiles, inDir, file -> {
                     if(file.isDirectory())
                         return true;
-                    return file.getName().equals("Label.txt");
+                    return file.getName().equals("Label.txt") && !file.getParentFile().getName().equals("crop_image");
                 });
 
                 for (File labelFile : labelFiles) {
@@ -106,6 +106,26 @@ public class TaskExecutor {
                         cataFile = new File(cataDirPath, cataFileName);
                     }
                     var task = new OcrLabeledDatasetXmlGenerateTask(outFile,labelFile,cataFile);
+                    tasks.add(task);
+                }
+            }
+            case DOUBLE_LAYER_PDF_GENERATE -> {
+                var labelFiles = new LinkedList<File>();
+                FileFetchUtils.fetchFileRecursively(labelFiles, inDir, file -> {
+                    if(file.isDirectory())
+                        return true;
+                    return file.getName().equals("Label.txt") && !file.getParentFile().getName().equals("crop_image");
+                });
+                for (File labelFile : labelFiles) {
+                    File dirThatFilesBelong = labelFile.getParentFile();
+                    File outFile = genPdfOutFile(dirThatFilesBelong);
+                    if (outFile.exists() && !gtc.isEnforce())
+                        continue;
+                    var task = new DoubleLayerPdfGenerateTask(
+                            labelFile,
+                            null,
+                            outFile
+                    );
                     tasks.add(task);
                 }
             }

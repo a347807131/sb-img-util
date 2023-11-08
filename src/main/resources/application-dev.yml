@@ -6,7 +6,7 @@ logging:
 app:
   global-task-config:
     #输入目录
-    in-dir-path: D:\datasets\det
+    in-dir-path: D:\原始备份\分類補注李太白詩二十五卷分類編次李太白文五卷-0003
     #输出目录
     out-dir-path: D:\out
     enforce: true
@@ -34,7 +34,7 @@ app:
         #目录文件所在目录
         cata-dir-path: D:\datasets\图片处理模板\3 目录文件
 
-    SEARCH_ABLE_PDF_GENERATE:
+    DOULE_LAYER_PDF_GENERATE:
       #目录文件所在目录
       cata-dir-path: D:\datasets\图片处理模板\3 目录文件
     LABELED_DATASET_COLLECT:
