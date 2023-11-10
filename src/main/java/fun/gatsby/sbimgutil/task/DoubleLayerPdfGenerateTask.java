@@ -17,27 +17,31 @@ public class DoubleLayerPdfGenerateTask extends BaseTask{
     private final File lableFile;
     private final File cataFile;
     private final Path rootPath;
+    private final File outXmlFile;
+    private final File outPdfFile;
 
-    public DoubleLayerPdfGenerateTask(File labelFile, File cataFile, File outFile){
+    public DoubleLayerPdfGenerateTask(File labelFile, File cataFile, File outPdfFile,File outXmlFile){
         this.lableFile=labelFile;
         this.name = "双层pdf制作 -> " + outFile.getAbsolutePath();
-        this.outFile=outFile;
+        this.outPdfFile=outPdfFile;
+        this.outXmlFile=outXmlFile;
         this.cataFile = cataFile;
         this.rootPath = labelFile.getParentFile().getParentFile().toPath();
     }
     @Override
     public void doWork() throws Throwable {
 
-        ImagesConverter imagesConverter = new ImagesConverter(lableFile.toPath().getParent().toString());
-        imagesConverter.convertToBilayerPdf(imagesConverter.imageFiles(), outFile.getAbsolutePath(),cataFile);
 
-        File xmlOutFile = new File(outFile.getParentFile(), outFile.getName() + ".xml");
         List<String> labelLines = Files.readAllLines(lableFile.toPath());
         LinkedList<Label> labels = new LinkedList<>();
         for (String labelLine : labelLines) {
             Label label = Label.parse(rootPath, labelLine);
             labels.add(label);
         }
-        PDFUtils.createOutXmlbyLabels(xmlOutFile,labels);
+
+        PDFUtils.createOutXmlbyLabels(outXmlFile,labels);
+        ImagesConverter imagesConverter = new ImagesConverter(labels);
+        imagesConverter.convertToBilayerPdf(outFile);
+
     }
 }

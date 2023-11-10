@@ -3,41 +3,58 @@ package fun.gatsby.sbimgutil.utils;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.io.FileUtil;
 import cn.hutool.core.io.IoUtil;
+import cn.hutool.core.math.MathUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.json.JSONUtil;
-import com.itextpdf.kernel.pdf.navigation.PdfExplicitDestination;
-import com.itextpdf.text.*;
-import com.itextpdf.text.pdf.*;
+
+import com.itextpdf.io.font.PdfEncodings;
+import com.itextpdf.io.image.ImageDataFactory;
+import com.itextpdf.kernel.color.Color;
+import com.itextpdf.kernel.font.PdfFont;
+import com.itextpdf.kernel.font.PdfFontFactory;
+import com.itextpdf.kernel.geom.PageSize;
+import com.itextpdf.kernel.geom.Rectangle;
+import com.itextpdf.kernel.pdf.PdfDocument;
+import com.itextpdf.kernel.pdf.PdfWriter;
+import com.itextpdf.layout.Document;
+import com.itextpdf.layout.element.Image;
+import com.itextpdf.layout.element.Paragraph;
+import com.itextpdf.layout.element.Text;
+import com.itextpdf.text.pdf.PdfOutline;
 import lombok.AllArgsConstructor;
 import lombok.Data;
+
 import lombok.NoArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.imaging.ImageInfo;
+import org.apache.commons.imaging.Imaging;
 
 import java.io.File;
 import java.io.FileOutputStream;
-import java.nio.file.Files;
 import java.util.*;
-import java.util.List;
 import java.util.stream.Collectors;
+
+import static com.itextpdf.kernel.pdf.PdfName.DeviceGray;
 
 /**
  * @author 张治忠
  */
-@Slf4j
 public class ImagesConverter {
 
-    private static BaseFont baseFont = null;
-
-    public ImagesConverter(String rootDir){
-        this.rootDir=rootDir;
-    }
+    private static PdfFont baseFont ;
 
     static {
         try {
-            baseFont = BaseFont.createFont("STSong-Light", "UniGB-UCS2-H", false);
+            baseFont = PdfFontFactory.createFont("font/simhei.ttf", PdfEncodings.IDENTITY_H, false);
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    private final LinkedList<Label> labels;
+
+
+    public ImagesConverter(LinkedList<Label> labels) {
+        this.labels=labels;
     }
 
 
@@ -72,57 +89,39 @@ public class ImagesConverter {
         private Image image;
     }
 
-    private String rootDir;
-
-
-    /**
-     * 图片列表，后面自行调用接口实现
-     *
-     * @return
-     */
-    public List<File> imageFiles() {
-        return Arrays.stream(Objects.requireNonNull(new File(rootDir).listFiles())).toList()
-                .stream()
-                .filter(file -> file.getName().toLowerCase(Locale.ROOT).endsWith(".jpg"))
-                .collect(Collectors.toList());
-    }
-
     /**
      * 文件ocr识别，后面自行调用接口实现
-     *
-     * @param file 图片文件
      * @return
      */
-    public List<OcrItemResult> imageOcr(File file) {
-        List<String> lines = FileUtil.readUtf8Lines(new File(file.getParent(), "Label.txt"));
-        Optional<String> targetLine = lines.stream().filter(line -> {
-            String[] split = line.split("\t");
-            if (split.length < 2) {
-                return false;
+    public List<OcrItemResult> imageOcr(Label label) {
+        List<Label.Detection> detections = label.getDetections();
+        List<OcrItemResult> ocrItemResults = new ArrayList<>();
+        for (Label.Detection detection : detections) {
+            OcrItemResult ocrItemResult = new OcrItemResult();
+            ocrItemResult.setTranscription(detection.getTranscription());
+
+            int[][] points = detection.getPoints();
+            float[][] newPoints = new float[points.length][points[0].length];
+            for (int i = 0; i < points.length; i++) {
+                for (int j = 0; j < points[i].length; j++) {
+                    newPoints[i][j] = points[i][j];
+                }
             }
-            return split[0].endsWith(file.getName());
-        }).findFirst();
-        if(targetLine.isEmpty())
-            return Collections.emptyList();
-        String[] split = targetLine.get().split("\t");
-        if (split.length < 2) {
-            return Collections.emptyList();
+            ocrItemResult.setPoints(newPoints);
+            ocrItemResults.add(ocrItemResult);
         }
-        String json = split[1];
-        return JSONUtil.toList(json, OcrItemResult.class);
+        return ocrItemResults;
     }
 
     /**
      * 得到图片的尺寸、缩放比例等信息
-     * @param imageFile 图片文件
      * @return
      * @throws Exception
      */
-    private RectInfo getRectInfo(File imageFile) throws Exception {
-        byte[] imageData = FileUtil.readBytes(imageFile);
-        Image image = Image.getInstance(imageData);
-        float width = image.getWidth();
-        float height = image.getHeight();
+    private RectInfo getRectInfo(Label label) throws Exception {
+        Image image = new Image(ImageDataFactory.create(label.getMarkedImageFile().getAbsolutePath()));
+        float width = image.getImageWidth();
+        float height = image.getImageHeight();
         float rate = width / height;
         float newWidth;
         float newHeight;
@@ -134,69 +133,47 @@ public class ImagesConverter {
             newHeight = 595 / rate;
         }
         image.scaleAbsolute(newWidth, newHeight);
-        image.setAlignment(Image.ALIGN_CENTER);
         return new RectInfo(width, height, newWidth, newHeight, newWidth / width, image);
     }
 
     /**
      * 转换成双层pdf
-     * @param imageFiles 图片文件列表
-     * @param pdfPath pdf路径
      * @throws Exception
      */
-    public void convertToBilayerPdf(List<File> imageFiles, String pdfPath,File cataFile) throws Exception {
-        if (CollUtil.isEmpty(imageFiles)) {
+    public void convertToBilayerPdf(File outFile) throws Exception {
+        if (CollUtil.isEmpty(labels)) {
             return;
         }
-        RectInfo firstRect = this.getRectInfo(imageFiles.get(0));
-        Document doc = new Document(new Rectangle(firstRect.getNewWidth(), firstRect.getNewHeight()), 0, 0, 0, 0);
-        FileOutputStream fileOutputStream = new FileOutputStream(pdfPath);
-        PdfWriter writer = PdfWriter.getInstance(doc, fileOutputStream);
-        doc.open();
-        for (int i = 0; i < imageFiles.size(); i++) {
-            File imageFile = imageFiles.get(i);
-            RectInfo rectInfo = this.getRectInfo(imageFile);
-            doc.setPageSize(new Rectangle(rectInfo.getNewWidth(), rectInfo.getNewHeight()));
-            this.insertTextBoxes(imageFile, writer, rectInfo);
+        RectInfo firstRect = this.getRectInfo(labels.getFirst());
+        FileOutputStream fileOutputStream = new FileOutputStream(outFile);
+        PdfWriter pdfWriter = new PdfWriter(fileOutputStream);
+        PdfDocument pdfDoc = new PdfDocument(pdfWriter);
+        PageSize pageSize = new PageSize(new Rectangle(firstRect.getNewWidth(), firstRect.getNewHeight()));
+        Document doc = new Document(pdfDoc, pageSize);
+        doc.setMargins(0,0,0,0);
+        for (int i = 0; i < labels.size(); i++) {
+            Label label = labels.get(i);
+            File imageFile = label.getMarkedImageFile();
+            RectInfo rectInfo = this.getRectInfo(label);
+            this.insertTextBoxes(label, doc, i + 1, rectInfo);
             doc.add(rectInfo.getImage());
-            doc.newPage();
-        }
+            pdfDoc.addNewPage(new PageSize(new Rectangle(rectInfo.getNewWidth(), rectInfo.getNewHeight())));
 
-        PdfOutline rootOutline = writer.getRootOutline();
-
-        if(cataFile!=null && cataFile.exists()) {
-            PdfBookmark rootBookMark = CataParser.parseTxt(cataFile);
-            addCata(rootOutline, rootBookMark);
-        }else {
-            log.debug("目录文件{}不存在或空，不作添加目录处理",cataFile);
         }
 
         doc.close();
-        writer.close();
+        pdfWriter.close();
         IoUtil.close(fileOutputStream);
-    }
-
-    private void addCata(PdfOutline outline, PdfBookmark bookmark) {
-        if(bookmark==null) return;
-
-        PdfOutline pdfOutlineNextLevel = new PdfOutline(outline,
-                PdfAction.gotoLocalPage(String.valueOf(bookmark.getPage()), false),
-                bookmark.getTitle()
-        );
-        for (PdfBookmark child : bookmark.getChildrens()) {
-            addCata(pdfOutlineNextLevel, child);
-        }
     }
 
     /**
      * 插入透明文字
-     * @param imageFile 图片文件
-     * @param writer pdf writer
      * @param rectInfo 尺寸信息
      * @throws Exception
      */
-    private void insertTextBoxes(File imageFile, PdfWriter writer, RectInfo rectInfo) throws Exception {
-        List<OcrItemResult> ocrItemResults = this.imageOcr(imageFile);
+    private void insertTextBoxes(Label label,  Document doc, int pageNum,  RectInfo rectInfo) throws Exception {
+
+        List<OcrItemResult> ocrItemResults = this.imageOcr(label);
         for (OcrItemResult ocrItemResult : ocrItemResults) {
             float rate = rectInfo.getRate();
             float[][] points = ocrItemResult.getPoints();
@@ -213,33 +190,26 @@ public class ImagesConverter {
             float heightDiff = Math.max(leftBottomPoint[1] - leftTopPoint[1], rightBottomPoint[1] - rightTopPoint[1]);
             float fontSize = Math.max(widthDiff, heightDiff) / (ocrItemResult.getTranscription().length()) - 0.1f;
             float height = rectInfo.getHeight() * rate;
+            float diff = Math.max(widthDiff, heightDiff);
 
-            Font font = new Font(baseFont, fontSize, Font.NORMAL, new BaseColor(0, 0, 0, 0));
             Paragraph paragraph = new Paragraph();
-            Phrase ph = new Phrase();
-            ph.add(new Chunk(ocrItemResult.transcription, font));
-            paragraph.add(ph);
-            paragraph.setSpacingBefore(0);
-            paragraph.setLeading(fontSize);
-            Rectangle rect = new Rectangle(leftBottomPoint[0], height - leftBottomPoint[1], rightTopPoint[0], height - rightTopPoint[1]);//文本框位置
+            Text text = new Text(ocrItemResult.getTranscription());
+            paragraph.add(text);
+            paragraph.setFont(baseFont)
+                    .setFontColor(Color.BLACK, 1f)
+                    .setFontSize(fontSize)
+                    .setFixedLeading(fontSize );
 
-            writer.getDirectContent().rectangle(rect);
-            ColumnText ct = new ColumnText(writer.getDirectContent());
-            ct.addElement(paragraph);
-            ct.setSimpleColumn(rect);
-            ct.go();
+            if (widthDiff >= heightDiff) {
+                double angleInRadians = Math.atan2(rightBottomPoint[1] - leftBottomPoint[1], rightBottomPoint[0] - leftBottomPoint[0]);
+                paragraph.setFixedPosition(pageNum, leftBottomPoint[0], height - leftBottomPoint[1],  diff)
+                        .setRotationAngle(angleInRadians);
+            } else {
+                double angleInRadians = Math.PI +  Math.atan2(leftBottomPoint[1] - leftTopPoint[1], leftBottomPoint[0] - leftTopPoint[0]);
+                paragraph.setFixedPosition(pageNum, leftTopPoint[0], height - leftTopPoint[1],  diff)
+                        .setRotationAngle(angleInRadians);
+            }
+            doc.add(paragraph);
         }
     }
-
-
-    public static void main(String[] args) {
-        try {
-            ImagesConverter imagesConverter = new ImagesConverter("D:\\五经五卷-0007");
-            imagesConverter.convertToBilayerPdf(imagesConverter.imageFiles(), "D:\\0007.pdf",null);
-        } catch (Exception exception) {
-            exception.printStackTrace();
-        }
-    }
-
-
 }

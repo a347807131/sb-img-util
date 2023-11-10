@@ -101,8 +101,9 @@ public class TaskExecutor {
                     var task = new DoubleLayerPdfGenerateTask(
                             labelFile,
                             null,
-                            outFile
-                    );
+                            outFile,
+                            new File(outFile.getParent(),outFile.getName()+".xml"));
+
                     tasks.add(task);
                 }
             }

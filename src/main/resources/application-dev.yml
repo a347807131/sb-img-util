@@ -6,9 +6,9 @@ logging:
 app:
   global-task-config:
     #输入目录
-    in-dir-path: D:\原始备份\图片处理模板\1 扫描原图（TIFF格式）
+    in-dir-path: D:\五经五卷-0007
     #输出目录
-    out-dir-path: D:\out/jp2
+    out-dir-path: D:\out
     enforce: true
 
   process-tasks:

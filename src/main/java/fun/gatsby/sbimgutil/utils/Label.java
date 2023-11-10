@@ -14,6 +14,7 @@ public class Label{
     List<Detection> detections;
 
 
+
     @Data
     public class Detection {
         String transcription;
