@@ -88,15 +88,25 @@ public class TaskItemTabbedPanel extends JTabbedPane {
                         return Map.entry(typeEnum,processTask);
                     }
                 });
-
-                case IMAGE_COMPRESS, FIVE_BACKSPACE_REPLACE,OCR_LABELED_DATASET_XML_GENERATE-> {
-                    add(typeEnum.taskCnName, new ItemPanel() {
+                case DOUBLE_LAYER_PDF_GENERATE -> add(typeEnum.taskCnName, new ItemPanel() {
+                    final FilePathInputPanel cataDirInputPanel;
+                    {
+                        this.cataDirInputPanel = new FilePathInputPanel("pdf目录所在文件夹", 10);
+                        cataDirInputPanel.setFilePath(processTask.getCataDirPath());
+                        add(cataDirInputPanel);
+                    }
+                    @Override
+                    public Map.Entry<TaskTypeEnum, AppConfig.ProcessTask> getValidProcessTaskEntry() {
+                        processTask.setCataDirPath(cataDirInputPanel.getFilePath());
+                        return Map.entry(typeEnum,processTask);
+                    }
+                });
+                case IMAGE_COMPRESS, FIVE_BACKSPACE_REPLACE-> add(typeEnum.taskCnName, new ItemPanel() {
                         @Override
                         public Map.Entry<TaskTypeEnum, AppConfig.ProcessTask> getValidProcessTaskEntry() {
-                            return Map.entry(typeEnum,processTask);
+                            return Map.entry(typeEnum, processTask);
                         }
                     });
-                }
             }
         }
     }

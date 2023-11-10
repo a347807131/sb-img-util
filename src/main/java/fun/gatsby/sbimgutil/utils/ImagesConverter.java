@@ -5,13 +5,13 @@ import cn.hutool.core.io.FileUtil;
 import cn.hutool.core.io.IoUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.json.JSONUtil;
+import com.itextpdf.kernel.pdf.navigation.PdfExplicitDestination;
 import com.itextpdf.text.*;
-import com.itextpdf.text.pdf.BaseFont;
-import com.itextpdf.text.pdf.ColumnText;
-import com.itextpdf.text.pdf.PdfWriter;
+import com.itextpdf.text.pdf.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -23,6 +23,7 @@ import java.util.stream.Collectors;
 /**
  * @author 张治忠
  */
+@Slf4j
 public class ImagesConverter {
 
     private static BaseFont baseFont = null;
@@ -143,7 +144,7 @@ public class ImagesConverter {
      * @param pdfPath pdf路径
      * @throws Exception
      */
-    public void convertToBilayerPdf(List<File> imageFiles, String pdfPath) throws Exception {
+    public void convertToBilayerPdf(List<File> imageFiles, String pdfPath,File cataFile) throws Exception {
         if (CollUtil.isEmpty(imageFiles)) {
             return;
         }
@@ -159,12 +160,32 @@ public class ImagesConverter {
             this.insertTextBoxes(imageFile, writer, rectInfo);
             doc.add(rectInfo.getImage());
             doc.newPage();
+        }
 
+        PdfOutline rootOutline = writer.getRootOutline();
+
+        if(cataFile!=null && cataFile.exists()) {
+            PdfBookmark rootBookMark = CataParser.parseTxt(cataFile);
+            addCata(rootOutline, rootBookMark);
+        }else {
+            log.debug("目录文件{}不存在或空，不作添加目录处理",cataFile);
         }
 
         doc.close();
         writer.close();
         IoUtil.close(fileOutputStream);
+    }
+
+    private void addCata(PdfOutline outline, PdfBookmark bookmark) {
+        if(bookmark==null) return;
+
+        PdfOutline pdfOutlineNextLevel = new PdfOutline(outline,
+                PdfAction.gotoLocalPage(String.valueOf(bookmark.getPage()), false),
+                bookmark.getTitle()
+        );
+        for (PdfBookmark child : bookmark.getChildrens()) {
+            addCata(pdfOutlineNextLevel, child);
+        }
     }
 
     /**
@@ -214,7 +235,7 @@ public class ImagesConverter {
     public static void main(String[] args) {
         try {
             ImagesConverter imagesConverter = new ImagesConverter("D:\\五经五卷-0007");
-            imagesConverter.convertToBilayerPdf(imagesConverter.imageFiles(), "D:\\0007.pdf");
+            imagesConverter.convertToBilayerPdf(imagesConverter.imageFiles(), "D:\\0007.pdf",null);
         } catch (Exception exception) {
             exception.printStackTrace();
         }

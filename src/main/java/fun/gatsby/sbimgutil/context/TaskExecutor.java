@@ -86,29 +86,6 @@ public class TaskExecutor {
                     tasks.add(task);
                 }
             }
-            case OCR_LABELED_DATASET_XML_GENERATE -> {
-                var labelFiles = new LinkedList<File>();
-                FileFetchUtils.fetchFileRecursively(labelFiles, inDir, file -> {
-                    if(file.isDirectory())
-                        return true;
-                    return file.getName().equals("Label.txt") && !file.getParentFile().getName().equals("crop_image");
-                });
-
-                for (File labelFile : labelFiles) {
-                    File dirThatFilesBelong = labelFile.getParentFile();
-                    File outFile = genPdfOutFile(dirThatFilesBelong);
-                    if (outFile.exists() && !gtc.isEnforce())
-                        continue;
-                    String cataDirPath = processTask.getCataDirPath();
-                    File cataFile = null;
-                    if (Strings.isNotBlank(cataDirPath)) {
-                        String cataFileName = dirThatFilesBelong.getAbsolutePath().replace(new File(inDirPath).getAbsolutePath(), "") + ".txt";
-                        cataFile = new File(cataDirPath, cataFileName);
-                    }
-                    var task = new OcrLabeledDatasetXmlGenerateTask(outFile,labelFile,cataFile);
-                    tasks.add(task);
-                }
-            }
             case DOUBLE_LAYER_PDF_GENERATE -> {
                 var labelFiles = new LinkedList<File>();
                 FileFetchUtils.fetchFileRecursively(labelFiles, inDir, file -> {
@@ -152,9 +129,7 @@ public class TaskExecutor {
             }
             case IMAGE_TRANSFORM, IMAGE_COMPRESS, DRAW_BLUR,BOOK_IMAGE_FIX ,FIVE_BACKSPACE_REPLACE-> {
                 for (File imgFile : imgFiles) {
-                    File outFile = genOutFile(imgFile,
-                            taskType.equals(TaskTypeEnum.IMAGE_TRANSFORM)? processTask.getFormat():null
-                    );
+                    File outFile = genOutFile(imgFile,processTask.getFormat());
                     if (outFile.exists() && !gtc.isEnforce()) {
                         continue;
                     }

@@ -6,9 +6,9 @@ logging:
 app:
   global-task-config:
     #输入目录
-    in-dir-path: D:\原始备份\分類補注李太白詩二十五卷分類編次李太白文五卷-0003
+    in-dir-path: D:\原始备份\图片处理模板\1 扫描原图（TIFF格式）
     #输出目录
-    out-dir-path: D:\out
+    out-dir-path: D:\out/jp2
     enforce: true
 
   process-tasks:
@@ -19,6 +19,7 @@ app:
     IMAGE_COMPRESS:
       #压缩限制大小
       compress-limit: 500
+      format: jp2
 
     DRAW_BLUR:
       blur-image-path: D:\datasets\图片处理模板\2 模糊图
@@ -30,11 +31,7 @@ app:
     IMAGE_CUT:
       label-file-path: D:\datasets\图片处理模板\4 标签文件
 
-    OCR_LABELED_DATASET_XML_GENERATE:
-        #目录文件所在目录
-        cata-dir-path: D:\datasets\图片处理模板\3 目录文件
-
-    DOULE_LAYER_PDF_GENERATE:
+    DOUBLE_LAYER_PDF_GENERATE:
       #目录文件所在目录
       cata-dir-path: D:\datasets\图片处理模板\3 目录文件
     LABELED_DATASET_COLLECT:

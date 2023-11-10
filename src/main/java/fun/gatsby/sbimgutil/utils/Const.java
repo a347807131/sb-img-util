@@ -26,7 +26,6 @@ public interface Const {
             IMAGE_COMPRESS,
             DRAW_BLUR,
             IMAGE_CUT,
-            FIVE_BACKSPACE_REPLACE,
-            OCR_LABELED_DATASET_XML_GENERATE
+            DOUBLE_LAYER_PDF_GENERATE
     );
 }

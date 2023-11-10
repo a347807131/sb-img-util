@@ -9,7 +9,6 @@ public enum TaskTypeEnum {
     BOOK_IMAGE_FIX("书籍图片修复"),
     FIVE_BACKSPACE_REPLACE("五个空格替换"),
     DOUBLE_LAYER_PDF_GENERATE("生成双层pdf"),
-    OCR_LABELED_DATASET_XML_GENERATE("ocr标注数据集xml生成"),
     LABELED_DATASET_COLLECT("标ocr标记数据整理"),
     ;
     public final String taskCnName;
