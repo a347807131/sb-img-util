@@ -15,46 +15,54 @@ import com.itextpdf.kernel.font.PdfFontFactory;
 import com.itextpdf.kernel.geom.PageSize;
 import com.itextpdf.kernel.geom.Rectangle;
 import com.itextpdf.kernel.pdf.PdfDocument;
+import com.itextpdf.kernel.pdf.PdfOutline;
 import com.itextpdf.kernel.pdf.PdfWriter;
 import com.itextpdf.layout.Document;
 import com.itextpdf.layout.element.Image;
 import com.itextpdf.layout.element.Paragraph;
 import com.itextpdf.layout.element.Text;
-import com.itextpdf.text.pdf.PdfOutline;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 
 import lombok.NoArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.imaging.ImageInfo;
 import org.apache.commons.imaging.Imaging;
 
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.util.*;
 import java.util.stream.Collectors;
 
 import static com.itextpdf.kernel.pdf.PdfName.DeviceGray;
+import static com.itextpdf.kernel.pdf.PdfName.ca;
 
 /**
  * @author 张治忠
  */
+@Slf4j
 public class ImagesConverter {
 
-    private static PdfFont baseFont ;
+    private static final PdfFont  baseFont;
 
     static {
         try {
             baseFont = PdfFontFactory.createFont("font/simhei.ttf", PdfEncodings.IDENTITY_H, false);
-        } catch (Exception e) {
+        } catch (IOException e) {
             e.printStackTrace();
+            throw new RuntimeException(e);
         }
     }
 
+
     private final LinkedList<Label> labels;
+    private final File cataFile;
 
 
-    public ImagesConverter(LinkedList<Label> labels) {
+    public ImagesConverter(LinkedList<Label> labels,File cataFile) {
         this.labels=labels;
+        this.cataFile=cataFile;
     }
 
 
@@ -159,6 +167,14 @@ public class ImagesConverter {
             doc.add(rectInfo.getImage());
             pdfDoc.addNewPage(new PageSize(new Rectangle(rectInfo.getNewWidth(), rectInfo.getNewHeight())));
 
+        }
+
+        if(cataFile!=null && cataFile.exists()) {
+            PdfOutline outlines = pdfDoc.getOutlines(false);
+            CataParser cataParser = new CataParser(cataFile);
+            cataParser.parse(outlines);
+        }else {
+            log.debug("目录文件{}不存在或空，不作添加目录处理",cataFile);
         }
 
         doc.close();

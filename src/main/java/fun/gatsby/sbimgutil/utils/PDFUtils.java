@@ -14,6 +14,7 @@ import com.itextpdf.kernel.pdf.canvas.PdfCanvas;
 import com.itextpdf.kernel.pdf.navigation.PdfExplicitDestination;
 import com.itextpdf.layout.Document;
 import fun.gatsby.lang.tuple.Tuple3;
+import lombok.experimental.PackagePrivate;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.imaging.ImageInfo;
 import org.apache.commons.imaging.ImageReadException;
@@ -42,7 +43,7 @@ public class PDFUtils {
 
         if(cataFile!=null && cataFile.exists()) {
             PdfBookmark rootBookMark = CataParser.parseTxt(cataFile);
-            addCata(rootOutLines, rootBookMark);
+            CataParser.addCata(rootOutLines, rootBookMark);
         }else {
             log.debug("目录文件{}不存在或空，不作添加目录处理",cataFile);
         }
@@ -58,15 +59,6 @@ public class PDFUtils {
             canvas.addImage(imageData, 0, 0, false);
         }
         doc.close();
-    }
-
-    private static void addCata(PdfOutline pdfOutline, PdfBookmark bookmark) {
-        if(bookmark==null) return;
-        PdfOutline pdfOutlineNextLevel = pdfOutline.addOutline(bookmark.getTitle());
-        pdfOutlineNextLevel.addDestination(PdfExplicitDestination.createFit(bookmark.getPage()));
-        for (PdfBookmark child : bookmark.getChildrens()) {
-            addCata(pdfOutlineNextLevel, child);
-        }
     }
 
     public static void mergeIntoPdf(Collection<File> imgFiles, OutputStream os) throws Exception {

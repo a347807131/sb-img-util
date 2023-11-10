@@ -16,32 +16,29 @@ public class DoubleLayerPdfGenerateTask extends BaseTask{
 
     private final File lableFile;
     private final File cataFile;
-    private final Path rootPath;
+    private final Path datasetPath;
     private final File outXmlFile;
     private final File outPdfFile;
 
     public DoubleLayerPdfGenerateTask(File labelFile, File cataFile, File outPdfFile,File outXmlFile){
         this.lableFile=labelFile;
-        this.name = "双层pdf制作 -> " + outFile.getAbsolutePath();
+        this.name = "双层pdf制作 -> " + outPdfFile.getAbsolutePath();
         this.outPdfFile=outPdfFile;
         this.outXmlFile=outXmlFile;
         this.cataFile = cataFile;
-        this.rootPath = labelFile.getParentFile().getParentFile().toPath();
+        this.datasetPath = labelFile.getParentFile().getParentFile().toPath();
     }
     @Override
     public void doWork() throws Throwable {
-
-
         List<String> labelLines = Files.readAllLines(lableFile.toPath());
         LinkedList<Label> labels = new LinkedList<>();
         for (String labelLine : labelLines) {
-            Label label = Label.parse(rootPath, labelLine);
+            Label label = Label.parse(datasetPath, labelLine);
             labels.add(label);
         }
 
         PDFUtils.createOutXmlbyLabels(outXmlFile,labels);
-        ImagesConverter imagesConverter = new ImagesConverter(labels);
-        imagesConverter.convertToBilayerPdf(outFile);
-
+        ImagesConverter imagesConverter = new ImagesConverter(labels,cataFile);
+        imagesConverter.convertToBilayerPdf(outPdfFile);
     }
 }

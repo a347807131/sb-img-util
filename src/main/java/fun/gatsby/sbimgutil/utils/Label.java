@@ -13,6 +13,9 @@ public class Label{
     File markedImageFile;
     List<Detection> detections;
 
+    public static Label parse(Path rootPath, File lableFile) {
+        return null;
+    }
 
 
     @Data
@@ -26,8 +29,8 @@ public class Label{
         String fileRelativePath = subStrings[0];
         File file = new File(rootDir.toFile(), fileRelativePath);
         Label label = new Label();
-        List<Detection> marks = JSON.parseArray(subStrings[1], Label.Detection.class);
         label.markedImageFile=file;
+        List<Detection> marks = JSON.parseArray(subStrings[1], Label.Detection.class);
         label.detections = marks;
         return label;
     }
