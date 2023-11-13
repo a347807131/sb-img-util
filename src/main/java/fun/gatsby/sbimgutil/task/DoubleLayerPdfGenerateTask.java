@@ -20,13 +20,13 @@ public class DoubleLayerPdfGenerateTask extends BaseTask{
     private final File outXmlFile;
     private final File outPdfFile;
 
-    public DoubleLayerPdfGenerateTask(File labelFile, File cataFile, File outPdfFile,File outXmlFile){
+    public DoubleLayerPdfGenerateTask(Path datasetPath,File labelFile, File cataFile, File outPdfFile,File outXmlFile){
         this.lableFile=labelFile;
         this.name = "双层pdf制作 -> " + outPdfFile.getAbsolutePath();
         this.outPdfFile=outPdfFile;
         this.outXmlFile=outXmlFile;
         this.cataFile = cataFile;
-        this.datasetPath = labelFile.getParentFile().getParentFile().toPath();
+        this.datasetPath = datasetPath;
     }
     @Override
     public void doWork() throws Throwable {

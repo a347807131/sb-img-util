@@ -87,20 +87,36 @@ public class TaskExecutor {
                 }
             }
             case DOUBLE_LAYER_PDF_GENERATE -> {
+
                 var labelFiles = new LinkedList<File>();
-                FileFetchUtils.fetchFileRecursively(labelFiles, inDir, file -> {
-                    if(file.isDirectory())
-                        return true;
-                    return file.getName().equals("Label.txt") && !file.getParentFile().getName().equals("crop_image");
-                });
-                for (File labelFile : labelFiles) {
-                    File dirThatFilesBelong = labelFile.getParentFile();
+//                FileFetchUtils.fetchFileRecursively(labelFiles, new File(processTask.getLabelDirPath()), file -> {
+//                    if(file.isDirectory())
+//                        return true;
+//                    return file.getName().equals("Label.txt") && !file.getParentFile().getName().equals("crop_image");
+//                });
+                LinkedHashMap<File, List<File>> dirToImgFilesMap = loadSortedDirToImgFilesMap(imgFiles);
+
+                for (Map.Entry<File, List<File>> entry : dirToImgFilesMap.entrySet()) {
+                    File dirThatFilesBelong = entry.getKey();
+
+                    String labelDirPath = processTask.getLabelDirPath();
+                    String cataDirPath = processTask.getCataDirPath();
+                    String txtFileRelativePath = dirThatFilesBelong.getAbsolutePath().replace(
+                            new File(inDirPath).getAbsolutePath(), ""
+                    ) + ".txt";
+                    File labelFile = new File(labelDirPath, txtFileRelativePath);
+                    if(!labelFile.exists()) continue;
+                    File cataFile = null;
+                    if (Strings.isNotBlank(cataDirPath)) {
+                        cataFile = new File(cataDirPath, txtFileRelativePath);
+                    }
                     File outFile = genPdfOutFile(dirThatFilesBelong);
                     if (outFile.exists() && !gtc.isEnforce())
                         continue;
                     var task = new DoubleLayerPdfGenerateTask(
+                            dirThatFilesBelong.getParentFile().toPath(),
                             labelFile,
-                            null,
+                            cataFile,
                             outFile,
                             new File(outFile.getParent(),outFile.getName()+".xml"));
 

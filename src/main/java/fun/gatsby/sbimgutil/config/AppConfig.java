@@ -43,6 +43,7 @@ public class AppConfig {
         int compressLimit = 500;
         String format;
         String cataDirPath;
+        String labelDirPath;
         String labelFilePath;
         float rateOfTrain;
     }

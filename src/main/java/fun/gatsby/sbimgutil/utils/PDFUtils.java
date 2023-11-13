@@ -1,5 +1,6 @@
 package fun.gatsby.sbimgutil.utils;
 
+import cn.hutool.core.io.FileUtil;
 import com.itextpdf.io.font.FontConstants;
 import com.itextpdf.io.image.ImageData;
 import com.itextpdf.io.image.ImageDataFactory;
@@ -67,6 +68,7 @@ public class PDFUtils {
 
     public static void createOutXmlbyLabels(File outFile,LinkedList<Label> labels) throws IOException, ImageReadException {
 
+        FileUtil.mkParentDirs(outFile);
         StringBuilder sb = new StringBuilder();
         sb.append("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n");
         for (var label : labels) {

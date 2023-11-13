@@ -19,7 +19,7 @@ public class ProcessTaskGroup extends TaskGroup<Runnable> {
         this.name = name;
 
         preTask = () -> {
-            log.debug("任务组:[{}] 开始执行", name);
+            log.debug("任务组:[{}] 开始执行，共计任务数[{}]", name,size());
             startDateTime = LocalDateTime.now();
         };
 

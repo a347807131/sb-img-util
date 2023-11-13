@@ -7,6 +7,7 @@ import lombok.Data;
 import java.io.File;
 import java.nio.file.Path;
 import java.util.List;
+import java.util.Optional;
 
 @Data
 public class Label{
@@ -30,8 +31,16 @@ public class Label{
         File file = new File(rootDir.toFile(), fileRelativePath);
         Label label = new Label();
         label.markedImageFile=file;
-        List<Detection> marks = JSON.parseArray(subStrings[1], Label.Detection.class);
-        label.detections = marks;
+        if(!file.exists()){
+            Optional.ofNullable(
+                    file.getParentFile().listFiles(e->e.getName().startsWith(file.getName().split("\\.")[0]))
+            ).ifPresent(files->{
+                if(files.length==1){
+                    label.markedImageFile=files[0];
+                }
+            });
+        }
+        label.detections = JSON.parseArray(subStrings[1], Detection.class);
         return label;
     }
 }

@@ -24,7 +24,7 @@ public class TaskItemTabbedPanel extends JTabbedPane {
     private void JBInit() {
 
         for (TaskTypeEnum typeEnum : Const.ENABLED_TASK_TYPES) {
-            AppConfig.ProcessTask processTask = taskMap.get(typeEnum.name());
+            AppConfig.ProcessTask processTask = taskMap.getOrDefault(typeEnum.name(),new AppConfig.ProcessTask());
             switch (typeEnum){
                 case IMAGE_TRANSFORM -> add(typeEnum.taskCnName, new ItemPanel() {
                     final JComboBox<String> formatComboBox;
@@ -89,15 +89,20 @@ public class TaskItemTabbedPanel extends JTabbedPane {
                     }
                 });
                 case DOUBLE_LAYER_PDF_GENERATE -> add(typeEnum.taskCnName, new ItemPanel() {
+                    private final FilePathInputPanel labelDirInputPanel;
                     final FilePathInputPanel cataDirInputPanel;
                     {
                         this.cataDirInputPanel = new FilePathInputPanel("pdf目录所在文件夹", 10);
+                        this.labelDirInputPanel = new FilePathInputPanel("标注文件所在文件夹", 10);
                         cataDirInputPanel.setFilePath(processTask.getCataDirPath());
+                        labelDirInputPanel.setFilePath(processTask.getLabelDirPath());
                         add(cataDirInputPanel);
+                        add(labelDirInputPanel);
                     }
                     @Override
                     public Map.Entry<TaskTypeEnum, AppConfig.ProcessTask> getValidProcessTaskEntry() {
                         processTask.setCataDirPath(cataDirInputPanel.getFilePath());
+                        processTask.setLabelDirPath(labelDirInputPanel.getFilePath());
                         return Map.entry(typeEnum,processTask);
                     }
                 });
