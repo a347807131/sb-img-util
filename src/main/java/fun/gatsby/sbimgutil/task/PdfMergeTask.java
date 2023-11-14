@@ -1,14 +1,18 @@
 package fun.gatsby.sbimgutil.task;
 
+import fun.gatsby.sbimgutil.config.AppConfig;
+import fun.gatsby.sbimgutil.schedule.ITask;
 import fun.gatsby.sbimgutil.utils.PDFUtils;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.logging.log4j.util.Strings;
 
 import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.file.Files;
-import java.util.Comparator;
-import java.util.List;
+import java.nio.file.Path;
+import java.util.*;
+
 @Slf4j
 public class PdfMergeTask extends BaseTask {
 
@@ -45,6 +49,33 @@ public class PdfMergeTask extends BaseTask {
         } catch (Exception e) {
             log.error("merge pdf:{} error", outFile, e);
             throw new RuntimeException(e);
+        }
+    }
+
+    public static class TaskGenerator extends BaseTask.TaskGenerator {
+        public TaskGenerator(AppConfig.GlobalTaskConfig gtc, AppConfig.ProcessTask processTask) {
+            super(gtc, processTask,TaskTypeEnum.PDF_MERGE);
+        }
+
+        public List<ITask> generate() {
+            List<ITask> tasks = new LinkedList<>();
+            for (Map.Entry<File, List<File>> entry : loadSortedDirToImgFilesMap().entrySet()) {
+                File dirThatFilesBelong = entry.getKey();
+                File outFile =
+                        genPdfOutFile(dirThatFilesBelong);
+                if (outFile.exists() && !gtc.isEnforce())
+                    continue;
+                List<File> imgs = entry.getValue();
+                String cataDirPath = processTask.getCataDirPath();
+                File cataFile = null;
+                if (Strings.isNotBlank(cataDirPath)) {
+                    String cataFileName = dirThatFilesBelong.getAbsolutePath().replace(new File(gtc.getInDirPath()).getAbsolutePath(), "") + ".txt";
+                    cataFile = new File(cataDirPath, cataFileName);
+                }
+                PdfMergeTask task = new PdfMergeTask(imgs, outFile, cataFile);
+                tasks.add(task);
+            }
+            return tasks;
         }
     }
 }

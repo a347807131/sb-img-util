@@ -25,6 +25,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.LinkedList;
+import java.util.List;
 
 /**
  * @author 张治忠
@@ -34,11 +35,11 @@ public class ImagesConverter {
 
     private final PdfFont  baseFont =PdfFontFactory.createFont("font/simhei.ttf", PdfEncodings.IDENTITY_H, false);
 
-    private final LinkedList<Label> labels;
+    private final List<Label> labels;
     private final File cataFile;
 
 
-    public ImagesConverter(LinkedList<Label> labels,File cataFile) throws IOException {
+    public ImagesConverter(List<Label> labels, File cataFile) throws IOException {
         this.labels=labels;
         this.cataFile=cataFile;
     }

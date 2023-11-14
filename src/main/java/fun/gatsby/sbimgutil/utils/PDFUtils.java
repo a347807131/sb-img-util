@@ -66,7 +66,7 @@ public class PDFUtils {
         mergeIntoPdf(imgFiles,null,os);
     }
 
-    public static void createOutXmlbyLabels(File outFile,LinkedList<Label> labels) throws IOException, ImageReadException {
+    public static void createOutXmlbyLabels(File outFile,List<Label> labels) throws IOException, ImageReadException {
 
         FileUtil.mkParentDirs(outFile);
         StringBuilder sb = new StringBuilder();

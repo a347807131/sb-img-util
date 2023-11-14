@@ -5,22 +5,32 @@ import com.alibaba.fastjson2.JSON;
 import lombok.Data;
 
 import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Data
 public class Label{
     File markedImageFile;
     List<Detection> detections;
 
-    public static Label parse(Path rootPath, File lableFile) {
-        return null;
+    public static List<Label> parse(Path rootPath, File labelFile) throws IOException {
+        List<String> labelLines = Files.readAllLines(labelFile.toPath());
+        LinkedList<Label> labels = new LinkedList<>();
+        for (String line : labelLines) {
+            Label label = Label.parse(rootPath, line);
+            labels.add(label);
+        }
+        return labels;
     }
 
 
     @Data
-    public class Detection {
+    static public class Detection {
         String transcription;
         int[][] points;
     }

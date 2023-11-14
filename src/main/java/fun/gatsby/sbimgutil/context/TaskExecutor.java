@@ -41,143 +41,20 @@ public class TaskExecutor {
 
     public List<Runnable> loadTasks(TaskTypeEnum taskType) throws IOException {
         final AppConfig.ProcessTask processTask=taskMap.get(taskType.name());
-
-        String inDirPath = gtc.getInDirPath();
-        File inDir = new File(inDirPath);
-        Path outPath = Path.of(gtc.getOutDirPath());
-        Path inPath = Path.of(gtc.getInDirPath());
-        List<File> imgFiles = new LinkedList<>();
-
-        if(gtc.isRecursive())
-            FileFetchUtils.fetchFileRecursively(imgFiles, inDir,
-                    Const.SUPPORTED_FILE_FILTER
-            );
-        else
-            FileFetchUtils.fetchFile(imgFiles, inDir,
-                    Const.SUPPORTED_FILE_FILTER
-            );
-
-        imgFiles.sort(Comparator.comparing(File::getName));
-        String fileNameRegex = gtc.getFileNameRegex();
-        imgFiles = imgFiles.stream().filter(
-                imgFile -> Strings.isBlank(fileNameRegex) || imgFile.getName().matches(fileNameRegex)
-        ).toList();
-
-        log.info("本次任务将处理{}个文件", imgFiles.size());
-
-        var tasks = new ProcessTaskGroup(taskType.taskCnName);
+        var taskGroup = new ProcessTaskGroup(taskType.taskCnName);
+        BaseTask.TaskGenerator taskGenerator=null;
         switch (taskType) {
-            case PDF_MERGE -> {
-                LinkedHashMap<File, List<File>> dirToImgFilesMap = loadSortedDirToImgFilesMap(imgFiles);
-                for (Map.Entry<File, List<File>> entry : dirToImgFilesMap.entrySet()) {
-                    File dirThatFilesBelong = entry.getKey();
-                    File outFile =
-                            genPdfOutFile(dirThatFilesBelong);
-                    if (outFile.exists() && !gtc.isEnforce())
-                        continue;
-                    List<File> imgs = entry.getValue();
-                    String cataDirPath = processTask.getCataDirPath();
-                    File cataFile = null;
-                    if (Strings.isNotBlank(cataDirPath)) {
-                        String cataFileName = dirThatFilesBelong.getAbsolutePath().replace(new File(inDirPath).getAbsolutePath(), "") + ".txt";
-                        cataFile = new File(cataDirPath, cataFileName);
-                    }
-                    PdfMergeTask task = new PdfMergeTask(imgs, outFile, cataFile);
-                    tasks.add(task);
-                }
-            }
-            case DOUBLE_LAYER_PDF_GENERATE -> {
-
-                var labelFiles = new LinkedList<File>();
-//                FileFetchUtils.fetchFileRecursively(labelFiles, new File(processTask.getLabelDirPath()), file -> {
-//                    if(file.isDirectory())
-//                        return true;
-//                    return file.getName().equals("Label.txt") && !file.getParentFile().getName().equals("crop_image");
-//                });
-                LinkedHashMap<File, List<File>> dirToImgFilesMap = loadSortedDirToImgFilesMap(imgFiles);
-
-                for (Map.Entry<File, List<File>> entry : dirToImgFilesMap.entrySet()) {
-                    File dirThatFilesBelong = entry.getKey();
-
-                    String labelDirPath = processTask.getLabelDirPath();
-                    String cataDirPath = processTask.getCataDirPath();
-                    String txtFileRelativePath = dirThatFilesBelong.getAbsolutePath().replace(
-                            new File(inDirPath).getAbsolutePath(), ""
-                    ) + ".txt";
-                    File labelFile = new File(labelDirPath, txtFileRelativePath);
-                    if(!labelFile.exists()) continue;
-                    File cataFile = null;
-                    if (Strings.isNotBlank(cataDirPath)) {
-                        cataFile = new File(cataDirPath, txtFileRelativePath);
-                    }
-                    File outFile = genPdfOutFile(dirThatFilesBelong);
-                    if (outFile.exists() && !gtc.isEnforce())
-                        continue;
-                    var task = new DoubleLayerPdfGenerateTask(
-                            dirThatFilesBelong.getParentFile().toPath(),
-                            labelFile,
-                            cataFile,
-                            outFile,
-                            new File(outFile.getParent(),outFile.getName()+".xml"));
-
-                    tasks.add(task);
-                }
-            }
-            case LABELED_DATASET_COLLECT -> {
-                var labelFiles = new LinkedList<File>();
-                FileFetchUtils.fetchFileRecursively(labelFiles, inDir, file -> {
-                    if(file.isDirectory())
-                        return true;
-                    return file.getName().equals("Label.txt") && file.toPath().resolve("../rec_gt.txt").toFile().exists();
-                });
-
-                for (File labelFile : labelFiles) {
-                    File dirThatFilesBelong = labelFile.getParentFile();
-                    File outFile = genPdfOutFile(dirThatFilesBelong);
-                    if (outFile.exists() && !gtc.isEnforce())
-                        continue;
-                    var task = new LabeledDatasetCollectTask(
-                            labelFile,
-                            outPath,
-                            processTask.getRateOfTrain()
-                    );
-                    tasks.add(task);
-                }
-            }
-            case IMAGE_TRANSFORM, IMAGE_COMPRESS, DRAW_BLUR,BOOK_IMAGE_FIX ,FIVE_BACKSPACE_REPLACE-> {
-                for (File imgFile : imgFiles) {
-                    File outFile = genOutFile(imgFile,processTask.getFormat());
-                    if (outFile.exists() && !gtc.isEnforce()) {
-                        continue;
-                    }
-                    BaseTask task = switch (taskType) {
-                        case IMAGE_TRANSFORM -> new ImageTransformTask(imgFile, outFile, processTask.getFormat());
-                        case IMAGE_COMPRESS -> new ImageCompressTask(imgFile, outFile, processTask.getCompressLimit());
-                        case DRAW_BLUR -> new DrawBlurTask(imgFile, outFile, new File(processTask.getBlurImagePath()));
-                        case BOOK_IMAGE_FIX -> new BookImageFixTask(imgFile, outFile);
-                        case FIVE_BACKSPACE_REPLACE -> new FiveBackspaceReplaceTask(imgFile, outFile);
-                        default -> null;
-                    };
-                    tasks.add(task);
-                }
-            }
-            case IMAGE_CUT -> {
-                File labelFile;
-                if(processTask.getLabelFilePath()==null)
-                    labelFile = new File(inDirPath, "Label.txt");
-                else
-                    labelFile = new File(processTask.getLabelFilePath());
-                List<String> labelLines = Files.readAllLines(labelFile.toPath());
-                Path parentDirPath = inDir.getParentFile().toPath();
-                for (String labelLine : labelLines) {
-                    Label label = Label.parse(parentDirPath, labelLine);
-                    File outDir = genOutFile(label.getMarkedImageFile()).getParentFile();
-                    ImageCutTask imageCutTask = new ImageCutTask(label, outDir.toPath());
-                    tasks.add(imageCutTask);
-                }
-            }
+            case PDF_MERGE -> taskGenerator = new PdfMergeTask.TaskGenerator(gtc, processTask);
+            case DOUBLE_LAYER_PDF_GENERATE -> taskGenerator = new DoubleLayerPdfGenerateTask.TaskGenerator(gtc, processTask);
+            case LABELED_DATASET_COLLECT -> taskGenerator=new LabeledDatasetCollectTask.TaskGenerator(gtc, processTask);
+            case IMAGE_TRANSFORM, IMAGE_COMPRESS, DRAW_BLUR,BOOK_IMAGE_FIX ,FIVE_BACKSPACE_REPLACE->
+                    taskGenerator = new BaseTask.TaskGenerator(gtc, processTask,taskType);
+            case IMAGE_CUT -> taskGenerator = new ImageCutTask.TaskGenerator(gtc, processTask, taskType);
         }
-        return tasks;
+        if(taskGenerator!=null){
+            taskGroup.addAll(taskGenerator.generate());
+        }
+        return taskGroup;
     }
 
     public void excute() throws ExecutionException, InterruptedException {
@@ -186,46 +63,5 @@ public class TaskExecutor {
 
     public static ConsoleProgressBar getGlobalConsoleProgressBar() {
         return CPB;
-    }
-
-    LinkedHashMap<File, List<File>> loadSortedDirToImgFilesMap(List<File> imgFiles) {
-        return imgFiles.parallelStream().collect(
-                LinkedHashMap::new,
-                (m,k)-> {
-                    File parent = k.getParentFile();
-                    m.computeIfAbsent(parent, v->new LinkedList<>()).add(k);
-                },
-                LinkedHashMap::putAll
-        );
-    }
-
-    private File genPdfOutFile(File dirFilesBelong) {
-        String outFileName = dirFilesBelong.getName() + ".pdf";
-        String midpiece = dirFilesBelong.getAbsolutePath().replace(
-                new File(gtc.getInDirPath()).getAbsolutePath(), ""
-        );
-        Path fleOutDirPath = Path.of(gtc.getOutDirPath(), midpiece);
-        if (!StringUtils.isEmpty(midpiece)) {
-            fleOutDirPath = fleOutDirPath.getParent();
-        }
-        Path outFilePath = fleOutDirPath.resolve(outFileName);
-        return outFilePath.toFile();
-    }
-    File genOutFile(File inFile) {
-        return genOutFile(inFile,null);
-    }
-
-    File genOutFile(File inFile,String format) {
-        String inFileName = inFile.getName();
-        String outFileName = inFileName;
-        if (Strings.isNotBlank(format)) {
-            outFileName = inFileName.substring(0, inFileName.lastIndexOf(".")) + "." +format;
-        }
-        String olDdirPath = inFile.getParentFile().getAbsolutePath();
-        String midpiece = olDdirPath.replace(
-                new File(gtc.getInDirPath()).getAbsolutePath(),
-                ""
-        );
-        return Path.of(gtc.getOutDirPath(), midpiece, outFileName).toFile();
     }
 }
