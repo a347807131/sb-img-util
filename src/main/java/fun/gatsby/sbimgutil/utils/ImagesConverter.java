@@ -1,12 +1,7 @@
 package fun.gatsby.sbimgutil.utils;
 
 import cn.hutool.core.collection.CollUtil;
-import cn.hutool.core.io.FileUtil;
 import cn.hutool.core.io.IoUtil;
-import cn.hutool.core.math.MathUtil;
-import cn.hutool.core.util.StrUtil;
-import cn.hutool.json.JSONUtil;
-
 import com.itextpdf.io.font.PdfEncodings;
 import com.itextpdf.io.image.ImageData;
 import com.itextpdf.io.image.ImageDataFactory;
@@ -21,27 +16,15 @@ import com.itextpdf.kernel.pdf.PdfPage;
 import com.itextpdf.kernel.pdf.PdfWriter;
 import com.itextpdf.kernel.pdf.canvas.PdfCanvas;
 import com.itextpdf.layout.Document;
-import com.itextpdf.layout.element.Image;
 import com.itextpdf.layout.element.Paragraph;
 import com.itextpdf.layout.element.Text;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-
-import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.imaging.ImageInfo;
-import org.apache.commons.imaging.Imaging;
 
 import java.awt.*;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.util.*;
-import java.util.stream.Collectors;
-
-import static com.itextpdf.kernel.pdf.PdfName.DeviceGray;
-import static com.itextpdf.kernel.pdf.PdfName.ca;
-import static java.lang.Math.abs;
+import java.util.LinkedList;
 
 /**
  * @author 张治忠
@@ -100,52 +83,8 @@ public class ImagesConverter {
 
     /**
      * 插入透明文字
-     * @throws Exception
      */
-    private void insertTextBoxes1(Label label,  Document doc, int pageNum){
 
-        for (Label.Detection detection : label.getDetections()) {
-            Rectangle pageSize = doc.getPdfDocument().getPage(pageNum).getPageSize();
-            int[][] points = detection.getPoints();
-            Point point = new Point();
-            var leftTopPoint = points[0];
-            var rightTopPoint = points[1];
-            var rightBottomPoint = points[2];
-            var leftBottomPoint = points[3];
-            float widthDiff = Math.max(rightTopPoint[0] - leftTopPoint[0], rightBottomPoint[0] - leftBottomPoint[0]);
-            float heightDiff = Math.max(leftBottomPoint[1] - leftTopPoint[1], rightBottomPoint[1] - rightTopPoint[1]);
-            float fontSize = Math.max(widthDiff, heightDiff) / (detection.getTranscription().length()) - 0.1f;
-            float diff = Math.max(widthDiff, heightDiff);
-
-
-
-            PdfPage pdfPage = doc.getPdfDocument().getPage(pageNum);
-
-            var height=rightBottomPoint[1]-rightTopPoint[1];
-            Text text = new Text(detection.getTranscription());
-            Paragraph paragraph = new Paragraph();
-            paragraph.add(text);
-            paragraph.setFont(baseFont)
-                    .setFontColor(Color.BLACK, 1f)
-                    .setFontSize(fontSize)
-                    .setFixedLeading(fontSize);
-            paragraph.setFixedPosition(pageNum, leftTopPoint[0], pdfPage.getPageSize().getHeight()-leftTopPoint[1], diff);
-//            if (widthDiff >= heightDiff) {
-//                double angleInRadians = Math.atan2(rightBottomPoint[1] - leftBottomPoint[1], rightBottomPoint[0] - leftBottomPoint[0]);
-//                paragraph.setFixedPosition(pageNum, leftBottomPoint[0], height - leftBottomPoint[1],  diff)
-//                        .setRotationAngle(angleInRadians);
-//            } else {
-//                double angleInRadians = Math.PI +  Math.atan2(leftBottomPoint[1] - leftTopPoint[1], leftBottomPoint[0] - leftTopPoint[0]);
-//                paragraph.setFixedPosition(pageNum, leftTopPoint[0], height - leftTopPoint[1],  diff)
-//                        .setRotationAngle(angleInRadians);
-//            }
-            doc.add(paragraph);
-        }
-    }
-    /**
-     * 插入透明文字
-     * @throws Exception
-     */
     private void insertTextBoxes(Label label,  Document doc, int pageNum) {
         Rectangle pageSize = doc.getPdfDocument().getPage(pageNum).getPageSize();
         for (Label.Detection detection : label.getDetections()) {
@@ -164,10 +103,12 @@ public class ImagesConverter {
             Paragraph paragraph = new Paragraph();
             paragraph.add(text);
             paragraph.setFont(baseFont)
-                    .setFontColor(Color.BLACK, 1f)
+                    .setFontColor(Color.BLACK, 0)
                     .setFontSize(fontSize)
                     .setFixedLeading(fontSize);
-            paragraph.setFixedPosition(pageNum, p0.x, p0.y, diff);
+
+            var deltaX=-widthDiff*0.2f;
+            paragraph.setFixedPosition(pageNum, p0.x+deltaX, p0.y, diff);
             paragraph.setRotationAngle(-Math.PI/2f);
 //            if (widthDiff >= heightDiff) {
 //                double angleInRadians = -Math.atan2(p2.y - p3.y, p0.x - p3.x);

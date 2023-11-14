@@ -23,15 +23,15 @@ app:
       format: jp2
 
     DRAW_BLUR:
-      blur-image-path: D:\datasets\图片处理模板\2 模糊图
+      blur-image-path: D:\原始备份\图片处理模板\2 模糊图
     PDF_MERGE:
       #目录文件所在目录
-      cata-dir-path: D:\datasets\图片处理模板\3 目录文件
+      cata-dir-path: D:\原始备份\图片处理模板\3 目录文件
     IMAGE_CUT:
-      label-file-path: D:\datasets\图片处理模板\4 标签文件
+      label-file-path: D:\原始备份\图片处理模板\4 标签文件
     DOUBLE_LAYER_PDF_GENERATE:
       #目录文件所在目录
-      cata-dir-path: D:\datasets\图片处理模板\3 目录文件
+      cata-dir-path: D:\原始备份\图片处理模板\5 目录
       label-dir-path: D:\原始备份\图片处理模板\label文件
     LABELED_DATASET_COLLECT:
       rate-of-train: 0.9
