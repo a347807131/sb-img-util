@@ -35,21 +35,25 @@ app:
   #处理项
   #任务类型 目前只有4重类型：IMAGE_TRANSFORM、IMAGE_COMPRESS、DRAW_BLUR、PDF_MERGE
   process-tasks:
-
     IMAGE_TRANSFORM:
-        #输出格式
-      format:
+      #输出格式
+      format: jpg
 
     IMAGE_COMPRESS:
       #压缩限制大小
       compress-limit: 500
+      format: jp2
 
     DRAW_BLUR:
       blur-image-path:
-
     PDF_MERGE:
       #目录文件所在目录
       cata-dir-path:
-
     IMAGE_CUT:
       label-file-path:
+    DOUBLE_LAYER_PDF_GENERATE:
+      #目录文件所在目录
+      cata-dir-path:
+      label-dir-path:
+    LABELED_DATASET_COLLECT:
+      rate-of-train: 0.9

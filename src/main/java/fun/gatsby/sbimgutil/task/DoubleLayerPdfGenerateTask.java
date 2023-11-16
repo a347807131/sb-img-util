@@ -20,24 +20,25 @@ import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @Slf4j
 public class DoubleLayerPdfGenerateTask extends BaseTask{
 
     private final File cataFile;
-    private final File outXmlFile;
     private final File outPdfFile;
     private final List<Label> labels;
 
-    public DoubleLayerPdfGenerateTask(Path datasetPath,List<Label> labels, File cataFile, File outPdfFile,File outXmlFile){
+    public DoubleLayerPdfGenerateTask(Path datasetPath,List<Label> labels, File cataFile, File outPdfFile){
         this.name = "双层pdf制作 -> " + outPdfFile.getAbsolutePath();
         this.labels=labels;
         this.outPdfFile=outPdfFile;
-        this.outXmlFile=outXmlFile;
         this.cataFile = cataFile;
     }
     @Override
     public void doWork() throws Throwable {
+
+        File outXmlFile = new File(outPdfFile.getParentFile(),outPdfFile.getName().replace(".pdf",".xml"));
         PDFUtils.createOutXmlbyLabels(outXmlFile,labels);
         ImagesConverter imagesConverter = new ImagesConverter(labels,cataFile);
         imagesConverter.convertToBilayerPdf(outPdfFile);
@@ -56,10 +57,9 @@ public class DoubleLayerPdfGenerateTask extends BaseTask{
             List<ITask> tasks = new LinkedList<>();
             for (Map.Entry<File, List<File>> entry : dirToImgFilesMap.entrySet()) {
                 File dirThatFilesBelong = entry.getKey();
-                // TODO: 11/14/2023 文件问题
                 List<File> imgFiles = entry.getValue();
                 String txtFileRelativePath = dirThatFilesBelong.getAbsolutePath().replace(
-                        inPath.toFile().getAbsolutePath(), ""
+                        inPath.toFile().getAbsolutePath(), "./"
                 ) + ".txt";
 
                 File labelFile = new File(processTask.getLabelDirPath(), txtFileRelativePath);
@@ -70,18 +70,21 @@ public class DoubleLayerPdfGenerateTask extends BaseTask{
                     throw new RuntimeException(e);
                 }
 
+                labels = labels.stream().filter(e -> e.getMarkedImageFile().exists()).collect(Collectors.toList());
+
                 if(!labelFile.exists()) continue;
                 File cataFile = cataDirPath.resolve(txtFileRelativePath).toFile();
                 if(!cataFile.exists()) cataFile=null;
                 File outFile = genPdfOutFile(dirThatFilesBelong);
                 if (outFile.exists() && !gtc.isEnforce())
                     continue;
+
                 var task = new DoubleLayerPdfGenerateTask(
                         dirThatFilesBelong.getParentFile().toPath(),
                         labels,
                         cataFile,
-                        outFile,
-                        new File(outFile.getParent(),outFile.getName()+".xml"));
+                        outFile
+                );
                 tasks.add(task);
             }
             return tasks;
