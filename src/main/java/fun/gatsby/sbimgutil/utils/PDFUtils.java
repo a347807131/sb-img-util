@@ -21,9 +21,13 @@ import org.apache.commons.imaging.ImageInfo;
 import org.apache.commons.imaging.ImageReadException;
 import org.apache.commons.imaging.Imaging;
 
+import javax.imageio.ImageIO;
+import java.awt.*;
+import java.awt.image.BufferedImage;
 import java.io.*;
 import java.nio.file.Files;
 import java.util.*;
+import java.util.List;
 
 @Slf4j
 public class PDFUtils {
@@ -73,10 +77,13 @@ public class PDFUtils {
         sb.append("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n");
         for (var label : labels) {
             try {
-                ImageInfo imageInfo = Imaging.getImageInfo(label.getMarkedImageFile());
+//                Dimension imageSize = Imaging.getImageSize(label.getMarkedImageFile());
+                ImageData imageData = ImageDataFactory.create(label.getMarkedImageFile().getAbsolutePath());
+                float width = imageData.getWidth();
+                float height = imageData.getHeight();
                 sb.append(
                         "\t<page width=\"%s\"  height=\"%s\" pageName=\"%s\">\n"
-                                .formatted(imageInfo.getWidth(), imageInfo.getHeight(), label.getMarkedImageFile().getName())
+                                .formatted(width, height, label.getMarkedImageFile().getName())
                 );
             }catch (Exception e) {
                 log.warn("图片文件无法解析"+label.getMarkedImageFile()+ e);

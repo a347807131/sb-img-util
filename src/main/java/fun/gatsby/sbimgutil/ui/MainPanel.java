@@ -119,10 +119,7 @@ public class MainPanel extends JPanel {
                     taskExcutor.excute();
                     JOptionPane.showMessageDialog(this, "任务完成");
                 } catch (Exception ex) {
-                    JDialog dialog = new JDialog();
-                    dialog.setTitle("错误");
-                    dialog.add(new JLabel(ex.getMessage()));
-                    dialog.setVisible(true);
+                    JOptionPane.showMessageDialog(this, ex.getMessage());
                 }
             }
         });
