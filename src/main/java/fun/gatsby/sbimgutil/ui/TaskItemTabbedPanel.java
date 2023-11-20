@@ -106,7 +106,7 @@ public class TaskItemTabbedPanel extends JTabbedPane {
                         return Map.entry(typeEnum,processTask);
                     }
                 });
-                case IMAGE_COMPRESS, FIVE_BACKSPACE_REPLACE-> add(typeEnum.taskCnName, new ItemPanel() {
+                case LABELED_DATASET_COLLECT,IMAGE_COMPRESS, FIVE_BACKSPACE_REPLACE-> add(typeEnum.taskCnName, new ItemPanel() {
                         @Override
                         public Map.Entry<TaskTypeEnum, AppConfig.ProcessTask> getValidProcessTaskEntry() {
                             return Map.entry(typeEnum, processTask);

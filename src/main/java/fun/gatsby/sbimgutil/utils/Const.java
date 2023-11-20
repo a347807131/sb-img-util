@@ -26,6 +26,7 @@ public interface Const {
             IMAGE_COMPRESS,
             DRAW_BLUR,
             IMAGE_CUT,
-            DOUBLE_LAYER_PDF_GENERATE
+            DOUBLE_LAYER_PDF_GENERATE,
+            LABELED_DATASET_COLLECT
     );
 }
