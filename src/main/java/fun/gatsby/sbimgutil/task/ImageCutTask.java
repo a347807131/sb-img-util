@@ -65,10 +65,6 @@ public class ImageCutTask extends BaseTask {
     }
     public static class TaskGenerator extends BaseTask.TaskGenerator {
 
-        public TaskGenerator(AppConfig.GlobalTaskConfig gtc, AppConfig.ProcessTask processTask, TaskTypeEnum taskType) {
-            super(gtc, processTask, taskType);
-        }
-
         @Override
         public List<ITask> generate() throws IOException {
             String inDirPath = gtc.getInDirPath();
@@ -88,7 +84,10 @@ public class ImageCutTask extends BaseTask {
             }
             return tasks;
         }
-    }
 
+        public TaskGenerator(AppConfig.GlobalTaskConfig gtc, AppConfig.ProcessTask processTask) {
+            super(gtc, processTask, TaskTypeEnum.IMAGE_CUT);
+        }
+    }
 }
 

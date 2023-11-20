@@ -42,15 +42,7 @@ public class TaskExecutor {
     public List<Runnable> loadTasks(TaskTypeEnum taskType) throws IOException {
         final AppConfig.ProcessTask processTask=taskMap.get(taskType.name());
         var taskGroup = new ProcessTaskGroup(taskType.taskCnName);
-        BaseTask.TaskGenerator taskGenerator=null;
-        switch (taskType) {
-            case PDF_MERGE -> taskGenerator = new PdfMergeTask.TaskGenerator(gtc, processTask);
-            case DOUBLE_LAYER_PDF_GENERATE -> taskGenerator = new DoubleLayerPdfGenerateTask.TaskGenerator(gtc, processTask);
-            case LABELED_DATASET_COLLECT -> taskGenerator=new LabeledDatasetCollectTask.TaskGenerator(gtc, processTask);
-            case IMAGE_TRANSFORM, IMAGE_COMPRESS, DRAW_BLUR,BOOK_IMAGE_FIX ,FIVE_BACKSPACE_REPLACE->
-                    taskGenerator = new BaseTask.TaskGenerator(gtc, processTask,taskType);
-            case IMAGE_CUT -> taskGenerator = new ImageCutTask.TaskGenerator(gtc, processTask, taskType);
-        }
+        BaseTask.TaskGenerator taskGenerator = taskType.genTaskGenerator(gtc, processTask);
         if(taskGenerator!=null){
             taskGroup.addAll(taskGenerator.generate());
         }
