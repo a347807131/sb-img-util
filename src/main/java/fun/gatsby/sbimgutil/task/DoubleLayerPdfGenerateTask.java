@@ -63,6 +63,9 @@ public class DoubleLayerPdfGenerateTask extends BaseTask{
                 ) + ".txt";
 
                 File labelFile = new File(processTask.getLabelDirPath(), txtFileRelativePath);
+                if(!labelFile.exists()){
+                    continue;
+                }
                 List<Label> labels ;
                 try {
                     labels = Label.parse(dirThatFilesBelong.getParentFile().toPath(), labelFile);
