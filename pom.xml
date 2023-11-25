@@ -161,20 +161,6 @@
 
 
         <dependency>
-            <groupId>com.itextpdf</groupId>
-            <artifactId>itextpdf</artifactId>
-            <version>5.5.10</version>
-        </dependency>
-
-        <!-- https://mvnrepository.com/artifact/com.itextpdf/itext-asian -->
-        <dependency>
-            <groupId>com.itextpdf</groupId>
-            <artifactId>itext-asian</artifactId>
-            <version>5.2.0</version>
-        </dependency>
-
-
-        <dependency>
             <groupId>cn.hutool</groupId>
             <artifactId>hutool-all</artifactId>
             <version>5.8.12</version>
@@ -218,6 +204,13 @@
                 </includes>
                 <!-- 启用过滤器，过滤器会解析需要过滤的的资源文件，将其中的变量替换成真实的值 -->
                 <filtering>true</filtering>
+            </resource>
+            <resource>
+                <directory>src/main/resources</directory>
+                <includes>
+                    <!-- 配置资源文件 -->
+                    <include>font/*</include>
+                </includes>
             </resource>
         </resources>
         <plugins>

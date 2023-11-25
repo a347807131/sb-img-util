@@ -2,6 +2,9 @@ package fun.gatsby.sbimgutil.utils;
 
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.io.IoUtil;
+import com.itextpdf.io.font.FontConstants;
+import com.itextpdf.io.font.FontProgram;
+import com.itextpdf.io.font.FontProgramFactory;
 import com.itextpdf.io.font.PdfEncodings;
 import com.itextpdf.io.image.ImageData;
 import com.itextpdf.io.image.ImageDataFactory;
@@ -19,6 +22,7 @@ import com.itextpdf.layout.Document;
 import com.itextpdf.layout.element.Paragraph;
 import com.itextpdf.layout.element.Text;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.io.IOUtils;
 
 import java.awt.*;
 import java.io.File;
@@ -26,6 +30,8 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Objects;
+import java.util.Set;
 
 /**
  * @author 张治忠
@@ -33,7 +39,9 @@ import java.util.List;
 @Slf4j
 public class ImagesConverter {
 
-    private final PdfFont  baseFont =PdfFontFactory.createFont("font/simhei.ttf", PdfEncodings.IDENTITY_H, false);
+    private final PdfFont  baseFont ;
+//            PdfFontFactory.createFont(FontConstants.TIMES_BOLD);
+//            PdfFontFactory.createFont("font/simhei.ttf", PdfEncodings.IDENTITY_H, false);
 
     private final List<Label> labels;
     private final File cataFile;
@@ -42,6 +50,9 @@ public class ImagesConverter {
     public ImagesConverter(List<Label> labels, File cataFile) throws IOException {
         this.labels=labels;
         this.cataFile=cataFile;
+        byte[] fontContents = IOUtils.toByteArray(Objects.requireNonNull(getClass().getResourceAsStream("/font/simhei.ttf")));
+        FontProgram fontProgram = FontProgramFactory.createFont(fontContents);
+        baseFont=PdfFontFactory.createFont(fontProgram, PdfEncodings.IDENTITY_H, false);
     }
 
     /**
