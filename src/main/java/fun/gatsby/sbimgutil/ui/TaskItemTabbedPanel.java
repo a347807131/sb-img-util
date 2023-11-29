@@ -25,7 +25,7 @@ public class TaskItemTabbedPanel extends JTabbedPane {
 
         for (TaskTypeEnum typeEnum : Const.ENABLED_TASK_TYPES) {
             AppConfig.ProcessTask processTask = taskMap.getOrDefault(typeEnum.name(),new AppConfig.ProcessTask());
-            add(typeEnum.taskCnName, typeEnum.genTaskItemTabbedPanel(processTask));
+            add(typeEnum.taskCnName, typeEnum.newTaskItemTabbedPanel(processTask));
         }
     }
 

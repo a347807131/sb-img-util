@@ -7,9 +7,9 @@ app:
 
   global-task-config:
     #输入目录
-    in-dir-path: C:\Users\Gatsby\Downloads\拼版流程\books\jp2有损
+    in-dir-path: D:\原始备份\双层pdf相关\无水印
     #输出目录
-    out-dir-path: D:\out
+    out-dir-path: D:\原始备份\双层pdf相关\out
     enforce: true
 
   process-tasks:
@@ -32,7 +32,7 @@ app:
     DOUBLE_LAYER_PDF_GENERATE:
       #目录文件所在目录
       cata-dir-path: D:\原始备份\图片处理模板\5 目录
-      label-dir-path: C:\Users\Gatsby\Downloads\拼版流程\books\label
+      label-dir-path: D:\原始备份\双层pdf相关\label
     LABELED_DATASET_COLLECT:
       rate-of-train: 0.9
 

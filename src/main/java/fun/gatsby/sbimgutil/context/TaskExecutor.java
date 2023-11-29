@@ -42,7 +42,7 @@ public class TaskExecutor {
     public List<Runnable> loadTasks(TaskTypeEnum taskType) throws IOException {
         final AppConfig.ProcessTask processTask=taskMap.get(taskType.name());
         var taskGroup = new ProcessTaskGroup(taskType.taskCnName);
-        BaseTask.TaskGenerator taskGenerator = taskType.genTaskGenerator(gtc, processTask);
+        BaseTask.TaskGenerator taskGenerator = taskType.newTaskGenerator(gtc, processTask);
         if(taskGenerator!=null){
             taskGroup.addAll(taskGenerator.generate());
         }

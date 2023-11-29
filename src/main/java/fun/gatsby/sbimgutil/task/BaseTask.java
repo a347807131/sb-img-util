@@ -56,6 +56,10 @@ public abstract class BaseTask implements ITask {
         startDate = LocalDateTime.now();
     }
 
+    @Override
+    public void run() {
+        ITask.super.run();
+    }
 
     @Override
     public void after() {
@@ -90,7 +94,7 @@ public abstract class BaseTask implements ITask {
     }
 
     @AllArgsConstructor
-    public static class TaskGenerator{
+    public static class TaskGenerator implements ITaskGenerator{
 
         AppConfig.GlobalTaskConfig gtc;
         AppConfig.ProcessTask processTask;
@@ -98,7 +102,7 @@ public abstract class BaseTask implements ITask {
 
 
         public List<ITask> generate() throws IOException {
-            List<ITask> tasks = new LinkedList<>();
+            var tasks = new LinkedList<ITask>();
             for (File imgFile : loadImageFiles()) {
                 File outFile = genOutFile(imgFile,processTask.getFormat());
                 if (outFile.exists() && !gtc.isEnforce()) {
@@ -115,6 +119,11 @@ public abstract class BaseTask implements ITask {
                 tasks.add(task);
             }
             return tasks;
+        }
+
+        @Override
+        public TaskTypeEnum getTaskType() {
+            return taskTypeEnum;
         }
 
         File genPdfOutFile(File dirFilesBelong) {

@@ -23,7 +23,7 @@ public enum TaskTypeEnum {
         this.taskCnName = taskCnName;
     }
 
-    public JPanel genTaskItemTabbedPanel(AppConfig.ProcessTask processTask) {
+    public JPanel newTaskItemTabbedPanel(AppConfig.ProcessTask processTask) {
         switch (this){
             case IMAGE_TRANSFORM -> {
                 return new TaskItemTabbedPanel.ItemPanel() {
@@ -124,7 +124,7 @@ public enum TaskTypeEnum {
         }
     }
 
-    public BaseTask.TaskGenerator genTaskGenerator(AppConfig.GlobalTaskConfig gtc, AppConfig.ProcessTask processTask) {
+    public BaseTask.TaskGenerator newTaskGenerator(AppConfig.GlobalTaskConfig gtc, AppConfig.ProcessTask processTask) {
         BaseTask.TaskGenerator taskGenerator=null;
         switch (this) {
             case PDF_MERGE -> taskGenerator = new PdfMergeTask.TaskGenerator(gtc, processTask);

@@ -51,6 +51,7 @@ public class ImageCutTask extends BaseTask {
     }
 
 
+
     @Override
     public void doWork() throws IOException {
         for (int i = 0; i < rectangles.size(); i++) {
@@ -81,6 +82,7 @@ public class ImageCutTask extends BaseTask {
                 Label label = Label.parse(parentDirPath, labelLine);
                 File outDir = genOutFile(label.getMarkedImageFile()).getParentFile();
                 ImageCutTask imageCutTask = new ImageCutTask(label, outDir.toPath());
+                tasks.add(imageCutTask);
             }
             return tasks;
         }
