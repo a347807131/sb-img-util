@@ -13,13 +13,6 @@ public interface Const {
             "jpg", "jp2", "tif", "tiff","jpeg","txt"
     );
 
-    FileFilter SUPPORTED_FILE_FILTER = file -> {
-        if (file.isDirectory())
-            return true;
-        String lowerCasedName = file.getName().toLowerCase();
-        return Const.SUPORTTED_FORMATS.stream().anyMatch(lowerCasedName::endsWith);
-    };
-
     List<TaskTypeEnum> ENABLED_TASK_TYPES=List.of(
             IMAGE_TRANSFORM,
             PDF_MERGE,
@@ -27,6 +20,7 @@ public interface Const {
             DRAW_BLUR,
             IMAGE_CUT,
             DOUBLE_LAYER_PDF_GENERATE,
-            LABELED_DATASET_COLLECT
+            LABELED_DATASET_COLLECT,
+            PDF_SPLIT
     );
 }

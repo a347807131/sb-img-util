@@ -1,39 +1,81 @@
 package fun.gatsby.sbimgutil.utils;
 
 import cn.hutool.core.io.FileUtil;
-import com.itextpdf.io.font.FontConstants;
 import com.itextpdf.io.image.ImageData;
 import com.itextpdf.io.image.ImageDataFactory;
-import com.itextpdf.kernel.font.PdfFont;
-import com.itextpdf.kernel.font.PdfFontFactory;
 import com.itextpdf.kernel.geom.PageSize;
 import com.itextpdf.kernel.pdf.PdfDocument;
 import com.itextpdf.kernel.pdf.PdfOutline;
 import com.itextpdf.kernel.pdf.PdfPage;
 import com.itextpdf.kernel.pdf.PdfWriter;
 import com.itextpdf.kernel.pdf.canvas.PdfCanvas;
-import com.itextpdf.kernel.pdf.navigation.PdfExplicitDestination;
-import com.itextpdf.layout.Document;
-import fun.gatsby.lang.tuple.Tuple3;
-import lombok.experimental.PackagePrivate;
+import com.itextpdf.text.pdf.PdfDictionary;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.imaging.ImageInfo;
 import org.apache.commons.imaging.ImageReadException;
-import org.apache.commons.imaging.Imaging;
 
 import javax.imageio.ImageIO;
-import java.awt.*;
 import java.awt.image.BufferedImage;
-import java.io.*;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.OutputStream;
 import java.nio.file.Files;
-import java.util.*;
+import java.nio.file.Path;
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 
+import com.itextpdf.text.pdf.PdfReader;
+import com.itextpdf.text.pdf.parser.ImageRenderInfo;
+import com.itextpdf.text.pdf.parser.PdfReaderContentParser;
+import com.itextpdf.text.pdf.parser.RenderListener;
+import com.itextpdf.text.pdf.parser.TextRenderInfo;
 @Slf4j
 public class PDFUtils {
 
     private PDFUtils(){
 
+    }
+
+    public static void split(File pdfFile, Path outPath) throws IOException {
+            PdfReader pdfReader = new PdfReader(pdfFile.getAbsolutePath());
+            PdfReaderContentParser parser = new PdfReaderContentParser(pdfReader);
+            RenderListener listener = new RenderListener() {
+                AtomicInteger imageNum = new AtomicInteger(0);
+                @Override
+                public void renderImage(ImageRenderInfo renderInfo) {
+                    try {
+//                        PdfDictionary imageDictionary = renderInfo.getImage().getDictionary();
+//                        int width = imageDictionary.getAsNumber(com.itextpdf.text.pdf.PdfName.WIDTH).intValue();
+//                        int height = imageDictionary.getAsNumber(com.itextpdf.text.pdf.PdfName.HEIGHT).intValue();
+                        BufferedImage image = renderInfo.getImage().getBufferedImage();
+                        File outImgFile = outPath.resolve(imageNum.incrementAndGet() + ".jpg").toFile();
+                        FileUtil.mkParentDirs(outImgFile);
+                        ImageIO.write(image, "jpg", outImgFile);
+                    } catch (IOException e) {
+                        log.error("文件无法解析"+renderInfo.getRef(),e);
+                        throw new RuntimeException(e);
+                    }
+                }
+
+                @Override
+                public void endTextBlock() {
+                }
+
+                @Override
+                public void beginTextBlock() {
+                }
+
+                @Override
+                public void renderText(TextRenderInfo renderInfo) {
+                }
+            };
+            for (int i = 1; i <= pdfReader.getNumberOfPages(); i++) {
+                parser.processContent(i, listener);
+            }
+            pdfReader.close();
+            log.debug("PDF successfully converted to images!");
     }
 
     public static void mergeIntoPdf(Collection<File> imgFiles,File cataFile, OutputStream os) throws Exception {

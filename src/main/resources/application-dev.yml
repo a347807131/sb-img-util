@@ -7,9 +7,9 @@ app:
 
   global-task-config:
     #输入目录
-    in-dir-path: D:\原始备份\双层pdf相关\无水印
+    in-dir-path: D:\原始备份\图片处理模板\4 PDF
     #输出目录
-    out-dir-path: D:\原始备份\双层pdf相关\out
+    out-dir-path: D:\out
     enforce: true
 
   process-tasks:

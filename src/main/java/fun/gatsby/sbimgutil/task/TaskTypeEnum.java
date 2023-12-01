@@ -17,6 +17,7 @@ public enum TaskTypeEnum {
     FIVE_BACKSPACE_REPLACE("五个空格替换"),
     DOUBLE_LAYER_PDF_GENERATE("生成双层pdf"),
     LABELED_DATASET_COLLECT("ocr标记数据整理"),
+    PDF_SPLIT("pdf拆分");
     ;
     public final String taskCnName;
     TaskTypeEnum(String taskCnName) {
@@ -110,16 +111,13 @@ public enum TaskTypeEnum {
                     }
                 };
             }
-            case LABELED_DATASET_COLLECT, IMAGE_COMPRESS, FIVE_BACKSPACE_REPLACE -> {
+            default -> {
                 return new TaskItemTabbedPanel.ItemPanel() {
                     @Override
                     public Map.Entry<TaskTypeEnum, AppConfig.ProcessTask> getValidProcessTaskEntry() {
                         return Map.entry(TaskTypeEnum.this, processTask);
                     }
                 };
-            }
-            default -> {
-                return null;
             }
         }
     }
@@ -131,6 +129,7 @@ public enum TaskTypeEnum {
             case DOUBLE_LAYER_PDF_GENERATE -> taskGenerator = new DoubleLayerPdfGenerateTask.TaskGenerator(gtc, processTask);
             case LABELED_DATASET_COLLECT -> taskGenerator=new LabeledDatasetCollectTask.TaskGenerator(gtc, processTask);
             case IMAGE_CUT -> taskGenerator = new ImageCutTask.TaskGenerator(gtc, processTask);
+            case PDF_SPLIT -> taskGenerator = new PdfSplitTask.TaskGenerator(gtc, processTask);
             case IMAGE_TRANSFORM, IMAGE_COMPRESS, DRAW_BLUR,BOOK_IMAGE_FIX ,FIVE_BACKSPACE_REPLACE ->
                     taskGenerator = new BaseTask.TaskGenerator(gtc, processTask,this);
         }
