@@ -7,7 +7,7 @@ app:
 
   global-task-config:
     #输入目录
-    in-dir-path: D:\原始备份\图片处理模板\4 PDF
+    in-dir-path: D:\原始备份\图片处理模板\4 PDF\无水印\
     #输出目录
     out-dir-path: D:\out
     enforce: true
@@ -35,4 +35,7 @@ app:
       label-dir-path: D:\原始备份\双层pdf相关\label
     LABELED_DATASET_COLLECT:
       rate-of-train: 0.9
+    PDF_ADD_CATA:
+      #目录文件所在目录
+      cata-dir-path: ${app.global-task-config.in-dir-path}
 

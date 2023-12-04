@@ -57,3 +57,6 @@ app:
       label-dir-path:
     LABELED_DATASET_COLLECT:
       rate-of-train: 0.9
+    PDF_ADD_CATA:
+      #目录文件所在目录
+      cata-dir-path:

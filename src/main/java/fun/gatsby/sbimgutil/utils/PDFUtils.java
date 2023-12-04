@@ -15,10 +15,7 @@ import org.apache.commons.imaging.ImageReadException;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.OutputStream;
+import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Arrays;
@@ -37,6 +34,27 @@ public class PDFUtils {
     private PDFUtils(){
 
     }
+
+    public static void addCata(File pdfFile, File cataFile, File outFile) throws Exception {
+
+        FileUtil.mkParentDirs(outFile);
+        com.itextpdf.kernel.pdf.PdfReader reader = new com.itextpdf.kernel.pdf.PdfReader(pdfFile);
+        PdfDocument inDoc = new PdfDocument(reader);
+        PdfWriter writer = new PdfWriter(outFile);
+        PdfDocument outDoc = new PdfDocument(new PdfWriter(outFile));
+
+        for (int i = 1; i <= inDoc.getNumberOfPages(); i++) {
+            inDoc.copyPagesTo(i, i, outDoc);
+        }
+        PdfOutline outlines = outDoc.getOutlines(false);
+        PdfBookmark bookmark = CataParser.parseTxt(cataFile);
+        CataParser.addCata(outlines, bookmark);
+        outDoc.close();
+        inDoc.close();
+        reader.close();
+        writer.close();
+    }
+
 
     public static void split(File pdfFile, Path outPath) throws IOException {
             PdfReader pdfReader = new PdfReader(pdfFile.getAbsolutePath());

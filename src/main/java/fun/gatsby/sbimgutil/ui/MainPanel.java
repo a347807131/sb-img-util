@@ -119,6 +119,7 @@ public class MainPanel extends JPanel {
                     taskExcutor.excute();
                     JOptionPane.showMessageDialog(this, "任务完成");
                 } catch (Exception ex) {
+                    log.error("任务执行失败", ex);
                     JOptionPane.showMessageDialog(this, ex.getMessage());
                 }
             }

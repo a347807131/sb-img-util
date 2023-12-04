@@ -10,7 +10,7 @@ import static fun.gatsby.sbimgutil.task.TaskTypeEnum.*;
 public interface Const {
 
     List<String> SUPORTTED_FORMATS = List.of(
-            "jpg", "jp2", "tif", "tiff","jpeg","txt"
+            "jpg", "jp2", "tif", "tiff","jpeg","txt","pdf"
     );
 
     List<TaskTypeEnum> ENABLED_TASK_TYPES=List.of(
@@ -21,6 +21,7 @@ public interface Const {
             IMAGE_CUT,
             DOUBLE_LAYER_PDF_GENERATE,
             LABELED_DATASET_COLLECT,
-            PDF_SPLIT
+            PDF_SPLIT,
+            PDF_ADD_CATA
     );
 }
