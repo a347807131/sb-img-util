@@ -19,8 +19,11 @@ public class CataParser {
 
     private final File cataTxtFile;
 
-    CataParser(File cataTxtFile){
+    public CataParser(File cataTxtFile){
         this.cataTxtFile=cataTxtFile;
+    }
+    public PdfBookmark parse() throws Exception{
+       return parseTxt(cataTxtFile);
     }
 
     public void parse(PdfOutline rootOutline) throws Exception {
