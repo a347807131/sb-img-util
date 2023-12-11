@@ -21,28 +21,28 @@ public abstract class AbstractTaskGroup<R> extends LinkedList<Runnable> {
         this.addAll(taskQueue);
     }
 
+    /**
+     *
+     */
     @Override
     public boolean add(Runnable task) {
-        var taskWrapper = this.wrapTask(task);
-        return super.add(taskWrapper);
+        return super.add(this.wrapTask(task));
     }
 
     @Override
     public boolean addAll(Collection<? extends Runnable> tasks) {
-        var list = new LinkedList<Runnable>();
         for (Runnable task : tasks) {
-            list.add(this.wrapTask(task));
+            this.add(task);
         }
-        return super.addAll(list);
+        return true;
     }
 
     @Override
     public boolean addAll(int index, Collection<? extends Runnable> tasks) {
-        var list = new LinkedList<Runnable>();
         for (Runnable task : tasks) {
-            list.add(this.wrapTask(task));
+            this.add(index, task);
         }
-        return super.addAll(index, list);
+        return true;
     }
 
     @Override
