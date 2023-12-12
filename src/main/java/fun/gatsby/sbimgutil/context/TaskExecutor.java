@@ -1,48 +1,59 @@
 package fun.gatsby.sbimgutil.context;
 
 import fun.gatsby.sbimgutil.config.AppConfig;
+import fun.gatsby.sbimgutil.schedule.ITask;
 import fun.gatsby.sbimgutil.schedule.ProcessTaskGroup;
+import fun.gatsby.sbimgutil.schedule.TaskGroup;
 import fun.gatsby.sbimgutil.schedule.TaskScheduleForkJoinPool;
 import fun.gatsby.sbimgutil.utils.ConsoleProgressBar;
-import fun.gatsby.sbimgutil.utils.Const;
-import fun.gatsby.sbimgutil.utils.FileFetchUtils;
-import fun.gatsby.sbimgutil.utils.Label;
 import fun.gatsby.sbimgutil.task.*;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang.StringUtils;
-import org.apache.logging.log4j.util.Strings;
 
-import java.io.File;
+import javax.swing.*;
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.*;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ForkJoinPool;
+import java.util.concurrent.ForkJoinTask;
+import java.util.function.Consumer;
 
 @Slf4j
 public class TaskExecutor {
 
     private final AppConfig.GlobalTaskConfig gtc;
-    private final Map<String, AppConfig.ProcessTask> taskMap;
-    TaskScheduleForkJoinPool forkJoinPool;
+    private final TaskGroup<Runnable> taskGroup;
+    ForkJoinPool forkJoinPool;
     public static ConsoleProgressBar CPB;
 
-    public TaskExecutor(AppConfig.GlobalTaskConfig gtc, Map<String, AppConfig.ProcessTask> taskMap, TaskTypeEnum...taskTypes) throws IOException {
+    public TaskExecutor(AppConfig.GlobalTaskConfig gtc, Map.Entry<TaskTypeEnum, AppConfig.ProcessTask> entry) throws IOException {
         this.forkJoinPool = new TaskScheduleForkJoinPool(gtc.getMaxWorkerNum());
         this.gtc=gtc;
-        this.taskMap=taskMap;
-        for (TaskTypeEnum taskType : taskTypes) {
-            List<Runnable> tasks = loadTasks(taskType);
-            this.forkJoinPool.scheduleBatch(tasks);
-        }
-        CPB = new ConsoleProgressBar(this.forkJoinPool.getTaskCount());
+        taskGroup=loadTasks(entry);
     }
 
-
-    public List<Runnable> loadTasks(TaskTypeEnum taskType) throws IOException {
-        final AppConfig.ProcessTask processTask=taskMap.get(taskType.name());
-        var taskGroup = new ProcessTaskGroup(taskType.taskCnName);
+    public TaskExecutor(
+            AppConfig.GlobalTaskConfig gtc,
+            Map.Entry<TaskTypeEnum, AppConfig.ProcessTask> entry,
+            Runnable funcPerTaskDone,
+            Consumer<String> doneConsumer
+    ) throws IOException {
+        this.forkJoinPool = new TaskScheduleForkJoinPool(gtc.getMaxWorkerNum());
+        this.gtc=gtc;
+        TaskTypeEnum taskType = entry.getKey();
+        AppConfig.ProcessTask processTask = entry.getValue();
+        var taskGroup = new ProcessTaskGroup(taskType.taskCnName,funcPerTaskDone,doneConsumer);
         BaseTask.TaskGenerator taskGenerator = taskType.newTaskGenerator(gtc, processTask);
+        if(taskGenerator!=null){
+            taskGroup.addAll(taskGenerator.generate());
+        }
+        this.taskGroup=taskGroup;
+    }
+
+    public TaskGroup<Runnable> loadTasks(Map.Entry<TaskTypeEnum, AppConfig.ProcessTask> entry) throws IOException {
+        TaskTypeEnum taskTypeEnum = entry.getKey();
+        AppConfig.ProcessTask processTask = entry.getValue();
+        var taskGroup = new ProcessTaskGroup(taskTypeEnum.taskCnName);
+        BaseTask.TaskGenerator taskGenerator = taskTypeEnum.newTaskGenerator(gtc, processTask);
         if(taskGenerator!=null){
             taskGroup.addAll(taskGenerator.generate());
         }
@@ -50,10 +61,15 @@ public class TaskExecutor {
     }
 
     public void excute() throws ExecutionException, InterruptedException {
-        forkJoinPool.start();
+        ForkJoinTask<?> forkJoinTask =
+                this.forkJoinPool.submit(() -> taskGroup.parallelStream().forEach(Runnable::run));
+        forkJoinTask.get();
+    }
+    public void excuteAsync() {
+        forkJoinPool.submit(() -> taskGroup.parallelStream().forEach(Runnable::run));
     }
 
-    public static ConsoleProgressBar getGlobalConsoleProgressBar() {
-        return CPB;
+    public int getTaskCount(){
+        return taskGroup.size();
     }
 }

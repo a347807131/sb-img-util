@@ -4,9 +4,13 @@ import cn.hutool.core.date.LocalDateTimeUtil;
 import fun.gatsby.sbimgutil.utils.ConsoleProgressBar;
 import lombok.extern.slf4j.Slf4j;
 
+import javax.swing.*;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.LinkedList;
+import java.util.List;
+import java.util.function.Consumer;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -38,8 +42,23 @@ public class ProcessTaskGroup extends TaskGroup<Runnable> {
         };
     }
 
+    public ProcessTaskGroup(String name, Runnable funcPerTaskDone) {
+        this(name);
+        this.taskPerDone = funcPerTaskDone;
+    }
+    public ProcessTaskGroup(String name, Runnable funcPerTaskDone,Consumer<String> postTask) {
+        this(name);
+        this.taskPerDone = funcPerTaskDone;
+        var oldPostTask=this.postTask;
+        this.postTask=()->{
+            oldPostTask.run();
+            String msg = "任务执行完毕,统计如下：%s".formatted(String.join("\n", errTasks));
+            postTask.accept(msg);
+        };
+    }
 
-    LinkedList<String> errTasks = new LinkedList<>();
+    List<String> errTasks = new LinkedList<>();
+
     @Override
     protected void onTaskException(Runnable task, Exception e) {
         String line=task.toString() +" 失败原因:"+e.getMessage();

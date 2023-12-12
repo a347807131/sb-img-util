@@ -30,6 +30,6 @@ public class TaskItemTabbedPanel extends JTabbedPane {
     }
 
     public abstract static class ItemPanel extends JPanel {
-        public abstract Map.Entry<TaskTypeEnum, AppConfig.ProcessTask> getValidProcessTaskEntry();
+        public abstract Map.Entry<TaskTypeEnum, AppConfig.ProcessTask> getCurrentProcessTaskEntry();
     }
 }

@@ -30,16 +30,16 @@ public class ConsoleProgressBar {
         this.total.set(total);
     }
 
-    public synchronized void iterate() {
+    public synchronized String iterate() {
         int value = this.currentValue.addAndGet(1);
         if (value == 1) {
             this.startTime = System.currentTimeMillis();
         }
-        show(value);
+        return show(value);
     }
 
-    public void showCurrent() {
-        show(this.currentValue.get());
+    public String showCurrent() {
+        return show(this.currentValue.get());
     }
 
 
@@ -55,22 +55,22 @@ public class ConsoleProgressBar {
         int len = (int) (rate * barLen);
         StringBuilder sb = new StringBuilder();
 //        sb.append(ColorEnum.CYAN.value);
-        for (int i = 0; i < len; i++) {
-            sb.append(progressChar);
-        }
-        for (int i = 0; i < barLen - len; i++) {
-            sb.append(waitChar);
-        }
+//        for (int i = 0; i < len; i++) {
+//            sb.append(progressChar);
+//        }
+//        for (int i = 0; i < barLen - len; i++) {
+//            sb.append(waitChar);
+//        }
 
         float secondsTotalSpent = value == 0 ? 0 : (System.currentTimeMillis() - startTime) / 1000f;
         float speed = value == 0 ? 0 : secondsTotalSpent / value;
         int secondsLeft = (int) ((totalV - value) * speed);
 
-        sb.append(" |").append(floatPercentFormater.format(rate));
-        sb.append(" |").append(floatFormater.format(speed)).append(" avg spi");
-        sb.append(" |").append(genHMS(secondsLeft));
-        sb.append(" |").append(totalV - value).append(" units left");
-        System.out.println(sb);
+        sb.append(" | \t").append(floatPercentFormater.format(rate));
+        sb.append(" | \t").append(floatFormater.format(speed)).append(" avg spu");
+        sb.append(" | \t").append(genHMS(secondsLeft));
+//        sb.append(" |\t").append(totalV - value).append(" units left");
+//        System.out.println(sb);
         return sb.toString();
     }
 

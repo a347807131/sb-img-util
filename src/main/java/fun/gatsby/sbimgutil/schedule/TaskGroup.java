@@ -1,8 +1,11 @@
 package fun.gatsby.sbimgutil.schedule;
 
+import lombok.Getter;
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.Collection;
+import java.util.LinkedList;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.ReentrantLock;
@@ -12,14 +15,16 @@ import java.util.concurrent.locks.ReentrantLock;
  * @author gatsby
  */
 @Slf4j
-public class TaskGroup<T> extends AbstractTaskGroup<Runnable> {
+public class TaskGroup<T> extends LinkedList<Runnable> {
 
     protected final ReentrantLock preTaskLock = new ReentrantLock();
     AtomicBoolean preTaskDone = new AtomicBoolean(false);
     AtomicInteger doneTaskCount = new AtomicInteger();
 
+    @Getter
     protected String name;
 
+    @Getter
     volatile TaskStateEnum state = TaskStateEnum.NEW;
 
     /**
@@ -36,12 +41,14 @@ public class TaskGroup<T> extends AbstractTaskGroup<Runnable> {
         log.debug("name:{} 执行完成", name);
     };
 
+    @Setter
+    protected Runnable taskPerDone = () -> {
+        log.debug("name:{} 执行完成", name);
+    };
+
     public TaskGroup() {
     }
 
-    public TaskGroup(Collection<? extends Runnable> taskQueue) {
-        super(taskQueue);
-    }
 
     /**
      * 立即停止所有任务，剩余任务将不会执行原逻辑。
@@ -51,16 +58,48 @@ public class TaskGroup<T> extends AbstractTaskGroup<Runnable> {
     }
 
 
-    @Override
     protected Runnable wrapTask(Runnable task) {
         return new TaskProxy(task);
     }
 
-    public void setPreAndPostTasks(Runnable pre, Runnable post) {
-        this.preTask = pre;
-        this.postTask = post;
+
+    /**
+     *
+     */
+    public boolean add(Runnable task) {
+        return super.add(this.wrapTask(task));
     }
 
+    @Override
+    public boolean addAll(Collection<? extends Runnable> tasks) {
+        for (Runnable task : tasks) {
+            this.add(task);
+        }
+        return true;
+    }
+
+    @Override
+    public boolean addAll(int index, Collection<? extends Runnable> tasks) {
+        for (Runnable task : tasks) {
+            this.add(index, task);
+        }
+        return true;
+    }
+
+    @Override
+    public void add(int index, Runnable element) {
+        super.add(index, this.wrapTask(element));
+    }
+
+    @Override
+    public void addFirst(Runnable runnable) {
+        super.addFirst(this.wrapTask(runnable));
+    }
+
+    @Override
+    public void addLast(Runnable runnable) {
+        super.addLast(this.wrapTask(runnable));
+    }
 
     /**
      * 任务组中子任务出现异常时的回调函数，存在会有多个线程进入的情况
@@ -96,6 +135,7 @@ public class TaskGroup<T> extends AbstractTaskGroup<Runnable> {
             } catch (Exception e) {
                 onTaskException(task, e);
             } finally {
+                if(taskPerDone!=null) taskPerDone.run();
                 int doneCount = doneTaskCount.incrementAndGet();
                 if (doneCount == size() && TaskStateEnum.CANCELLED != state) {
                     state = TaskStateEnum.FINISHED;

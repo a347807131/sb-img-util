@@ -75,11 +75,6 @@ public abstract class BaseTask implements ITask {
         long between = LocalDateTimeUtil.between(startDate, LocalDateTime.now(), ChronoUnit.SECONDS);
         log.debug("任务完成:[{}] ,执行耗时：{}s", name, between);
         state = TaskStateEnum.FINISHED;
-
-        ConsoleProgressBar progressBar = TaskExecutor.getGlobalConsoleProgressBar();
-        if (progressBar != null) {
-            progressBar.iterate();
-        }
     }
 
     @Override

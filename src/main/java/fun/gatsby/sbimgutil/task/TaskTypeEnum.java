@@ -39,7 +39,7 @@ public enum TaskTypeEnum {
                         add(formatComboBox);
                     }
                     @Override
-                    public Map.Entry<TaskTypeEnum, AppConfig.ProcessTask> getValidProcessTaskEntry() {
+                    public Map.Entry<TaskTypeEnum, AppConfig.ProcessTask> getCurrentProcessTaskEntry() {
                         String format = formatComboBox.getSelectedItem().toString();
                         processTask.setFormat(format);
                         return Map.entry(TaskTypeEnum.this,processTask);
@@ -55,7 +55,7 @@ public enum TaskTypeEnum {
                         add(cataDirInputPanel);
                     }
                     @Override
-                    public Map.Entry<TaskTypeEnum, AppConfig.ProcessTask> getValidProcessTaskEntry() {
+                    public Map.Entry<TaskTypeEnum, AppConfig.ProcessTask> getCurrentProcessTaskEntry() {
                         processTask.setCataDirPath(cataDirInputPanel.getFilePath());
                         return Map.entry(TaskTypeEnum.this,processTask);
                     }
@@ -70,7 +70,7 @@ public enum TaskTypeEnum {
                         add(blurImgFileInputPanel);
                     }
                     @Override
-                    public Map.Entry<TaskTypeEnum, AppConfig.ProcessTask> getValidProcessTaskEntry() {
+                    public Map.Entry<TaskTypeEnum, AppConfig.ProcessTask> getCurrentProcessTaskEntry() {
                         processTask.setBlurImagePath(blurImgFileInputPanel.getFilePath());
                         return Map.entry(TaskTypeEnum.this,processTask);
                     }
@@ -86,7 +86,7 @@ public enum TaskTypeEnum {
                     }
 
                     @Override
-                    public Map.Entry<TaskTypeEnum, AppConfig.ProcessTask> getValidProcessTaskEntry() {
+                    public Map.Entry<TaskTypeEnum, AppConfig.ProcessTask> getCurrentProcessTaskEntry() {
                         processTask.setLabelFilePath(labelFileInputPanel.getFilePath());
                         return Map.entry(TaskTypeEnum.this,processTask);
                     }
@@ -105,7 +105,7 @@ public enum TaskTypeEnum {
                         add(labelDirInputPanel);
                     }
                     @Override
-                    public Map.Entry<TaskTypeEnum, AppConfig.ProcessTask> getValidProcessTaskEntry() {
+                    public Map.Entry<TaskTypeEnum, AppConfig.ProcessTask> getCurrentProcessTaskEntry() {
                         processTask.setCataDirPath(cataDirInputPanel.getFilePath());
                         processTask.setLabelDirPath(labelDirInputPanel.getFilePath());
                         return Map.entry(TaskTypeEnum.this,processTask);
@@ -115,7 +115,7 @@ public enum TaskTypeEnum {
             default -> {
                 return new TaskItemTabbedPanel.ItemPanel() {
                     @Override
-                    public Map.Entry<TaskTypeEnum, AppConfig.ProcessTask> getValidProcessTaskEntry() {
+                    public Map.Entry<TaskTypeEnum, AppConfig.ProcessTask> getCurrentProcessTaskEntry() {
                         return Map.entry(TaskTypeEnum.this, processTask);
                     }
                 };

@@ -1,10 +1,14 @@
 package fun.gatsby.sbimgutil.ui;
 
+import cn.hutool.core.lang.func.VoidFunc1;
 import fun.gatsby.sbimgutil.config.AppConfig;
 import fun.gatsby.sbimgutil.context.TaskExecutor;
+import fun.gatsby.sbimgutil.schedule.ITask;
 import fun.gatsby.sbimgutil.task.TaskTypeEnum;
 import fun.gatsby.sbimgutil.ui.util.GuiUtils;
+import fun.gatsby.sbimgutil.utils.ConsoleProgressBar;
 import lombok.extern.slf4j.Slf4j;
+
 
 import javax.swing.*;
 import java.awt.*;
@@ -12,9 +16,11 @@ import java.awt.event.*;
 import java.io.File;
 import java.io.IOException;
 import java.net.URI;
-import java.net.URL;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
-import java.util.Objects;
+import java.util.concurrent.ExecutionException;
+import java.util.function.Consumer;
 
 import static fun.gatsby.sbimgutil.ui.util.Insertable.*;
 
@@ -24,7 +30,7 @@ public class MainPanel extends JPanel {
     AppConfig appConfig;
 
     CommonInputPanel workNumInputPanel;
-    private JProgressBar progressBar;
+    private JProgressBar progressBar=new JProgressBar();
 
     private FilePathInputPanel pathInputPanel;
     private FilePathInputPanel pathOutPanel;
@@ -38,14 +44,13 @@ public class MainPanel extends JPanel {
     public MainPanel(AppConfig appConfig) {
         this.appConfig = appConfig;
         setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
-        init();
+        JbInit();
     }
 
-    private void init() {
+    void JbInit() {
 
         TaskItemTabbedPanel taskItemTabbedPanel = new TaskItemTabbedPanel(appConfig.getProcessTasks());
         add(taskItemTabbedPanel);
-
 
         JLabel label = new JLabel("<HTML><U>使用说明</U></HTML>");
         label.setForeground(Color.BLUE);
@@ -102,9 +107,18 @@ public class MainPanel extends JPanel {
         );
 
         JButton startBtn = new JButton("开始");
-        add(startBtn);
+        add(startBtn, BorderLayout.CENTER);
+        progressBar.setString("任务进度");
+        progressBar.setStringPainted(true);
+        progressBar.setPreferredSize(new Dimension(getWidth(), 20));
+        add(progressBar);
 
         startBtn.addActionListener(e -> {
+            if(progressBar.getValue()!=0 && progressBar.getValue()!=progressBar.getMaximum()){
+                JOptionPane.showMessageDialog(this, "任务正在执行中，请等待任务执行完毕");
+                return;
+            }
+
             gtc.setFileNameRegex(fileNameRegInputPanel.getValue());
             gtc.setInDirPath(pathInputPanel.getFilePath());
             gtc.setOutDirPath(pathOutPanel.getFilePath());
@@ -113,11 +127,25 @@ public class MainPanel extends JPanel {
 
             Component component = taskItemTabbedPanel.getSelectedComponent();
             if(component instanceof TaskItemTabbedPanel.ItemPanel itemPanel){
-                Map.Entry<TaskTypeEnum, AppConfig.ProcessTask> entry = itemPanel.getValidProcessTaskEntry();
+
+                Map.Entry<TaskTypeEnum, AppConfig.ProcessTask> entry = itemPanel.getCurrentProcessTaskEntry();
                 try {
-                    TaskExecutor taskExcutor = new TaskExecutor(gtc,appConfig.getProcessTasks(), entry.getKey());
-                    taskExcutor.excute();
-                    JOptionPane.showMessageDialog(this, "任务完成");
+                    TaskExecutor taskExcutor = new TaskExecutor(gtc,entry);
+                    int taskCount = taskExcutor.getTaskCount();
+                    progressBar.setValue(0);
+                    progressBar.setMaximum(taskCount);
+                    ConsoleProgressBar cpb= new ConsoleProgressBar(taskCount);
+                    Runnable funcPerTaskDone = () -> {
+                        progressBar.setValue(progressBar.getValue() + 1);
+                        progressBar.setString(String.format("任务进度(%d/%d): %s", progressBar.getValue(), taskCount,cpb.iterate()));
+                    };
+
+                    Consumer<String> doneComsumer = (String msg) -> {
+                        JOptionPane.showMessageDialog(this, msg);
+                    };
+
+                    taskExcutor=new TaskExecutor(gtc,entry,funcPerTaskDone,doneComsumer);
+                    taskExcutor.excuteAsync();
                 } catch (Exception ex) {
                     log.error("任务执行失败", ex);
                     JOptionPane.showMessageDialog(this, ex.getMessage());

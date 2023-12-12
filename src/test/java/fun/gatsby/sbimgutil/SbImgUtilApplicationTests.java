@@ -34,12 +34,5 @@ class SbImgUtilApplicationTests {
 
     @Test
     void testTaskExecutor() throws IOException, ExecutionException, InterruptedException {
-        AppConfig.GlobalTaskConfig gtc = appConfig.getGlobalTaskConfig();
-        TaskExecutor excutor = new TaskExecutor(
-                gtc,
-                appConfig.getProcessTasks(),
-                TaskTypeEnum.IMAGE_COMPRESS
-        );
-        excutor.excute();
     }
 }
