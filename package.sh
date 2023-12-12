@@ -17,7 +17,7 @@ rm -rf "build"
 
 JPKGCMD="${JAVA_HOME}/bin/jpackage"
 $JPKGCMD --type app-image --name "$APP_NAME" --input target \
---main-jar "${APP_NAME}-${VERSION}.jar"  --icon logo.ico --win-console  \
+--main-jar "${APP_NAME}-${VERSION}.jar"  --icon logo.ico  \
  --arguments "--spring.profiles.active=prod" --dest "build"
 
 cp Licence.txt "$OUTPUT_PATH/$APP_NAME"

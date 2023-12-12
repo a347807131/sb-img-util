@@ -141,6 +141,7 @@ public class MainPanel extends JPanel {
                     };
 
                     Consumer<String> doneComsumer = (String msg) -> {
+                        progressBar.setValue(progressBar.getMaximum());
                         JOptionPane.showMessageDialog(this, msg);
                     };
 
