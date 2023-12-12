@@ -21,6 +21,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
 import java.util.function.Consumer;
+import java.util.function.IntConsumer;
 
 import static fun.gatsby.sbimgutil.ui.util.Insertable.*;
 
@@ -130,14 +131,16 @@ public class MainPanel extends JPanel {
 
                 Map.Entry<TaskTypeEnum, AppConfig.ProcessTask> entry = itemPanel.getCurrentProcessTaskEntry();
                 try {
-                    TaskExecutor taskExcutor = new TaskExecutor(gtc,entry);
-                    int taskCount = taskExcutor.getTaskCount();
                     progressBar.setValue(0);
-                    progressBar.setMaximum(taskCount);
-                    ConsoleProgressBar cpb= new ConsoleProgressBar(taskCount);
+                    ConsoleProgressBar cpb= new ConsoleProgressBar();
+                    IntConsumer setTaskCountBeforeExcutionComsumer = (int taskCount) -> {
+                        progressBar.setMaximum(taskCount);
+                        cpb.setTotal(taskCount);
+                    };
+
                     Runnable funcPerTaskDone = () -> {
                         progressBar.setValue(progressBar.getValue() + 1);
-                        progressBar.setString(String.format("任务进度(%d/%d): %s", progressBar.getValue(), taskCount,cpb.iterate()));
+                        progressBar.setString(String.format("任务进度(%d/%d): %s", progressBar.getValue(), progressBar.getMaximum(),cpb.iterate()));
                     };
 
                     Consumer<String> doneComsumer = (String msg) -> {
@@ -145,7 +148,7 @@ public class MainPanel extends JPanel {
                         JOptionPane.showMessageDialog(this, msg);
                     };
 
-                    taskExcutor=new TaskExecutor(gtc,entry,funcPerTaskDone,doneComsumer);
+                    var taskExcutor=new TaskExecutor(gtc,entry,setTaskCountBeforeExcutionComsumer,funcPerTaskDone,doneComsumer);
                     taskExcutor.excuteAsync();
                 } catch (Exception ex) {
                     log.error("任务执行失败", ex);

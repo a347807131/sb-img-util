@@ -52,7 +52,11 @@ public class ProcessTaskGroup extends TaskGroup<Runnable> {
         var oldPostTask=this.postTask;
         this.postTask=()->{
             oldPostTask.run();
-            String msg = "任务执行完毕,统计如下：%s".formatted(String.join("\n", errTasks));
+            long between = LocalDateTimeUtil.between(startDateTime, LocalDateTime.now(), ChronoUnit.SECONDS);
+            String hms = ConsoleProgressBar.genHMS(between);
+            String msg = String.format("任务组:[%s]  执行完毕，共计任务数：%d, 总共耗时: %s, 平均单个任务耗时: %d s, 出错任务数:%d",
+                    name, size(), hms, between / this.size(), errTasks.size()
+            );
             postTask.accept(msg);
         };
     }

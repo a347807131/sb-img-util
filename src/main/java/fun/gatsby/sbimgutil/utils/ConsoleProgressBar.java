@@ -25,9 +25,15 @@ public class ConsoleProgressBar {
     public int getTotal() {
         return total.get();
     }
+    public void setTotal(int total){
+        this.total.set(total);
+    }
 
     public ConsoleProgressBar(int total) {
         this.total.set(total);
+    }
+
+    public ConsoleProgressBar() {
     }
 
     public synchronized String iterate() {

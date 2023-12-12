@@ -16,6 +16,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ForkJoinPool;
 import java.util.concurrent.ForkJoinTask;
 import java.util.function.Consumer;
+import java.util.function.IntConsumer;
 
 @Slf4j
 public class TaskExecutor {
@@ -34,6 +35,7 @@ public class TaskExecutor {
     public TaskExecutor(
             AppConfig.GlobalTaskConfig gtc,
             Map.Entry<TaskTypeEnum, AppConfig.ProcessTask> entry,
+            IntConsumer setTaskCountBeforeExcutionComsumer,
             Runnable funcPerTaskDone,
             Consumer<String> doneConsumer
     ) throws IOException {
@@ -47,6 +49,7 @@ public class TaskExecutor {
             taskGroup.addAll(taskGenerator.generate());
         }
         this.taskGroup=taskGroup;
+        setTaskCountBeforeExcutionComsumer.accept(taskGroup.size());
     }
 
     public TaskGroup<Runnable> loadTasks(Map.Entry<TaskTypeEnum, AppConfig.ProcessTask> entry) throws IOException {
