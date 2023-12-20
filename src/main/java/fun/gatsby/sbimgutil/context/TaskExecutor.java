@@ -36,14 +36,13 @@ public class TaskExecutor {
             AppConfig.GlobalTaskConfig gtc,
             Map.Entry<TaskTypeEnum, AppConfig.ProcessTask> entry,
             IntConsumer setTaskCountBeforeExcutionComsumer,
-            Runnable funcPerTaskDone,
-            Consumer<String> doneConsumer
+            Runnable funcPerTaskDone
     ) throws IOException {
         this.forkJoinPool = new TaskScheduleForkJoinPool(gtc.getMaxWorkerNum());
         this.gtc=gtc;
         TaskTypeEnum taskType = entry.getKey();
         AppConfig.ProcessTask processTask = entry.getValue();
-        var taskGroup = new ProcessTaskGroup(taskType.taskCnName,funcPerTaskDone,doneConsumer);
+        var taskGroup = new ProcessTaskGroup(taskType.taskCnName,funcPerTaskDone);
         BaseTask.TaskGenerator taskGenerator = taskType.newTaskGenerator(gtc, processTask);
         if(taskGenerator!=null){
             taskGroup.addAll(taskGenerator.generate());

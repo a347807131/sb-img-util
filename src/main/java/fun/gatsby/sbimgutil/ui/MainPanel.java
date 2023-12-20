@@ -114,6 +114,8 @@ public class MainPanel extends JPanel {
         progressBar.setPreferredSize(new Dimension(getWidth(), 20));
         add(progressBar);
 
+
+
         startBtn.addActionListener(e -> {
             if(progressBar.getValue()!=0 && progressBar.getValue()!=progressBar.getMaximum()){
                 JOptionPane.showMessageDialog(this, "任务正在执行中，请等待任务执行完毕");
@@ -127,34 +129,32 @@ public class MainPanel extends JPanel {
             gtc.setEnforce(enforceChooseBtn.isSelected());
 
             Component component = taskItemTabbedPanel.getSelectedComponent();
-            if(component instanceof TaskItemTabbedPanel.ItemPanel itemPanel){
+            TaskItemTabbedPanel.ItemPanel itemPanel = (TaskItemTabbedPanel.ItemPanel) component;
+            Map.Entry<TaskTypeEnum, AppConfig.ProcessTask> entry = itemPanel.getCurrentProcessTaskEntry();
 
-                Map.Entry<TaskTypeEnum, AppConfig.ProcessTask> entry = itemPanel.getCurrentProcessTaskEntry();
+            new Thread(() -> {
+                progressBar.setValue(0);
+                progressBar.setString("处理中");
+                ConsoleProgressBar cpb= new ConsoleProgressBar();
+                IntConsumer setTaskCountBeforeExcutionComsumer = (int taskCount) -> {
+                    progressBar.setMaximum(taskCount);
+                    cpb.setTotal(taskCount);
+                };
+                Runnable funcPerTaskDone = () -> {
+                    progressBar.setValue(progressBar.getValue() + 1);
+                    progressBar.setString(String.format("任务进度(%d/%d): %s", progressBar.getValue(), progressBar.getMaximum(),cpb.iterate()));
+                };
                 try {
-                    progressBar.setValue(0);
-                    ConsoleProgressBar cpb= new ConsoleProgressBar();
-                    IntConsumer setTaskCountBeforeExcutionComsumer = (int taskCount) -> {
-                        progressBar.setMaximum(taskCount);
-                        cpb.setTotal(taskCount);
-                    };
-
-                    Runnable funcPerTaskDone = () -> {
-                        progressBar.setValue(progressBar.getValue() + 1);
-                        progressBar.setString(String.format("任务进度(%d/%d): %s", progressBar.getValue(), progressBar.getMaximum(),cpb.iterate()));
-                    };
-
-                    Consumer<String> doneComsumer = (String msg) -> {
-                        progressBar.setValue(progressBar.getMaximum());
-                        JOptionPane.showMessageDialog(this, msg);
-                    };
-
-                    var taskExcutor=new TaskExecutor(gtc,entry,setTaskCountBeforeExcutionComsumer,funcPerTaskDone,doneComsumer);
-                    taskExcutor.excuteAsync();
+                    var taskExcutor=new TaskExecutor(gtc,entry,setTaskCountBeforeExcutionComsumer,funcPerTaskDone);
+                    startBtn.setEnabled(false);
+                    taskExcutor.excute();
+                    JOptionPane.showMessageDialog(MainPanel.this, "任务执行完毕");
                 } catch (Exception ex) {
                     log.error("任务执行失败", ex);
-                    JOptionPane.showMessageDialog(this, ex.getMessage());
+                    JOptionPane.showMessageDialog(MainPanel.this, ex.getMessage());
                 }
-            }
+                startBtn.setEnabled(true);
+            }).start();
         });
     }
 }

@@ -7,9 +7,9 @@ app:
 
   global-task-config:
     #输入目录
-    in-dir-path: D:\原始备份\图片处理模板\1 扫描原图（TIFF格式）\27030166\0001
+    in-dir-path: C:\Users\Gatsby\OneDrive - bupt.edu.cn\桌面\msq work temp\pdfmerge issue\原PDF
     #输出目录
-    out-dir-path: D:\out
+    out-dir-path: D:\out1
     enforce: true
 
   process-tasks:
@@ -38,4 +38,3 @@ app:
     PDF_ADD_CATA:
       #目录文件所在目录
       cata-dir-path: ${app.global-task-config.in-dir-path}
-

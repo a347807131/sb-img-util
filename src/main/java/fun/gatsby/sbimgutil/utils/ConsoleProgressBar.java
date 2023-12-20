@@ -13,7 +13,6 @@ public class ConsoleProgressBar {
     private static final DecimalFormat floatPercentFormater = new DecimalFormat("0.00%");
     private static final DecimalFormat floatFormater = new DecimalFormat("0.00");
     private final AtomicInteger currentValue = new AtomicInteger(0);
-    private volatile long currentSpeed = 1024 * 1000;
     char progressChar = '#';
     char waitChar = '-';
     private final AtomicInteger total = new AtomicInteger(100);
