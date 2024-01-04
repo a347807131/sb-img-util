@@ -1,52 +1,48 @@
 package fun.gatsby.sbimgutil;
 
 import cn.hutool.core.io.FileUtil;
+import com.alibaba.fastjson2.JSON;
 import fun.gatsby.sbimgutil.task.FiveBackspaceReplaceTask;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Test;
 
 import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.*;
 import java.util.stream.Stream;
 
 @Slf4j
 public class FileTest {
+    Path path = Path.of("D:\\IdeaProjects\\sb-img-util\\src\\main\\resources\\chts");
     @Test
-    public void t1() {
+    public void t1() throws IOException {
+        var chts = new HashSet<String>();
+        List<File> files = FileUtil.loopFiles(path.toFile());
+        for (File file : files) {
+            String content = Files.readString(file.toPath());
+            Map<String ,String> dict = JSON.parseObject(content,Map.class);
+            var subChts = dict.keySet();
+            chts.addAll(subChts);
+        }
+       var sorted = chts.stream().sorted().toList();
 
+        Files.write(Path.of("D:\\IdeaProjects\\sb-img-util\\src\\main\\resources\\my_chinese_chts_dit.txt"),sorted);
+    }
 
-        List<File> trainLabelFiles = FileUtil.loopFiles("D:\\datasets\\det", file ->
-                file.getName().equals("train_labels.txt") || file.getName().equals("train_label.txt")
-        );
-        List<File> testLabelFiles = FileUtil.loopFiles("D:\\datasets\\det", file ->
-                file.getName().equals("test_labels.txt") ||
-                file.getName().equals("test_label.txt")
-        );
+    @Test
+    public void t2(){
+        File myccd = path.resolve("my_chinese_chts_dit.txt").toFile();
+        File ccd = path.resolve("chinese_cht_dict.txt").toFile();
 
-        //用stream从各文件读取行并汇总
-        List<String> trainLines = trainLabelFiles.stream().flatMap(file -> {
-            try {
-                return FileUtil.readUtf8Lines(file).stream();
-            } catch (Exception e) {
-                log.error("读取文件失败: " + file, e);
-                List<String> strings = Collections.emptyList();
-                return strings.stream();
-            }
-        }).toList();
-
-        //用stream从各文件读取行并汇总
-        List<String> testLines = testLabelFiles.stream().flatMap(file -> {
-            try {
-                return FileUtil.readUtf8Lines(file).stream();
-            } catch (Exception e) {
-                log.error("读取文件失败: " + file, e);
-                List<String> strings = Collections.emptyList();
-                return strings.stream();
-            }
-        }).toList();
-
-        FileUtil.writeLines(trainLines, "D:\\datasets\\det\\train_labels.txt", "utf-8");
-        FileUtil.writeLines(testLines, "D:\\datasets\\det\\test_labels.txt", "utf-8");
+        //合并
+        var myChts = FileUtil.readLines(myccd, "utf-8");
+        var chts = FileUtil.readLines(ccd, "utf-8");
+        var allChts = new HashSet<String>();
+        allChts.addAll(myChts);
+        allChts.addAll(chts);
+        var sorted = allChts.stream().sorted().toList();
+        FileUtil.writeLines(sorted, path.resolve("my_chinese_cht_dict.txt").toFile(),"utf-8");
     }
 }

@@ -18,7 +18,8 @@ public enum TaskTypeEnum {
     DOUBLE_LAYER_PDF_GENERATE("生成双层pdf"),
     LABELED_DATASET_COLLECT("ocr标记数据整理"),
     PDF_SPLIT("pdf拆分"),
-    PDF_ADD_CATA("pdf添加目录")
+    PDF_ADD_CATA("pdf添加目录"),
+    PDF_IMAGE_COMPRESS("pdf图片压缩")
     ;
     public final String taskCnName;
     TaskTypeEnum(String taskCnName) {

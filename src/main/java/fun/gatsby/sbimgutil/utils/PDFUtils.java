@@ -60,7 +60,7 @@ public class PDFUtils {
             PdfReader pdfReader = new PdfReader(pdfFile.getAbsolutePath());
             PdfReaderContentParser parser = new PdfReaderContentParser(pdfReader);
             RenderListener listener = new RenderListener() {
-                AtomicInteger imageNum = new AtomicInteger(0);
+                final AtomicInteger imageNum = new AtomicInteger(0);
                 @Override
                 public void renderImage(ImageRenderInfo renderInfo) {
                     try {
