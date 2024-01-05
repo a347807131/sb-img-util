@@ -119,7 +119,7 @@ public class ImagesConverter {
                     .setFontSize(fontSize)
                     .setFixedLeading(fontSize);
 
-            var deltaX=widthDiff*0.2f;
+            var deltaX=widthDiff*0.15f;
             paragraph.setFixedPosition(pageNum, p0.x+deltaX, p0.y, diff);
             paragraph.setRotationAngle(-Math.PI/2f);
 //            if (widthDiff >= heightDiff) {

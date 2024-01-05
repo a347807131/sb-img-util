@@ -18,9 +18,9 @@ public interface Const {
             PDF_MERGE,
             IMAGE_COMPRESS,
             DRAW_BLUR,
-            IMAGE_CUT,
-            DOUBLE_LAYER_PDF_GENERATE,
-            LABELED_DATASET_COLLECT,
+//            IMAGE_CUT,
+//            DOUBLE_LAYER_PDF_GENERATE,
+//            LABELED_DATASET_COLLECT,
             PDF_SPLIT,
             PDF_ADD_CATA
     );

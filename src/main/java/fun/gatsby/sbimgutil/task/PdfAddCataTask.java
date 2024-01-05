@@ -34,7 +34,7 @@ public class PdfAddCataTask extends BaseTask{
         PDFUtils.addCata(pdfFile, cataFile, outFile);
     }
 
-    static class TaskGenerator extends BaseTask.TaskGenerator {
+    static class TaskGenerator extends BaseTaskGenerator {
 
         public TaskGenerator(AppConfig.GlobalTaskConfig gtc, AppConfig.ProcessTask processTask) {
             super(gtc, processTask, TaskTypeEnum.PDF_ADD_CATA);

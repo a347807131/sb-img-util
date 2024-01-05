@@ -124,8 +124,8 @@ public enum TaskTypeEnum {
         }
     }
 
-    public BaseTask.TaskGenerator newTaskGenerator(AppConfig.GlobalTaskConfig gtc, AppConfig.ProcessTask processTask) {
-        BaseTask.TaskGenerator taskGenerator=null;
+    public BaseTaskGenerator newTaskGenerator(AppConfig.GlobalTaskConfig gtc, AppConfig.ProcessTask processTask) {
+        BaseTaskGenerator taskGenerator=null;
         switch (this) {
             case PDF_MERGE -> taskGenerator = new PdfMergeTask.TaskGenerator(gtc, processTask);
             case DOUBLE_LAYER_PDF_GENERATE -> taskGenerator = new DoubleLayerPdfGenerateTask.TaskGenerator(gtc, processTask);
@@ -134,7 +134,7 @@ public enum TaskTypeEnum {
             case PDF_SPLIT -> taskGenerator = new PdfSplitTask.TaskGenerator(gtc, processTask);
             case PDF_ADD_CATA -> taskGenerator = new PdfAddCataTask.TaskGenerator(gtc, processTask);
             case IMAGE_TRANSFORM, IMAGE_COMPRESS, DRAW_BLUR,BOOK_IMAGE_FIX ,FIVE_BACKSPACE_REPLACE ->
-                    taskGenerator = new BaseTask.TaskGenerator(gtc, processTask,this);
+                    taskGenerator = new BaseTaskGenerator(gtc, processTask,this);
         }
         return taskGenerator;
     }

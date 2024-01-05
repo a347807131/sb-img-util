@@ -1,14 +1,12 @@
 package fun.gatsby.sbimgutil.utils;
 
-import fun.gatsby.sbimgutil.ui.MainPanel;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.stereotype.Component;
 
 import java.text.DecimalFormat;
 import java.util.concurrent.atomic.AtomicInteger;
 
 @Slf4j
-public class ConsoleProgressBar {
+public class ConsoleProgress {
 
     private static final DecimalFormat floatPercentFormater = new DecimalFormat("0.00%");
     private static final DecimalFormat floatFormater = new DecimalFormat("0.00");
@@ -28,11 +26,11 @@ public class ConsoleProgressBar {
         this.total.set(total);
     }
 
-    public ConsoleProgressBar(int total) {
+    public ConsoleProgress(int total) {
         this.total.set(total);
     }
 
-    public ConsoleProgressBar() {
+    public ConsoleProgress() {
     }
 
     public synchronized String iterate() {
@@ -73,7 +71,7 @@ public class ConsoleProgressBar {
 
         sb.append(" | \t").append(floatPercentFormater.format(rate));
         sb.append(" | \t").append(floatFormater.format(speed)).append(" avg spu");
-        sb.append(" | \t").append(genHMS(secondsLeft));
+        sb.append(" | eta \t").append(genHMS(secondsLeft));
 //        sb.append(" |\t").append(totalV - value).append(" units left");
 //        System.out.println(sb);
         return sb.toString();

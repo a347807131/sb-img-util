@@ -44,7 +44,7 @@ public class DoubleLayerPdfGenerateTask extends BaseTask{
         imagesConverter.convertToBilayerPdf(outPdfFile);
     }
 
-     public static class TaskGenerator extends BaseTask.TaskGenerator {
+     public static class TaskGenerator extends BaseTaskGenerator {
          public TaskGenerator(AppConfig.GlobalTaskConfig gtc, AppConfig.ProcessTask processTask) {
              super(gtc, processTask,TaskTypeEnum.DOUBLE_LAYER_PDF_GENERATE);
          }

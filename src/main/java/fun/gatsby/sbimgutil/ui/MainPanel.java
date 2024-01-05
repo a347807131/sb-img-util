@@ -1,12 +1,10 @@
 package fun.gatsby.sbimgutil.ui;
 
-import cn.hutool.core.lang.func.VoidFunc1;
 import fun.gatsby.sbimgutil.config.AppConfig;
 import fun.gatsby.sbimgutil.context.TaskExecutor;
-import fun.gatsby.sbimgutil.schedule.ITask;
 import fun.gatsby.sbimgutil.task.TaskTypeEnum;
 import fun.gatsby.sbimgutil.ui.util.GuiUtils;
-import fun.gatsby.sbimgutil.utils.ConsoleProgressBar;
+import fun.gatsby.sbimgutil.utils.ConsoleProgress;
 import lombok.extern.slf4j.Slf4j;
 
 
@@ -16,11 +14,7 @@ import java.awt.event.*;
 import java.io.File;
 import java.io.IOException;
 import java.net.URI;
-import java.util.LinkedList;
-import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ExecutionException;
-import java.util.function.Consumer;
 import java.util.function.IntConsumer;
 
 import static fun.gatsby.sbimgutil.ui.util.Insertable.*;
@@ -117,10 +111,6 @@ public class MainPanel extends JPanel {
 
 
         startBtn.addActionListener(e -> {
-            if(progressBar.getValue()!=0 && progressBar.getValue()!=progressBar.getMaximum()){
-                JOptionPane.showMessageDialog(this, "任务正在执行中，请等待任务执行完毕");
-                return;
-            }
 
             gtc.setFileNameRegex(fileNameRegInputPanel.getValue());
             gtc.setInDirPath(pathInputPanel.getFilePath());
@@ -135,25 +125,30 @@ public class MainPanel extends JPanel {
             new Thread(() -> {
                 progressBar.setValue(0);
                 progressBar.setString("处理中");
-                ConsoleProgressBar cpb= new ConsoleProgressBar();
+                ConsoleProgress cpb= new ConsoleProgress();
                 IntConsumer setTaskCountBeforeExcutionComsumer = (int taskCount) -> {
                     progressBar.setMaximum(taskCount);
                     cpb.setTotal(taskCount);
                 };
+
                 Runnable funcPerTaskDone = () -> {
                     progressBar.setValue(progressBar.getValue() + 1);
                     progressBar.setString(String.format("任务进度(%d/%d): %s", progressBar.getValue(), progressBar.getMaximum(),cpb.iterate()));
                 };
+
+                startBtn.setEnabled(false);
                 try {
                     var taskExcutor=new TaskExecutor(gtc,entry,setTaskCountBeforeExcutionComsumer,funcPerTaskDone);
-                    startBtn.setEnabled(false);
                     taskExcutor.excute();
                     JOptionPane.showMessageDialog(MainPanel.this, "任务执行完毕");
                 } catch (Exception ex) {
                     log.error("任务执行失败", ex);
                     JOptionPane.showMessageDialog(MainPanel.this, ex.getMessage());
+                }finally {
+                    progressBar.setValue(0);
+                    progressBar.setString("");
+                    startBtn.setEnabled(true);
                 }
-                startBtn.setEnabled(true);
             }).start();
         });
     }

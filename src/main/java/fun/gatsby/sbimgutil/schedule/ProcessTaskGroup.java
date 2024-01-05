@@ -1,17 +1,14 @@
 package fun.gatsby.sbimgutil.schedule;
 
 import cn.hutool.core.date.LocalDateTimeUtil;
-import fun.gatsby.sbimgutil.utils.ConsoleProgressBar;
+import fun.gatsby.sbimgutil.utils.ConsoleProgress;
 import lombok.extern.slf4j.Slf4j;
 
-import javax.swing.*;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.function.Consumer;
-import java.util.function.Function;
-import java.util.stream.Collectors;
 
 @Slf4j
 public class ProcessTaskGroup extends TaskGroup<Runnable> {
@@ -29,7 +26,7 @@ public class ProcessTaskGroup extends TaskGroup<Runnable> {
 
         postTask = () -> {
             long between = LocalDateTimeUtil.between(startDateTime, LocalDateTime.now(), ChronoUnit.SECONDS);
-            String hms = ConsoleProgressBar.genHMS(between);
+            String hms = ConsoleProgress.genHMS(between);
             log.info("任务组:[{}]  执行完毕，共计任务数：{}, 总共耗时: {}, 平均单个任务耗时: {} s, 出错任务数:{}",
                     name, size(),hms, between / this.size(),errTasks.size()
             );
@@ -53,7 +50,7 @@ public class ProcessTaskGroup extends TaskGroup<Runnable> {
         this.postTask=()->{
             oldPostTask.run();
             long between = LocalDateTimeUtil.between(startDateTime, LocalDateTime.now(), ChronoUnit.SECONDS);
-            String hms = ConsoleProgressBar.genHMS(between);
+            String hms = ConsoleProgress.genHMS(between);
             String msg = String.format("任务组:[%s]  执行完毕，共计任务数：%d, 总共耗时: %s, 平均单个任务耗时: %d s, 出错任务数:%d",
                     name, size(), hms, between / this.size(), errTasks.size()
             );

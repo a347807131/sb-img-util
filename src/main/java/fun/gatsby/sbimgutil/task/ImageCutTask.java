@@ -64,7 +64,7 @@ public class ImageCutTask extends BaseTask {
             ImageCutterUtil.cutImage(inFile, outFile, rectangles.get(i));
         }
     }
-    public static class TaskGenerator extends BaseTask.TaskGenerator {
+    public static class TaskGenerator extends BaseTaskGenerator {
 
         @Override
         public List<ITask> generate() throws IOException {

@@ -109,7 +109,7 @@ public class LabeledDatasetCollectTask extends BaseTask {
         Files.writeString(outTestLabelFile.toPath(), String.join("\n", lines.subList(trainSize, lines.size())));
     }
 
-    public static class TaskGenerator extends BaseTask.TaskGenerator {
+    public static class TaskGenerator extends BaseTaskGenerator {
         public TaskGenerator(AppConfig.GlobalTaskConfig gtc, AppConfig.ProcessTask processTask) {
             super(gtc, processTask, TaskTypeEnum.PDF_MERGE);
         }

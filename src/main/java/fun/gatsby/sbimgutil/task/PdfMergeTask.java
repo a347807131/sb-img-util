@@ -52,7 +52,7 @@ public class PdfMergeTask extends BaseTask {
         }
     }
 
-    public static class TaskGenerator extends BaseTask.TaskGenerator {
+    public static class TaskGenerator extends BaseTaskGenerator {
         public TaskGenerator(AppConfig.GlobalTaskConfig gtc, AppConfig.ProcessTask processTask) {
             super(gtc, processTask,TaskTypeEnum.PDF_MERGE);
         }
