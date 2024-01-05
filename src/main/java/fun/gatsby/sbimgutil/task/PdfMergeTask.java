@@ -19,10 +19,13 @@ public class PdfMergeTask extends BaseTask {
     private List<File> inFiles;
     private File cataFile;
 
-    public PdfMergeTask(List<File> inFiles, File outFile, File cataFile) {
+    private float imageScale=1f;
+
+    public PdfMergeTask(List<File> inFiles, File outFile, File cataFile,float scale) {
         this.inFiles = inFiles;
         this.outFile = outFile;
         this.cataFile = cataFile;
+        this.imageScale=scale;
         this.name = "合并pdf -> " + outFile.getAbsolutePath();
     }
     public PdfMergeTask(List<File> inFiles, File outFile) {
@@ -41,7 +44,10 @@ public class PdfMergeTask extends BaseTask {
                 log.error("cataFile is null" + outFile.getAbsolutePath());
                 throw new IOException("cataFile is null" + outFile.getAbsolutePath());
             } else {
-                PDFUtils.mergeIntoPdf(inFiles, cataFile, os);
+                if(imageScale>=1)
+                    PDFUtils.mergeIntoPdf(inFiles, cataFile, os);
+                else
+                    PDFUtils.mergeIntoPdfWithScale(inFiles, cataFile, os, imageScale);
                 File copiedCataFile = new File(outFile.getParentFile(), cataFile.getName());
                 Files.copy(cataFile.toPath(), copiedCataFile.toPath());
                 return;
@@ -72,7 +78,7 @@ public class PdfMergeTask extends BaseTask {
                     String cataFileName = dirThatFilesBelong.getAbsolutePath().replace(new File(gtc.getInDirPath()).getAbsolutePath(), "") + ".txt";
                     cataFile = new File(cataDirPath, cataFileName);
                 }
-                PdfMergeTask task = new PdfMergeTask(imgs, outFile, cataFile);
+                PdfMergeTask task = new PdfMergeTask(imgs, outFile, cataFile,processTask.getPdfImageScale());
                 tasks.add(task);
             }
             return tasks;

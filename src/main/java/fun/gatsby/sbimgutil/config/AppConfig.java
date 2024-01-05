@@ -46,5 +46,6 @@ public class AppConfig {
         String labelDirPath;
         String labelFilePath;
         float rateOfTrain;
+        float pdfImageScale=1;
     }
 }

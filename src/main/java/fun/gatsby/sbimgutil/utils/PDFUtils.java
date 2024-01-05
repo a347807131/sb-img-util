@@ -22,6 +22,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.zip.Deflater;
 
 import com.itextpdf.text.pdf.PdfReader;
 import com.itextpdf.text.pdf.parser.ImageRenderInfo;
@@ -96,6 +97,43 @@ public class PDFUtils {
             log.debug("PDF successfully converted to images!");
     }
 
+    public static void mergeIntoPdfWithScale(Collection<File> imgFiles,File cataFile, OutputStream os ,float scale)throws Exception {
+
+        if(imgFiles==null || imgFiles.isEmpty()) {
+            log.warn("没有图片文件无法进行合并{}",cataFile);
+            return;
+        }
+        PdfWriter pdfWriter = new PdfWriter(os);
+        pdfWriter.setCompressionLevel(Deflater.BEST_COMPRESSION);
+        PdfDocument doc = new PdfDocument(pdfWriter);
+        PdfOutline rootOutLines = doc.getOutlines(false);
+
+        if(cataFile!=null && cataFile.exists()) {
+            PdfBookmark rootBookMark = CataParser.parseTxt(cataFile);
+            CataParser.addCata(rootOutLines, rootBookMark);
+        }else {
+            log.debug("目录文件{}不存在或空，不作添加目录处理",cataFile);
+        }
+        for (File file : imgFiles) {
+            ImageData imageData;
+            Path tempFile = Files.createTempFile("sb-img-util", file.hashCode() + "jpg");
+            try {
+                BufferedImage bf = ImageIO.read(file);
+                BufferedImage scaledBf = ImageUtils.scale(bf, scale);
+                ImageIO.write(scaledBf, "jpeg", tempFile.toFile());
+                imageData = ImageDataFactory.create(tempFile.toFile().getAbsolutePath());
+            }catch (IOException e) {
+                throw new IOException("图片文件无法解析"+file,e);
+            }finally {
+                tempFile.toFile().delete();
+            }
+            PdfPage page = doc.addNewPage(new PageSize(imageData.getWidth(), imageData.getHeight()));
+            PdfCanvas canvas = new PdfCanvas(page);
+            canvas.addImage(imageData, 0, 0, false);
+        }
+        doc.close();
+    }
+
     public static void mergeIntoPdf(Collection<File> imgFiles,File cataFile, OutputStream os) throws Exception {
 
         if(imgFiles==null || imgFiles.isEmpty()) {
@@ -163,5 +201,44 @@ public class PDFUtils {
         try (OutputStream os = Files.newOutputStream(outFile.toPath())){
             os.write(sb.toString().getBytes());
         }
+    }
+
+    public static void scalePdf(File pdfFile, File outFile, float scale) throws IOException {
+        var tempDir = new File(outFile.getParent(), outFile.getName()).toPath();
+        PdfReader pdfReader = new PdfReader(pdfFile.getAbsolutePath());
+        PdfReaderContentParser parser = new PdfReaderContentParser(pdfReader);
+        RenderListener listener = new RenderListener() {
+            final AtomicInteger imageNum = new AtomicInteger(0);
+            @Override
+            public void renderImage(ImageRenderInfo renderInfo) {
+                try {
+                    BufferedImage bf = renderInfo.getImage().getBufferedImage();
+
+                    File outImgFile = tempDir.resolve(imageNum.incrementAndGet() + ".jpg").toFile();
+                    FileUtil.mkParentDirs(outImgFile);
+                    BufferedImage scaledBf = ImageUtils.scale(bf, scale);
+                    ImageIO.write(scaledBf, "jpeg", outImgFile);
+                } catch (IOException e) {
+                    log.error("文件无法解析"+renderInfo.getRef(),e);
+                    throw new RuntimeException(e);
+                }
+            }
+            @Override
+            public void endTextBlock() {
+            }
+
+            @Override
+            public void beginTextBlock() {
+            }
+
+            @Override
+            public void renderText(TextRenderInfo renderInfo) {
+            }
+        };
+        for (int i = 1; i <= pdfReader.getNumberOfPages(); i++) {
+            parser.processContent(i, listener);
+        }
+        pdfReader.close();
+        log.debug("PDF successfully converted to images!");
     }
 }

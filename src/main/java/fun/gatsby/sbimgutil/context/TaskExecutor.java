@@ -25,6 +25,8 @@ public class TaskExecutor {
         this.forkJoinPool = new TaskScheduleForkJoinPool(gtc.getMaxWorkerNum());
         this.gtc=gtc;
         taskGroup=loadTasks(entry);
+        if (Objects.equals(gtc.getInDirPath(),gtc.getOutDirPath()))
+            throw new IOException("输入输出目录不能相同");
     }
 
     public TaskExecutor(

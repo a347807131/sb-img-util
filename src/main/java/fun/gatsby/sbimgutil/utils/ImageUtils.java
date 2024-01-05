@@ -10,6 +10,8 @@ import javax.imageio.ImageIO;
 import javax.imageio.ImageWriter;
 import javax.imageio.stream.ImageOutputStream;
 import java.awt.*;
+import java.awt.geom.AffineTransform;
+import java.awt.image.AffineTransformOp;
 import java.awt.image.BufferedImage;
 import java.io.*;
 import java.nio.file.Files;
@@ -28,5 +30,11 @@ public class ImageUtils {
     public static void drawBlurPic(BufferedImage oriBufferedImage, BufferedImage blurBufferedImage, float scale) throws IOException {
         BufferedImage scaledBlurBufferedImage = Thumbnails.of(blurBufferedImage).scale(scale).asBufferedImage();
         drawBlurPic(oriBufferedImage, scaledBlurBufferedImage);
+    }
+
+    public static BufferedImage scale(BufferedImage bf,float scale){
+        AffineTransform affineTransform = AffineTransform.getScaleInstance(scale, scale);
+        AffineTransformOp op = new AffineTransformOp(affineTransform, null);
+        return op.filter(bf, null);
     }
 }

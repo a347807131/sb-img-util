@@ -7,9 +7,9 @@ app:
 
   global-task-config:
     #输入目录
-    in-dir-path: C:\Users\Gatsby\OneDrive - bupt.edu.cn\桌面\msq work temp\pdfmerge issue\原PDF
+    in-dir-path: D:\原始备份\图片处理模板\3 水印有损JP2000\无水印
     #输出目录
-    out-dir-path: D:\out1
+    out-dir-path: D:\out
     enforce: true
 
   process-tasks:
@@ -26,7 +26,8 @@ app:
       blur-image-path: D:\原始备份\图片处理模板\2 模糊图
     PDF_MERGE:
       #目录文件所在目录
-      cata-dir-path: D:\原始备份\图片处理模板\3 目录文件
+      cata-dir-path: D:\原始备份\图片处理模板\5 目录
+      pdf-image-scale: 0.25
     IMAGE_CUT:
       label-file-path: D:\原始备份\图片处理模板\4 标签文件
     DOUBLE_LAYER_PDF_GENERATE:

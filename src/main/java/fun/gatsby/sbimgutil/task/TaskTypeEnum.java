@@ -3,6 +3,7 @@ package fun.gatsby.sbimgutil.task;
 import fun.gatsby.sbimgutil.config.AppConfig;
 import fun.gatsby.sbimgutil.ui.FilePathInputPanel;
 import fun.gatsby.sbimgutil.ui.TaskItemTabbedPanel;
+import fun.gatsby.sbimgutil.ui.util.GuiUtils;
 
 import javax.swing.*;
 import java.util.Map;
@@ -19,7 +20,7 @@ public enum TaskTypeEnum {
     LABELED_DATASET_COLLECT("ocr标记数据整理"),
     PDF_SPLIT("pdf拆分"),
     PDF_ADD_CATA("pdf添加目录"),
-    PDF_IMAGE_COMPRESS("pdf图片压缩")
+    PDF_IMAGE_SCALE("pdf图片缩放")
     ;
     public final String taskCnName;
     TaskTypeEnum(String taskCnName) {
@@ -28,6 +29,23 @@ public enum TaskTypeEnum {
 
     public JPanel newTaskItemTabbedPanel(AppConfig.ProcessTask processTask) {
         switch (this){
+            case PDF_IMAGE_SCALE -> {
+                return new TaskItemTabbedPanel.ItemPanel() {
+                    final JSpinner scaleSpinner;
+                    {
+                        scaleSpinner = new JSpinner(new SpinnerNumberModel(1, 0.1, 10, 0.1));
+                        JLabel scaleLabel = new JLabel("缩放比例");
+                        scaleSpinner.setValue(processTask.getPdfImageScale());
+                        add(scaleLabel);
+                        add(scaleSpinner);
+                    }
+                    @Override
+                    public Map.Entry<TaskTypeEnum, AppConfig.ProcessTask> getCurrentProcessTaskEntry() {
+                        processTask.setPdfImageScale(Float.parseFloat(scaleSpinner.getValue().toString()));
+                        return Map.entry(TaskTypeEnum.this,processTask);
+                    }
+                };
+            }
             case IMAGE_TRANSFORM -> {
                 return new TaskItemTabbedPanel.ItemPanel() {
                     final JComboBox<String> formatComboBox;
@@ -47,7 +65,29 @@ public enum TaskTypeEnum {
                     }
                 };
             }
-            case PDF_MERGE,PDF_ADD_CATA -> {
+            case PDF_MERGE -> {
+                return new TaskItemTabbedPanel.ItemPanel() {
+                    final FilePathInputPanel cataDirInputPanel;
+                    final JSpinner scaleSpinner;
+                    {
+                        scaleSpinner = new JSpinner(new SpinnerNumberModel(1, 0.05, 1, 0.05));
+                        JLabel scaleLabel = new JLabel("缩放比例");
+                        scaleSpinner.setValue(processTask.getPdfImageScale());
+                        JPanel scalePanel = GuiUtils.getHorizontalBoxLayoutPanel(   10, scaleLabel, scaleSpinner);
+                        add(scalePanel);
+                        cataDirInputPanel = new FilePathInputPanel("pdf目录所在文件夹", 10);
+                        cataDirInputPanel.setFilePath(processTask.getCataDirPath());
+                        add(cataDirInputPanel);
+                    }
+                    @Override
+                    public Map.Entry<TaskTypeEnum, AppConfig.ProcessTask> getCurrentProcessTaskEntry() {
+                        processTask.setCataDirPath(cataDirInputPanel.getFilePath());
+                        processTask.setPdfImageScale(Float.parseFloat(scaleSpinner.getValue().toString()));
+                        return Map.entry(TaskTypeEnum.this,processTask);
+                    }
+                };
+            }
+            case PDF_ADD_CATA -> {
                 return new TaskItemTabbedPanel.ItemPanel() {
                     final FilePathInputPanel cataDirInputPanel;
                     {
