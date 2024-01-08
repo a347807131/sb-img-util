@@ -52,6 +52,8 @@ public class FilePathInputPanel extends JPanel {
     }
 
     public void setFilePath(String filePath) {
+        if(filePath==null)
+            return;
         textField.setText(filePath);
         fileChooser.setCurrentDirectory(new File(filePath));
     }

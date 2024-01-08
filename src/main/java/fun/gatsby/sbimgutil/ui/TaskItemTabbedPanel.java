@@ -16,7 +16,7 @@ public class TaskItemTabbedPanel extends JTabbedPane {
     private final Map<String, AppConfig.ProcessTask> taskMap;
 
     TaskItemTabbedPanel(Map<String, AppConfig.ProcessTask> taskMap){
-        this.taskMap=taskMap;
+        this.taskMap=taskMap!=null? taskMap:Map.of();
         GuiUtils.setPreferredHeight(this,50);
         JBInit();
     }
