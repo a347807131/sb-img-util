@@ -24,9 +24,15 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Slf4j
 public class NlpTask extends BaseTask{
+    /**
+     *  "对古文进行解析，注意准确无误，并遵循古文的语法和语义规则。\n"+
+     *             "输出范围: 禁止输出其它额外信息。输出格式为：断句结果：[-] 翻译结果：[-]" +
+     *             "指令: 对下列古文进行断句并翻译成现代中文。古文原文如下：%s";
+     */
     public static final String PUNCTUATE_TRANSLATE_TEMPLATE=
             "对古文进行解析，注意准确无误，并遵循古文的语法和语义规则。\n"+
             "输出范围: 不要其它额外信息。输出格式为 json：{\"punctuated_text\":\"-\",\"chinese_text\":\"-\",\"confidence\":\"-\"} \n" +
@@ -40,31 +46,49 @@ public class NlpTask extends BaseTask{
 
     public NlpTask(Map.Entry<File, List<File>> entry, File outDir) {
         this.containerDir=entry.getKey();
-        this.rawTextFiles = entry.getValue().stream().sorted(Comparator.naturalOrder()).toList();
+        this.rawTextFiles = entry.getValue();
         this.outDir = outDir;
         this.isf = new File(outDir, "intermediate_results.txt");
         this.name="%s的%s页断句翻译任务".formatted(containerDir.getAbsolutePath(),rawTextFiles.size());
-        if(!isf.exists()){
-            try {
-                FileUtils.forceMkdirParent(isf);
-                Files.createFile(isf.toPath());
-            } catch (IOException e) {
-                log.error("isf 中间文件创建失败",e);
-                throw new RuntimeException(e);
-            }
-        }
     }
 
     @Override
     public void doWork() throws Throwable {
-        var strs = FileUtil.readLines(isf, StandardCharsets.UTF_8).stream().filter(e -> !StringUtils.isEmpty(e)).toList();
-        int startIndex=strs.size();
-        for (int i = startIndex; i < rawTextFiles.size(); i++) {
-            File pageTextFile = rawTextFiles.get(i);
+        if(!isf.exists()){
+            FileUtils.forceMkdirParent(isf);
+            Files.createFile(isf.toPath());
+        }
+        /*
+         * 查漏补缺
+         */
+        var preProcessedTextFileSet = FileUtil.readLines(isf, StandardCharsets.UTF_8).stream()
+                .filter(e -> !StringUtils.isBlank(e))
+                .map(line -> JSON.parseObject(line, NlpResult.class))
+                .map(NlpResult::getFileName)
+                .collect(Collectors.toSet());
+
+        List<File> rawTextFiles = this.rawTextFiles.stream()
+                .filter(e -> !preProcessedTextFileSet.contains(e.getName()))
+                .sorted(Comparator.naturalOrder())
+                .toList();
+
+        for (File pageTextFile : rawTextFiles) {
             NlpResult nlpResult = processTextFile(pageTextFile);
             FileUtils.writeStringToFile(isf, JSON.toJSONString(nlpResult) + "\n", "UTF-8", true);
-            log.info("[{}]的第[{}]页文本处理完成", name, i + 1);
+            log.info("[{}]的[{}]页文本处理完成", name, pageTextFile.getName());
         }
+
+        //重排序
+        List<String> sortedJsonResults = FileUtil.readLines(isf, StandardCharsets.UTF_8).stream()
+                .filter(e -> !StringUtils.isBlank(e))
+                .map(line -> JSON.parseObject(line, NlpResult.class))
+                .sorted((e1, e2) -> {
+                    var e1Int = Integer.parseInt(e1.getFileName().split("\\.")[0]);
+                    var e2Int = Integer.parseInt(e2.getFileName().split("\\.")[0]);
+                    return e1Int - e2Int;
+                })
+                .map(JSON::toJSONString).toList();
+        FileUtils.writeLines(new File(outDir, "nlp.txt"),sortedJsonResults);
     }
 
     private NlpResult processTextFile(File pageTextFile) throws Exception {
@@ -106,6 +130,7 @@ public class NlpTask extends BaseTask{
      */
     public static final BaiduService baiduService = new BaiduService("5stQ7R7IxVlDoMzSQBBGGmiS", "73QKH26Cq5SvmftOTVkjZRH53So8ysXC");
     private Tuple2<String, String> doNlp(String rawText) throws Exception{
+
         String content = String.format(PUNCTUATE_TRANSLATE_TEMPLATE, rawText);
         BaiduChatMessage msg = new BaiduChatMessage("user", content);
         ErnieBot4Param param = ErnieBot4Param.builder()
@@ -146,7 +171,10 @@ public class NlpTask extends BaseTask{
             LinkedHashMap<File, List<File>> dirToFiles = loadSortedDirToFilesMap();
             for (Map.Entry<File, List<File>> entry : dirToFiles.entrySet()) {
                 File dir = entry.getKey();
+//                if(!dir.getName().equals("0009")) continue;
                 File outDir = genOutFile(dir);
+                if(new File(outDir,"nlp.txt").exists())
+                    continue;
                 NlpTask task = new NlpTask(entry, outDir);
                 tasks.add(task);
             }
@@ -161,7 +189,8 @@ public class NlpTask extends BaseTask{
 @NoArgsConstructor
 @Data
 class NlpResult {
-    float confidence;
+
+    String fileName;
     /**
      * 断句结果
      */
@@ -177,5 +206,5 @@ class NlpResult {
     Date endTime;
     Date startTime;
 
-    String fileName;
+
 }
