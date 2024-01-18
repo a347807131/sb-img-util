@@ -29,14 +29,14 @@ import java.util.stream.Collectors;
 @Slf4j
 public class NlpTask extends BaseTask{
     /**
-     *  "对古文进行解析，注意准确无误，并遵循古文的语法和语义规则。\n"+
-     *             "输出范围: 禁止输出其它额外信息。输出格式为：断句结果：[-] 翻译结果：[-]" +
-     *             "指令: 对下列古文进行断句并翻译成现代中文。古文原文如下：%s";
+ "对古文进行解析，注意准确无误，并遵循古文的语法和语义规则。\n"+
+        "输出范围: 禁止输出其它额外信息。输出格式为：断句结果：- 翻译结果：-" +
+        "指令: 对下列古文进行断句并翻译成现代中文。古文原文如下：%s";
      */
     public static final String PUNCTUATE_TRANSLATE_TEMPLATE=
             "对古文进行解析，注意准确无误，并遵循古文的语法和语义规则。\n"+
-            "输出范围: 不要其它额外信息。输出格式为 json：{\"punctuated_text\":\"-\",\"chinese_text\":\"-\",\"confidence\":\"-\"} \n" +
-            "指令: 对下列古文进行断句并翻译成现代中文。古文原文如下：%s";
+                    "输出范围: 禁止输出其它额外信息。输出格式为：断句结果：- 翻译结果：-" +
+                    "指令: 对下列古文进行断句添加标点并翻译成现代中文。古文原文如下：%s";
     private final List<File> rawTextFiles;
     private final File isf;
     private final File containerDir;
@@ -61,14 +61,14 @@ public class NlpTask extends BaseTask{
         /*
          * 查漏补缺
          */
-        var preProcessedTextFileSet = FileUtil.readLines(isf, StandardCharsets.UTF_8).stream()
+        var preProcessedTextFileNameSet = FileUtil.readLines(isf, StandardCharsets.UTF_8).stream()
                 .filter(e -> !StringUtils.isBlank(e))
                 .map(line -> JSON.parseObject(line, NlpResult.class))
                 .map(NlpResult::getFileName)
                 .collect(Collectors.toSet());
 
         List<File> rawTextFiles = this.rawTextFiles.stream()
-                .filter(e -> !preProcessedTextFileSet.contains(e.getName()))
+                .filter(e -> !preProcessedTextFileNameSet.contains(e.getName()))
                 .sorted(Comparator.naturalOrder())
                 .toList();
 
@@ -150,15 +150,27 @@ public class NlpTask extends BaseTask{
         }
         // 解析响应，获取结果
         String rawResult = ernieBot4Response.getResult();
-        String replaced = rawResult
-                .replace("```json", "")
-                .replace("```", "")
-                .replace("\n", "");
-        JSONObject jsonObject = JSON.parseObject(replaced);
-        String punctuatedText = jsonObject.getString("punctuated_text");
-        String translatedText = jsonObject.getString("chinese_text");
-        return Tuples.of(punctuatedText,translatedText);
+        return extractResult(rawResult);
     }
+
+    Tuple2<String, String>  extractResult(String rawResultText){
+        var text=rawResultText;
+        text = text.replace("\n", "");
+        String punctuatedResultGuideText = "断句结果：";
+        String translatedResultGuideText = "翻译结果：";
+        int punctuatedResultGuideTextIndex = text.indexOf("断句结果：");
+        int translatedResultGuideTextIndex = text.indexOf("翻译结果：");
+
+        String punctuatedText = text.substring(
+                punctuatedResultGuideTextIndex + punctuatedResultGuideText.length(),
+                translatedResultGuideTextIndex
+        );
+        String chineseText = text.substring(
+                translatedResultGuideTextIndex+translatedResultGuideText.length()
+        );
+        return Tuples.of(punctuatedText,chineseText);
+    }
+
 
     public static class TaskGenerator extends BaseTaskGenerator {
         public TaskGenerator(AppConfig.GlobalTaskConfig gtc, AppConfig.ProcessTask processTask) {
@@ -205,6 +217,4 @@ class NlpResult {
     String rawText;
     Date endTime;
     Date startTime;
-
-
 }
