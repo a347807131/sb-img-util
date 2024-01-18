@@ -53,7 +53,7 @@ public class DoubleLayerPdfGenerateTask extends BaseTask{
             Path outPath = Path.of(gtc.getOutDirPath());
             Path inPath = Path.of(gtc.getInDirPath());
             var cataDirPath = Path.of(processTask.getCataDirPath());
-            LinkedHashMap<File, List<File>> dirToImgFilesMap = loadSortedDirToImgFilesMap();
+            LinkedHashMap<File, List<File>> dirToImgFilesMap = loadSortedDirToFilesMap();
             List<ITask> tasks = new LinkedList<>();
             for (Map.Entry<File, List<File>> entry : dirToImgFilesMap.entrySet()) {
                 File dirThatFilesBelong = entry.getKey();

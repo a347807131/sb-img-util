@@ -26,9 +26,18 @@
             <id>azure</id>
             <url>https://pkgs.dev.azure.com/expressed/PJ/_packaging/public/maven/v1</url>
         </repository>
+        <repository>
+            <id>baidu-model-sdk</id>
+            <url>https://gitee.com/gitwcx/baidu-model-java-sdk/raw/master/baidu-model-sdk/release/</url>
+        </repository>
     </repositories>
 
     <dependencies>
+        <dependency>
+            <groupId>com.walter</groupId>
+            <artifactId>baidu-model-sdk</artifactId>
+            <version>0.1.5</version>
+        </dependency>
         <dependency>
             <groupId>com.alibaba.fastjson2</groupId>
             <artifactId>fastjson2</artifactId>

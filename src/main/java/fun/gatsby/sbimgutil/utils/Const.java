@@ -1,5 +1,6 @@
 package fun.gatsby.sbimgutil.utils;
 
+import fun.gatsby.sbimgutil.task.NlpTask;
 import fun.gatsby.sbimgutil.task.TaskTypeEnum;
 
 import java.io.FileFilter;
@@ -18,6 +19,8 @@ public interface Const {
             PDF_MERGE,
             IMAGE_COMPRESS,
             DRAW_BLUR,
+
+            NLP,
 //            IMAGE_CUT,
 //            DOUBLE_LAYER_PDF_GENERATE,
 //            LABELED_DATASET_COLLECT,

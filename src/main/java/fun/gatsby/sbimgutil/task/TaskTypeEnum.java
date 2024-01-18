@@ -20,7 +20,8 @@ public enum TaskTypeEnum {
     LABELED_DATASET_COLLECT("ocr标记数据整理"),
     PDF_SPLIT("pdf拆分"),
     PDF_ADD_CATA("pdf添加目录"),
-    PDF_IMAGE_SCALE("pdf图片缩放")
+    PDF_IMAGE_SCALE("pdf图片缩放"),
+    NLP("自然语言处理")
     ;
     public final String taskCnName;
     TaskTypeEnum(String taskCnName) {
@@ -173,6 +174,7 @@ public enum TaskTypeEnum {
             case IMAGE_CUT -> taskGenerator = new ImageCutTask.TaskGenerator(gtc, processTask);
             case PDF_SPLIT -> taskGenerator = new PdfSplitTask.TaskGenerator(gtc, processTask);
             case PDF_ADD_CATA -> taskGenerator = new PdfAddCataTask.TaskGenerator(gtc, processTask);
+            case NLP -> taskGenerator = new NlpTask.TaskGenerator(gtc, processTask);
             case IMAGE_TRANSFORM, IMAGE_COMPRESS, DRAW_BLUR,BOOK_IMAGE_FIX ,FIVE_BACKSPACE_REPLACE ->
                     taskGenerator = new BaseTaskGenerator(gtc, processTask,this);
         }

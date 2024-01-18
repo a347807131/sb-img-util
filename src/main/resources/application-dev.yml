@@ -7,10 +7,11 @@ app:
 
   global-task-config:
     #输入目录
-    in-dir-path: D:\原始备份\图片处理模板\3 水印有损JP2000\无水印
+    in-dir-path: D:\temp\提取txt文档\TXT
     #输出目录
-    out-dir-path: D:\out
-    enforce: true
+    out-dir-path: D:\temp\提取txt文档\out
+    enforce: false
+    max-worker-num: 1
 
   process-tasks:
     IMAGE_TRANSFORM:

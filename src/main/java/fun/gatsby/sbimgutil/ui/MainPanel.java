@@ -117,6 +117,7 @@ public class MainPanel extends JPanel {
             gtc.setOutDirPath(pathOutPanel.getFilePath());
             gtc.setRecursive(recursiveChooseBtn.isSelected());
             gtc.setEnforce(enforceChooseBtn.isSelected());
+            gtc.setMaxWorkerNum(Integer.parseInt(workNumInputPanel.getValue()));
 
             Component component = taskItemTabbedPanel.getSelectedComponent();
             TaskItemTabbedPanel.ItemPanel itemPanel = (TaskItemTabbedPanel.ItemPanel) component;

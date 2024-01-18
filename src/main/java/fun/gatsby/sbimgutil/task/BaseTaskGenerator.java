@@ -5,10 +5,12 @@ import fun.gatsby.sbimgutil.config.AppConfig;
 import fun.gatsby.sbimgutil.schedule.ITask;
 import fun.gatsby.sbimgutil.utils.Const;
 import lombok.AllArgsConstructor;
+import org.apache.commons.io.filefilter.FileFileFilter;
 import org.apache.commons.lang.StringUtils;
 import org.apache.logging.log4j.util.Strings;
 
 import java.io.File;
+import java.io.FileFilter;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.LinkedHashMap;
@@ -65,6 +67,12 @@ public class BaseTaskGenerator implements ITaskGenerator{
         return genOutFile(inFile,null);
     }
 
+    /**
+     *
+     * @param inFile
+     * @param format 后缀 无分隔符
+     * @return
+     */
     File genOutFile(File inFile,String format) {
         String inFileName = inFile.getName();
         String outFileName = inFileName;
@@ -80,14 +88,32 @@ public class BaseTaskGenerator implements ITaskGenerator{
     }
 
     List<File> loadImageFiles() {
-        return loadSortedDirToImgFilesMap().values().stream().collect(
+        return loadSortedDirToFilesMap().values().stream().collect(
                 LinkedList::new,
                 LinkedList::addAll,
                 LinkedList::addAll
         );
     }
 
-    LinkedHashMap<File, List<File>> loadSortedDirToImgFilesMap() {
+    public LinkedHashMap<File, List<File>> loadSortedDirToFilesMap() {
+        Path inPath = Path.of(gtc.getInDirPath());
+        String fileNameRegex = gtc.getFileNameRegex();
+        //@formatter:off-->
+        return FileUtil.loopFiles(inPath.toFile()).stream()
+                .filter(file -> Strings.isBlank(fileNameRegex) || file.getName().matches(fileNameRegex))
+                .filter(file -> Const.SUPORTTED_FORMATS.contains(FileUtil.extName(file)))
+                .collect(
+                        LinkedHashMap::new,
+                        (m, k) -> {
+                            File parent = k.getParentFile();
+                            m.computeIfAbsent(parent, v -> new LinkedList<>()).add(k);
+                        },
+                        LinkedHashMap::putAll
+                );
+        //@formatter:on-->
+    }
+
+    LinkedHashMap<File, List<File>> loadSortedDirToFilesMap(FileFilter fileFilter) {
         Path inPath = Path.of(gtc.getInDirPath());
         String fileNameRegex = gtc.getFileNameRegex();
         //@formatter:off-->

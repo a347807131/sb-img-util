@@ -65,7 +65,7 @@ public class PdfMergeTask extends BaseTask {
 
         public List<ITask> generate() {
             List<ITask> tasks = new LinkedList<>();
-            for (Map.Entry<File, List<File>> entry : loadSortedDirToImgFilesMap().entrySet()) {
+            for (Map.Entry<File, List<File>> entry : loadSortedDirToFilesMap().entrySet()) {
                 File dirThatFilesBelong = entry.getKey();
                 File outFile =
                         genPdfOutFile(dirThatFilesBelong);
