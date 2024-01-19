@@ -14,7 +14,7 @@ spring:
     active: @activated-profile@
 
 app:
-  readme-url: "https://www.zybuluo.com/Civin/note/2542177"
+  readme-url: "https://gatsby.blog/posts/567dae2a/"
   version: @app.version@
   author: JGatsby, Civin@bupt.cn
   name: "图片批处理程序"
