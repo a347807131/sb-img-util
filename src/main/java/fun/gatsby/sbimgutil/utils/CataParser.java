@@ -1,5 +1,7 @@
 package fun.gatsby.sbimgutil.utils;
 
+import com.itextpdf.kernel.pdf.PdfOutline;
+import com.itextpdf.kernel.pdf.navigation.PdfExplicitDestination;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
@@ -14,6 +16,29 @@ import java.util.stream.Collectors;
 
 @Slf4j
 public class CataParser {
+
+    private final File cataTxtFile;
+
+    public CataParser(File cataTxtFile){
+        this.cataTxtFile=cataTxtFile;
+    }
+    public PdfBookmark parse() throws Exception{
+       return parseTxt(cataTxtFile);
+    }
+
+    public void parse(PdfOutline rootOutline) throws Exception {
+        PdfBookmark bookmark = parseTxt(cataTxtFile);
+        addCata(rootOutline,bookmark);
+    }
+
+    static void addCata(PdfOutline pdfOutline, PdfBookmark bookmark) {
+        if(bookmark==null) return;
+        PdfOutline pdfOutlineNextLevel = pdfOutline.addOutline(bookmark.getTitle());
+        pdfOutlineNextLevel.addDestination(PdfExplicitDestination.createFit(bookmark.getPage()));
+        for (PdfBookmark child : bookmark.getChildrens()) {
+            addCata(pdfOutlineNextLevel, child);
+        }
+    }
 
     public static PdfBookmark parseTxt(File cataTxtFile) throws Exception {
         List<String> lines = FileUtils.readLines(cataTxtFile, StandardCharsets.UTF_8);
@@ -59,7 +84,7 @@ public class CataParser {
      * 解析目录结构
      * return 根目录
      */
-    public static PdfBookmark parseBookmarks(List<PdfBookmark> bookmarks) {
+     static PdfBookmark parseBookmarks(List<PdfBookmark> bookmarks) {
         for (int i = 1; i < bookmarks.size(); i++) {
             PdfBookmark bookmark = bookmarks.get(i);
             PdfBookmark previous = bookmarks.get(i - 1);
@@ -76,4 +101,6 @@ public class CataParser {
         }
         return bookmarks.get(0);
     }
+
+
 }

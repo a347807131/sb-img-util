@@ -17,13 +17,19 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 
 @Slf4j
 public class ImageTransformTask extends BaseTask{
 
     private final File inFile;
     private final String format;
+
+    public static final Set<String> SUPORTTED_TARGET_FORMAT = Set.of(
+            "jpg","jp2","tif"
+    );
 
 
     public ImageTransformTask(File inFile, File outFile, String format) {

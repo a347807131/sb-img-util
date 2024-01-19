@@ -17,13 +17,14 @@ rm -rf "build"
 
 JPKGCMD="${JAVA_HOME}/bin/jpackage"
 $JPKGCMD --type app-image --name "$APP_NAME" --input target \
---main-jar "${APP_NAME}-${VERSION}.jar"  --icon logo.ico --win-console  \
+--main-jar "${APP_NAME}-${VERSION}.jar"  --icon logo.ico  \
  --arguments "--spring.profiles.active=prod" --dest "build"
 
 cp Licence.txt "$OUTPUT_PATH/$APP_NAME"
 cp logo.ico "$OUTPUT_PATH/$APP_NAME"
 cp "README.MD" "$OUTPUT_PATH/$APP_NAME"
-#cp -r pyApi "$OUTPUT_PATH/$NAME"
+#cp -r "font" "$OUTPUT_PATH/$APP_NAME"
+#cp -r pyApi "$OUTPUT_PATH/$NAME"sis
 
 APP_JAR_DIR="$OUTPUT_PATH/$APP_NAME/app"
 rm -rf ${APP_JAR_DIR}/classes ${APP_JAR_DIR}/generated-sources  ${APP_JAR_DIR}/generated-test-sources ${APP_JAR_DIR}/maven-archiver ${APP_JAR_DIR}/maven-status ${APP_JAR_DIR}/test-classes

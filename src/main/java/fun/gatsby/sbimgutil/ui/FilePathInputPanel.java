@@ -12,13 +12,6 @@ public class FilePathInputPanel extends JPanel {
     private int columns = 20;
     private JFileChooser fileChooser;
 
-
-    public FilePathInputPanel(String labelText) {
-        this.label.setText(labelText);
-        this.mode = JFileChooser.DIRECTORIES_ONLY;
-        init();
-    }
-
     public FilePathInputPanel(String labelText, int columns) {
         this(labelText, columns, JFileChooser.DIRECTORIES_ONLY);
     }
@@ -52,6 +45,8 @@ public class FilePathInputPanel extends JPanel {
     }
 
     public void setFilePath(String filePath) {
+        if(filePath==null)
+            return;
         textField.setText(filePath);
         fileChooser.setCurrentDirectory(new File(filePath));
     }

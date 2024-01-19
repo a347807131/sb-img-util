@@ -4,7 +4,9 @@ import fun.gatsby.sbimgutil.config.AppConfig;
 import fun.gatsby.sbimgutil.context.TaskExecutor;
 import fun.gatsby.sbimgutil.task.TaskTypeEnum;
 import fun.gatsby.sbimgutil.ui.util.GuiUtils;
+import fun.gatsby.sbimgutil.utils.ConsoleProgress;
 import lombok.extern.slf4j.Slf4j;
+
 
 import javax.swing.*;
 import java.awt.*;
@@ -12,8 +14,8 @@ import java.awt.event.*;
 import java.io.File;
 import java.io.IOException;
 import java.net.URI;
-import java.net.URL;
-import java.util.Objects;
+import java.util.Map;
+import java.util.function.IntConsumer;
 
 import static fun.gatsby.sbimgutil.ui.util.Insertable.*;
 
@@ -23,29 +25,27 @@ public class MainPanel extends JPanel {
     AppConfig appConfig;
 
     CommonInputPanel workNumInputPanel;
-
-    WorkItemChoosePanel taskItemChoosePanel;
-    private JProgressBar progressBar;
+    private JProgressBar progressBar=new JProgressBar();
 
     private FilePathInputPanel pathInputPanel;
     private FilePathInputPanel pathOutPanel;
 
     CommonInputPanel fileNameRegInputPanel;
 
-    private FilePathInputPanel cataDirInputPanel;
-    private FilePathInputPanel blurImgFileInputPanel;
     private JRadioButton recursiveChooseBtn;
-    private FilePathInputPanel labelFileInputPanel;
     private JRadioButton enforceChooseBtn;
 
 
     public MainPanel(AppConfig appConfig) {
         this.appConfig = appConfig;
         setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
-        init();
+        JbInit();
     }
 
-    private void init() {
+    void JbInit() {
+
+        TaskItemTabbedPanel taskItemTabbedPanel = new TaskItemTabbedPanel(appConfig.getProcessTasks());
+        add(taskItemTabbedPanel);
 
         JLabel label = new JLabel("<HTML><U>使用说明</U></HTML>");
         label.setForeground(Color.BLUE);
@@ -101,96 +101,56 @@ public class MainPanel extends JPanel {
                 enforceChooseBtn)
         );
 
-        taskItemChoosePanel = new WorkItemChoosePanel();
-        add(taskItemChoosePanel);
-
-        cataDirInputPanel = new FilePathInputPanel("pdf目录所在文件夹", 10);
-        cataDirInputPanel.setFilePath(appConfig.getProcessTasks().get(TaskTypeEnum.PDF_MERGE.name()).getCataDirPath());
-
-        blurImgFileInputPanel = new FilePathInputPanel("水印文件位置", 10, JFileChooser.FILES_ONLY);
-        blurImgFileInputPanel.setFilePath(appConfig.getProcessTasks().get(TaskTypeEnum.DRAW_BLUR.name()).getBlurImagePath());
-
-        labelFileInputPanel = new FilePathInputPanel("裁切标注文件位置", 10, JFileChooser.FILES_ONLY);
-        labelFileInputPanel.setFilePath(appConfig.getProcessTasks().get(TaskTypeEnum.IMAGE_CUT.name()).getLabelFilePath());
-        add(labelFileInputPanel);
-
-        JPanel formatChosePanel = new JPanel();
-        JLabel formatLabel = new JLabel("目标格式");
-        JComboBox<String> formatComboBox = new JComboBox<>();
-        formatComboBox.addItem("jpg");
-        formatComboBox.addItem("jp2");
-        formatComboBox.addItem("tif");
-
-        formatChosePanel.add(formatLabel);
-        formatChosePanel.add(formatComboBox);
-
-        add(GuiUtils.getHorizontalBoxLayoutPanel(
-                cataDirInputPanel,
-                blurImgFileInputPanel,
-                labelFileInputPanel,
-                formatChosePanel
-        ));
-
-        formatChosePanel.setVisible(true);
-        cataDirInputPanel.setVisible(false);
-        blurImgFileInputPanel.setVisible(false);
-        labelFileInputPanel.setVisible(false);
-        labelFileInputPanel.setVisible(false);
-
-
         JButton startBtn = new JButton("开始");
-        add(startBtn);
+        add(startBtn, BorderLayout.CENTER);
+        progressBar.setString("任务进度");
+        progressBar.setStringPainted(true);
+        progressBar.setPreferredSize(new Dimension(getWidth(), 20));
+        add(progressBar);
 
-        taskItemChoosePanel.addItemListener(e -> {
-            formatChosePanel.setVisible(false);
-            cataDirInputPanel.setVisible(false);
-            blurImgFileInputPanel.setVisible(false);
-            labelFileInputPanel.setVisible(false);
 
-            String actionCommand = e.getActionCommand();
-            TaskTypeEnum taskTypeEnum = TaskTypeEnum.parse(actionCommand);
-            Objects.requireNonNull(taskTypeEnum, "taskType is null");
-            JPanel tagetPanel = switch (taskTypeEnum) {
-                case IMAGE_TRANSFORM -> formatChosePanel;
-                case PDF_MERGE -> cataDirInputPanel;
-                case IMAGE_COMPRESS -> null;
-                case IMAGE_CUT -> labelFileInputPanel;
-                case DRAW_BLUR -> blurImgFileInputPanel;
-                default -> null;
-            };
-            if (tagetPanel != null)
-                tagetPanel.setVisible(true);
-        });
 
         startBtn.addActionListener(e -> {
 
-            AppConfig.ProcessTask processTask = new AppConfig.ProcessTask();
             gtc.setFileNameRegex(fileNameRegInputPanel.getValue());
             gtc.setInDirPath(pathInputPanel.getFilePath());
-            String outDirPath = pathOutPanel.getFilePath();
-            gtc.setOutDirPath(outDirPath);
+            gtc.setOutDirPath(pathOutPanel.getFilePath());
             gtc.setRecursive(recursiveChooseBtn.isSelected());
             gtc.setEnforce(enforceChooseBtn.isSelected());
+            gtc.setMaxWorkerNum(Integer.parseInt(workNumInputPanel.getValue()));
 
-            TaskTypeEnum taskType = taskItemChoosePanel.getSelectedTaskType();
-            switch (taskType) {
-                case DRAW_BLUR -> processTask.setBlurImagePath(blurImgFileInputPanel.getFilePath());
-                case PDF_MERGE -> processTask.setCataDirPath(cataDirInputPanel.getFilePath());
-                case IMAGE_CUT -> processTask.setLabelFilePath(labelFileInputPanel.getFilePath());
-                case IMAGE_TRANSFORM -> processTask.setFormat((String) formatComboBox.getSelectedItem());
-            }
-            int maxWorkerNum = Integer.parseInt(workNumInputPanel.getValue());
-            gtc.setMaxWorkerNum(maxWorkerNum);
-            try {
-                TaskExecutor taskExcutor = new TaskExecutor(gtc,processTask, taskType);
-                taskExcutor.excute();
-                JOptionPane.showMessageDialog(this, "任务完成");
-            } catch (Exception ex) {
-                JDialog dialog = new JDialog();
-                dialog.setTitle("错误");
-                dialog.add(new JLabel(ex.getMessage()));
-                dialog.setVisible(true);
-            }
+            Component component = taskItemTabbedPanel.getSelectedComponent();
+            TaskItemTabbedPanel.ItemPanel itemPanel = (TaskItemTabbedPanel.ItemPanel) component;
+            Map.Entry<TaskTypeEnum, AppConfig.ProcessTask> entry = itemPanel.getCurrentProcessTaskEntry();
+
+            new Thread(() -> {
+                progressBar.setValue(0);
+                progressBar.setString("处理中");
+                ConsoleProgress cpb= new ConsoleProgress();
+                IntConsumer setTaskCountBeforeExcutionComsumer = (int taskCount) -> {
+                    progressBar.setMaximum(taskCount);
+                    cpb.setTotal(taskCount);
+                };
+
+                Runnable funcPerTaskDone = () -> {
+                    progressBar.setValue(progressBar.getValue() + 1);
+                    progressBar.setString(String.format("任务进度(%d/%d): %s", progressBar.getValue(), progressBar.getMaximum(),cpb.iterate()));
+                };
+
+                startBtn.setEnabled(false);
+                try {
+                    var taskExcutor=new TaskExecutor(gtc,entry,setTaskCountBeforeExcutionComsumer,funcPerTaskDone);
+                    taskExcutor.excute();
+                    JOptionPane.showMessageDialog(MainPanel.this, "任务执行完毕");
+                } catch (Exception ex) {
+                    log.error("任务执行失败", ex);
+                    JOptionPane.showMessageDialog(MainPanel.this, ex.getMessage());
+                }finally {
+                    progressBar.setValue(0);
+                    progressBar.setString("");
+                    startBtn.setEnabled(true);
+                }
+            }).start();
         });
     }
 }

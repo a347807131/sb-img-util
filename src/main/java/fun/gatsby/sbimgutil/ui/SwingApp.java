@@ -24,7 +24,7 @@ public class SwingApp extends JFrame {
         );
         setTitle(title);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setSize(640, 480);
+        setSize(360, 540);
         setResizable(false);
         setLocationRelativeTo(null);
         add(mainPanel);

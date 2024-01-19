@@ -3,6 +3,9 @@ package fun.gatsby.sbimgutil.utils;
 import com.itextpdf.kernel.pdf.PdfDocument;
 import com.itextpdf.kernel.pdf.PdfOutline;
 import com.itextpdf.kernel.pdf.PdfReader;
+import com.itextpdf.kernel.pdf.PdfWriter;
+import fun.gatsby.sbimgutil.task.PdfAddCataTask;
+import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Test;
 
@@ -10,6 +13,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.URL;
+import java.nio.file.Path;
 import java.util.LinkedList;
 import java.util.TreeSet;
 
@@ -89,6 +93,29 @@ public class PdfutilsTest {
         for (PdfOutline outline : outlines.getAllChildren()) {
             System.out.println(outline.getTitle());
         }
+    }
+
+    @Test
+    public void testAdd() throws Exception {
+
+        Path pdfDirPath = Path.of("D:\\原始备份\\图片处理模板\\4 PDF\\无水印\\27030166");
+//
+//
+//
+//        PdfWriter pdfWriter = new PdfWriter(outPath.toFile());
+//        PdfDocument docOut = new PdfDocument(pdfWriter);
+//        PdfOutline outlines = docOut.getOutlines(false);
+//        PdfBookmark bookmark = CataParser.parseTxt(txtPath.toFile());
+//        CataParser.addCata(outlines, bookmark);
+//        docIn.copyPagesTo(1, 1, docOut);
+//        docOut.close();
+//        docIn.close();
+
+        new PdfAddCataTask(
+                pdfDirPath.resolve("0001.pdf").toFile(),
+                pdfDirPath.resolve("0001.txt").toFile(),
+                new File("temp.pdf")
+        ).run();
     }
 
 }

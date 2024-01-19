@@ -4,13 +4,14 @@ logging:
     fun.gatsby: DEBUG
 
 app:
+
   global-task-config:
     #输入目录
-#    in-dir-path: D:\8-2复杂处理图例
-    in-dir-path: C:\Users\Gatsby\Downloads\5 目录(1)
+    in-dir-path: D:\temp\提取txt文档\TXT
     #输出目录
-    out-dir-path: D:\目录文件
-    enforce: true
+    out-dir-path: D:\temp\提取txt文档\out
+    enforce: false
+    max-worker-num: 1
 
   process-tasks:
     IMAGE_TRANSFORM:
@@ -20,14 +21,22 @@ app:
     IMAGE_COMPRESS:
       #压缩限制大小
       compress-limit: 500
+      format: jp2
 
     DRAW_BLUR:
-      blur-image-path: D:\datasets\图片处理模板\2 模糊图
-
+      blur-image-path: D:\原始备份\图片处理模板\2 模糊图
     PDF_MERGE:
       #目录文件所在目录
-      cata-dir-path: D:\datasets\图片处理模板\3 目录文件
-
+      cata-dir-path: D:\原始备份\图片处理模板\5 目录
+      pdf-image-scale: 0.25
     IMAGE_CUT:
-      label-file-path: D:\datasets\图片处理模板\4 标签文件
-
+      label-file-path: D:\原始备份\图片处理模板\4 标签文件
+    DOUBLE_LAYER_PDF_GENERATE:
+      #目录文件所在目录
+      cata-dir-path: D:\原始备份\图片处理模板\5 目录
+      label-dir-path: D:\原始备份\双层pdf相关\label
+    LABELED_DATASET_COLLECT:
+      rate-of-train: 0.9
+    PDF_ADD_CATA:
+      #目录文件所在目录
+      cata-dir-path: ${app.global-task-config.in-dir-path}

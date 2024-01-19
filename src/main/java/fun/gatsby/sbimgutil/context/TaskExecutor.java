@@ -2,175 +2,70 @@ package fun.gatsby.sbimgutil.context;
 
 import fun.gatsby.sbimgutil.config.AppConfig;
 import fun.gatsby.sbimgutil.schedule.ProcessTaskGroup;
+import fun.gatsby.sbimgutil.schedule.TaskGroup;
 import fun.gatsby.sbimgutil.schedule.TaskScheduleForkJoinPool;
-import fun.gatsby.sbimgutil.utils.ConsoleProgressBar;
-import fun.gatsby.sbimgutil.utils.Const;
-import fun.gatsby.sbimgutil.utils.FileFetchUtils;
-import fun.gatsby.sbimgutil.utils.Label;
 import fun.gatsby.sbimgutil.task.*;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang.StringUtils;
-import org.apache.logging.log4j.util.Strings;
 
-import java.io.File;
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.*;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ForkJoinPool;
+import java.util.concurrent.ForkJoinTask;
+import java.util.function.IntConsumer;
 
 @Slf4j
 public class TaskExecutor {
 
     private final AppConfig.GlobalTaskConfig gtc;
-    TaskScheduleForkJoinPool forkJoinPool;
-    AppConfig.ProcessTask processTask;
-    public static ConsoleProgressBar CPB;
+    private final TaskGroup<Runnable> taskGroup;
+    ForkJoinPool forkJoinPool;
 
-    public TaskExecutor(AppConfig.GlobalTaskConfig gtc, AppConfig.ProcessTask processTask,Class<? extends BaseTask>...classes) throws IOException {
+    public TaskExecutor(AppConfig.GlobalTaskConfig gtc, Map.Entry<TaskTypeEnum, AppConfig.ProcessTask> entry) throws IOException {
         this.forkJoinPool = new TaskScheduleForkJoinPool(gtc.getMaxWorkerNum());
         this.gtc=gtc;
-        this.processTask = processTask;
-        for (Class<? extends BaseTask> taskClass : classes) {
-            List<Runnable> tasks = loadTasks(taskClass);
-            this.forkJoinPool.scheduleBatch(tasks);
-        }
-        CPB = new ConsoleProgressBar(this.forkJoinPool.getTaskCount());
+        taskGroup=loadTasks(entry);
+        if (Objects.equals(gtc.getInDirPath(),gtc.getOutDirPath()))
+            throw new IOException("输入输出目录不能相同");
     }
 
-    public List<Runnable> loadTasks(Class<? extends BaseTask> taskClass) throws IOException {
-
-        String inDirPath = gtc.getInDirPath();
-        File inDir = new File(inDirPath);
-        Path outPath = Path.of(gtc.getOutDirPath());
-        Path inPath = Path.of(gtc.getInDirPath());
-        List<File> imgFiles = new LinkedList<>();
-
-        if(gtc.isRecursive())
-            FileFetchUtils.fetchFileRecursively(imgFiles, inDir,
-                    Const.SUPPORTED_FILE_FILTER
-            );
-        else
-            FileFetchUtils.fetchFile(imgFiles, inDir,
-                    Const.SUPPORTED_FILE_FILTER
-            );
-
-        imgFiles.sort(Comparator.comparing(File::getName));
-        String fileNameRegex = gtc.getFileNameRegex();
-        imgFiles = imgFiles.stream().filter(
-                imgFile -> Strings.isBlank(fileNameRegex) || imgFile.getName().matches(fileNameRegex)
-        ).toList();
-
-        log.info("本次任务将处理{}个文件", imgFiles.size());
-
-        var tasks = new ProcessTaskGroup(taskClass.getName());
-        switch (taskClass) {
-            case PdfMergeTask.class -> {
-                LinkedHashMap<File, List<File>> dirToImgFilesMap = loadSortedDirToImgFilesMap(imgFiles);
-                for (Map.Entry<File, List<File>> entry : dirToImgFilesMap.entrySet()) {
-                    File dirThatFilesBelong = entry.getKey();
-                    File outFile =
-                            genPdfOutFile(dirThatFilesBelong);
-                    if (outFile.exists() && !gtc.isEnforce())
-                        continue;
-                    List<File> imgs = entry.getValue();
-                    String cataDirPath = processTask.getCataDirPath();
-                    File cataFile = null;
-                    if (Strings.isNotBlank(cataDirPath)) {
-                        String cataFileName = dirThatFilesBelong.getAbsolutePath().replace(new File(inDirPath).getAbsolutePath(), "") + ".txt";
-                        cataFile = new File(cataDirPath, cataFileName);
-                    }
-                    PdfMergeTask task = new PdfMergeTask(imgs, outFile, cataFile);
-                    tasks.add(task);
-                }
-            }
-            case ImageTransformTask.class, ImageCompressTask.class,
-                    DrawBlurTask.class, BookImageFixTask.class , FiveBackspaceReplaceTask.class-> {
-                //非pdf合并走这边
-                for (File imgFile : imgFiles) {
-                    File outFile = genOutFile(imgFile,
-                            tasks.equals(ImageTransformTask.class)? processTask.getFormat():null
-                    );
-                    if (outFile.exists() && !gtc.isEnforce()) {
-                        continue;
-                    }
-                    BaseTask task = switch (taskClass) {
-                        case ImageTransformTask.class -> new ImageTransformTask(imgFile, outFile, processTask.getFormat());
-                        case ImageCompressTask.class -> new ImageCompressTask(imgFile, outFile, processTask.getCompressLimit());
-                        case DrawBlurTask.class -> new DrawBlurTask(imgFile, outFile, new File(processTask.getBlurImagePath()));
-                        case BookImageFixTask.class -> new BookImageFixTask(imgFile, outFile);
-                        case FiveBackspaceReplaceTask.class -> new FiveBackspaceReplaceTask(imgFile, outFile);
-                        default -> null;
-                    };
-                    tasks.add(task);
-                }
-            }
-            // FIXME: 2023/8/11 指定文件路径问题
-            case IMAGE_CUT -> {
-                File labelFile;
-                if(processTask.getLabelFilePath()==null)
-                    labelFile = new File(inDirPath, "Label.txt");
-                else
-                    labelFile = new File(processTask.getLabelFilePath());
-                List<String> labelLines = Files.readAllLines(labelFile.toPath());
-                Path parentDirPath = inDir.getParentFile().toPath();
-                for (String labelLine : labelLines) {
-                    Label label = Label.parse(parentDirPath, labelLine);
-                    File outDir = genOutFile(label.getMarkedImageFile()).getParentFile();
-                    ImageCutTask imageCutTask = new ImageCutTask(label, outDir.toPath());
-                    tasks.add(imageCutTask);
-                }
-            }
+    public TaskExecutor(
+            AppConfig.GlobalTaskConfig gtc,
+            Map.Entry<TaskTypeEnum, AppConfig.ProcessTask> entry,
+            IntConsumer setTaskCountBeforeExcutionComsumer,
+            Runnable funcPerTaskDone
+    ) throws IOException {
+        this.forkJoinPool = new TaskScheduleForkJoinPool(gtc.getMaxWorkerNum());
+        this.gtc=gtc;
+        TaskTypeEnum taskType = entry.getKey();
+        AppConfig.ProcessTask processTask = entry.getValue();
+        var taskGroup = new ProcessTaskGroup(taskType.taskCnName,funcPerTaskDone);
+        BaseTaskGenerator taskGenerator = taskType.newTaskGenerator(gtc, processTask);
+        if(taskGenerator!=null){
+            taskGroup.addAll(taskGenerator.generate());
         }
-        return tasks;
+        this.taskGroup=taskGroup;
+        setTaskCountBeforeExcutionComsumer.accept(taskGroup.size());
+    }
+
+    public TaskGroup<Runnable> loadTasks(Map.Entry<TaskTypeEnum, AppConfig.ProcessTask> entry) throws IOException {
+        TaskTypeEnum taskTypeEnum = entry.getKey();
+        AppConfig.ProcessTask processTask = entry.getValue();
+        var taskGroup = new ProcessTaskGroup(taskTypeEnum.taskCnName);
+        BaseTaskGenerator taskGenerator = taskTypeEnum.newTaskGenerator(gtc, processTask);
+        if(taskGenerator!=null){
+            taskGroup.addAll(taskGenerator.generate());
+        }
+        return taskGroup;
     }
 
     public void excute() throws ExecutionException, InterruptedException {
-        forkJoinPool.start();
+        ForkJoinTask<?> forkJoinTask =
+                this.forkJoinPool.submit(() -> taskGroup.parallelStream().forEach(Runnable::run));
+        forkJoinTask.get();
     }
 
-    public static ConsoleProgressBar getGlobalConsoleProgressBar() {
-        return CPB;
-    }
-
-    LinkedHashMap<File, List<File>> loadSortedDirToImgFilesMap(List<File> imgFiles) {
-        return imgFiles.parallelStream().collect(
-                LinkedHashMap::new,
-                (m,k)-> {
-                    File parent = k.getParentFile();
-                    m.computeIfAbsent(parent, v->new LinkedList<>()).add(k);
-                },
-                LinkedHashMap::putAll
-        );
-    }
-
-    private File genPdfOutFile(File dirFilesBelong) {
-        String outFileName = dirFilesBelong.getName() + ".pdf";
-        String midpiece = dirFilesBelong.getAbsolutePath().replace(
-                new File(gtc.getInDirPath()).getAbsolutePath(), ""
-        );
-        Path fleOutDirPath = Path.of(gtc.getOutDirPath(), midpiece);
-        if (!StringUtils.isEmpty(midpiece)) {
-            fleOutDirPath = fleOutDirPath.getParent();
-        }
-        Path outFilePath = fleOutDirPath.resolve(outFileName);
-        return outFilePath.toFile();
-    }
-    File genOutFile(File inFile) {
-        return genOutFile(inFile,null);
-    }
-
-    File genOutFile(File inFile,String format) {
-        String inFileName = inFile.getName();
-        String outFileName = inFileName;
-        if (Strings.isNotBlank(format)) {
-            outFileName = inFileName.substring(0, inFileName.lastIndexOf(".")) + "." + processTask.getFormat();
-        }
-        String olDdirPath = inFile.getParentFile().getAbsolutePath();
-        String midpiece = olDdirPath.replace(
-                new File(gtc.getInDirPath()).getAbsolutePath(),
-                ""
-        );
-        return Path.of(gtc.getOutDirPath(), midpiece, outFileName).toFile();
+    public int getTaskCount(){
+        return taskGroup.size();
     }
 }

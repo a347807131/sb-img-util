@@ -2,10 +2,8 @@ package fun.gatsby.sbimgutil.task;
 
 
 import cn.hutool.core.date.LocalDateTimeUtil;
-import fun.gatsby.sbimgutil.context.TaskExecutor;
 import fun.gatsby.sbimgutil.schedule.ITask;
 import fun.gatsby.sbimgutil.schedule.TaskStateEnum;
-import fun.gatsby.sbimgutil.utils.ConsoleProgressBar;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
 
@@ -46,6 +44,10 @@ public abstract class BaseTask implements ITask {
         startDate = LocalDateTime.now();
     }
 
+    @Override
+    public void run() {
+        ITask.super.run();
+    }
 
     @Override
     public void after() {
@@ -61,11 +63,6 @@ public abstract class BaseTask implements ITask {
         long between = LocalDateTimeUtil.between(startDate, LocalDateTime.now(), ChronoUnit.SECONDS);
         log.debug("任务完成:[{}] ,执行耗时：{}s", name, between);
         state = TaskStateEnum.FINISHED;
-
-        ConsoleProgressBar progressBar = TaskExecutor.getGlobalConsoleProgressBar();
-        if (progressBar != null) {
-            progressBar.iterate();
-        }
     }
 
     @Override

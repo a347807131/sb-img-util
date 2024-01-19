@@ -1,5 +1,6 @@
 package fun.gatsby.sbimgutil.utils;
 
+import fun.gatsby.sbimgutil.task.NlpTask;
 import fun.gatsby.sbimgutil.task.TaskTypeEnum;
 
 import java.io.FileFilter;
@@ -10,21 +11,20 @@ import static fun.gatsby.sbimgutil.task.TaskTypeEnum.*;
 public interface Const {
 
     List<String> SUPORTTED_FORMATS = List.of(
-            "jpg", "jp2", "tif", "tiff","jpeg","txt"
+            "jpg", "jp2", "tif", "tiff","jpeg","txt","pdf"
     );
-
-    FileFilter SUPPORTED_FILE_FILTER = file -> {
-        if (file.isDirectory())
-            return true;
-        String lowerCasedName = file.getName().toLowerCase();
-        return Const.SUPORTTED_FORMATS.stream().anyMatch(lowerCasedName::endsWith);
-    };
 
     List<TaskTypeEnum> ENABLED_TASK_TYPES=List.of(
             IMAGE_TRANSFORM,
             PDF_MERGE,
             IMAGE_COMPRESS,
             DRAW_BLUR,
-            IMAGE_CUT
+
+            NLP,
+//            IMAGE_CUT,
+//            DOUBLE_LAYER_PDF_GENERATE,
+//            LABELED_DATASET_COLLECT,
+            PDF_SPLIT,
+            PDF_ADD_CATA
     );
 }
