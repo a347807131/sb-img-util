@@ -6,9 +6,7 @@ import baidumodel.entity.chat.ErnieBot4Response;
 import baidumodel.service.BaiduService;
 import cn.hutool.core.io.FileUtil;
 import com.alibaba.fastjson2.JSON;
-import com.alibaba.fastjson2.JSONObject;
 import fun.gatsby.lang.tuple.Tuple2;
-import fun.gatsby.lang.tuple.Tuple3;
 import fun.gatsby.lang.tuple.Tuples;
 import fun.gatsby.sbimgutil.config.AppConfig;
 import fun.gatsby.sbimgutil.schedule.ITask;
@@ -28,18 +26,11 @@ import java.util.stream.Collectors;
 
 @Slf4j
 public class NlpTask extends BaseTask{
-    /**
- "对古文进行解析，注意准确无误，并遵循古文的语法和语义规则。\n"+
-        "输出范围: 禁止输出其它额外信息。输出格式为：断句结果：- 翻译结果：-" +
-        "指令: 对下列古文进行断句并翻译成现代中文。古文原文如下：%s";
-     */
-    public static final String PUNCTUATE_TRANSLATE_TEMPLATE=
-            "对古文进行解析，注意准确无误，并遵循古文的语法和语义规则。\n"+
-                    "输出范围: 禁止输出其它额外信息。输出格式为：断句结果：- 翻译结果：-" +
-                    "指令: 对下列古文进行断句添加标点并翻译成现代中文。古文原文如下：%s";
+
     private final List<File> rawTextFiles;
     private final File isf;
     private final File containerDir;
+    final static Promot PROMOT=new Promot();
 
     File outDir;
     int maxShardSize=300;
@@ -82,11 +73,7 @@ public class NlpTask extends BaseTask{
         List<String> sortedJsonResults = FileUtil.readLines(isf, StandardCharsets.UTF_8).stream()
                 .filter(e -> !StringUtils.isBlank(e))
                 .map(line -> JSON.parseObject(line, NlpResult.class))
-                .sorted((e1, e2) -> {
-                    var e1Int = Integer.parseInt(e1.getFileName().split("\\.")[0]);
-                    var e2Int = Integer.parseInt(e2.getFileName().split("\\.")[0]);
-                    return e1Int - e2Int;
-                })
+                .sorted(Comparator.comparing(NlpResult::getFileName))
                 .map(JSON::toJSONString).toList();
         FileUtils.writeLines(new File(outDir, "nlp.txt"),sortedJsonResults);
     }
@@ -98,13 +85,6 @@ public class NlpTask extends BaseTask{
         nlpResult.setRawText(rawText);
         nlpResult.setStartTime(new Date());
         nlpResult.setFileName(pageTextFile.getName());
-        if(StringUtils.isEmpty(rawText)) {
-            nlpResult.setChineseText("");
-            nlpResult.setPunctuatedText("");
-            nlpResult.setEndTime(new Date());
-            return nlpResult;
-        }
-
 
         StringBuilder ptsb = new StringBuilder();
         StringBuilder ctsb = new StringBuilder();
@@ -129,9 +109,11 @@ public class NlpTask extends BaseTask{
      * @param rawText 原始古文
      */
     public static final BaiduService baiduService = new BaiduService("5stQ7R7IxVlDoMzSQBBGGmiS", "73QKH26Cq5SvmftOTVkjZRH53So8ysXC");
-    private Tuple2<String, String> doNlp(String rawText) throws Exception{
+    private Tuple2<String, String> doNlp( String rawText) throws Exception{
+        if(StringUtils.isBlank(rawText)||rawText.length()<=2)
+            return Tuples.of(rawText,rawText);
 
-        String content = String.format(PUNCTUATE_TRANSLATE_TEMPLATE, rawText);
+        String content = PROMOT.genComposedPromotMsg(rawText);
         BaiduChatMessage msg = new BaiduChatMessage("user", content);
         ErnieBot4Param param = ErnieBot4Param.builder()
                 .user_id("1")
@@ -150,25 +132,7 @@ public class NlpTask extends BaseTask{
         }
         // 解析响应，获取结果
         String rawResult = ernieBot4Response.getResult();
-        return extractResult(rawResult);
-    }
-
-    Tuple2<String, String>  extractResult(String rawResultText){
-        var text=rawResultText;
-        text = text.replace("\n", "");
-        String punctuatedResultGuideText = "断句结果：";
-        String translatedResultGuideText = "翻译结果：";
-        int punctuatedResultGuideTextIndex = text.indexOf("断句结果：");
-        int translatedResultGuideTextIndex = text.indexOf("翻译结果：");
-
-        String punctuatedText = text.substring(
-                punctuatedResultGuideTextIndex + punctuatedResultGuideText.length(),
-                translatedResultGuideTextIndex
-        );
-        String chineseText = text.substring(
-                translatedResultGuideTextIndex+translatedResultGuideText.length()
-        );
-        return Tuples.of(punctuatedText,chineseText);
+        return PROMOT.extractFromResponseResult(rawResult);
     }
 
 
@@ -193,6 +157,42 @@ public class NlpTask extends BaseTask{
             return tasks;
         }
     }
+}
+
+class Promot{
+    public static final String PUNCTUATE_TRANSLATE_PROMOT=
+            "对古文进行解析，注意准确无误，并遵循古文的语法和语义规则。\n"+
+                    "输出范围: 禁止输出其它额外信息。输出格式只能为：断句结果：- \n翻译结果：- \n"  +
+                    "指令: 对下列古文进行断句添加标点并翻译成现代中文。古文原文如下：%s";
+    Promot(){
+
+    }
+    String genComposedPromotMsg(String...strs){
+        return PUNCTUATE_TRANSLATE_PROMOT.formatted(strs);
+    }
+
+    Tuple2<String, String> extractFromResponseResult(String rawResultText){
+        var text=rawResultText;
+        text = text.replace("\n", "");
+        String punctuatedResultGuideText = "断句结果：";
+        String translatedResultGuideText = "翻译结果：";
+        int punctuatedResultGuideTextIndex = text.indexOf("断句结果：");
+        int translatedResultGuideTextIndex = text.indexOf("翻译结果：");
+
+        try {
+            String punctuatedText = text.substring(
+                    punctuatedResultGuideTextIndex + punctuatedResultGuideText.length(),
+                    translatedResultGuideTextIndex
+            );
+            String chineseText = text.substring(
+                    translatedResultGuideTextIndex + translatedResultGuideText.length()
+            );
+            return Tuples.of(punctuatedText,chineseText);
+        }catch (Exception e){
+            throw new RuntimeException(e);
+        }
+    }
+
 }
 /**
  * 片段化结果
