@@ -13,9 +13,7 @@ import java.io.File;
 import java.io.FileFilter;
 import java.io.IOException;
 import java.nio.file.Path;
-import java.util.LinkedHashMap;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
 
 @AllArgsConstructor
 public class BaseTaskGenerator implements ITaskGenerator{
@@ -98,8 +96,14 @@ public class BaseTaskGenerator implements ITaskGenerator{
     public LinkedHashMap<File, List<File>> loadSortedDirToFilesMap() {
         Path inPath = Path.of(gtc.getInDirPath());
         String fileNameRegex = gtc.getFileNameRegex();
+        List<File> files ;
+        if(gtc.isRecursive()){
+             files = FileUtil.loopFiles(inPath.toFile());
+        }else {
+            files = Arrays.stream(Objects.requireNonNull(inPath.toFile().listFiles(e -> !e.isDirectory()))).toList();
+        }
         //@formatter:off-->
-        return FileUtil.loopFiles(inPath.toFile()).stream()
+        return files.stream()
                 .filter(file -> Strings.isBlank(fileNameRegex) || file.getName().matches(fileNameRegex))
                 .filter(file -> Const.SUPORTTED_FORMATS.contains(FileUtil.extName(file)))
                 .collect(
