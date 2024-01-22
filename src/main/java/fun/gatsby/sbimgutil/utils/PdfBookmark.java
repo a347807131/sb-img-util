@@ -11,7 +11,7 @@ import java.util.TreeSet;
  */
 @NoArgsConstructor
 @Data
-class PdfBookmark implements Comparable<PdfBookmark> {
+public class PdfBookmark implements Comparable<PdfBookmark> {
     Integer page;
     String title;
     Integer level;
@@ -47,25 +47,5 @@ class PdfBookmark implements Comparable<PdfBookmark> {
 
     public void addChild(PdfBookmark bookmark) {
         childrens.add(bookmark);
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-
-        PdfBookmark bookmark = (PdfBookmark) o;
-
-        if (!page.equals(bookmark.page)) return false;
-        if (!title.equals(bookmark.title)) return false;
-        return level.equals(bookmark.level);
-    }
-
-    @Override
-    public int hashCode() {
-        int result = page.hashCode();
-        result = 31 * result + title.hashCode();
-        result = 31 * result + level.hashCode();
-        return result;
     }
 }

@@ -2,68 +2,35 @@
 logging:
   level:
     root: info
-    fun.gatsby: debug
+    fun.gatsby: info
   file:
-    path: ./logs
-    name: log.txt
+    path: logs
 
-
-#spring:
-#  profiles:
-#    active: dev
+spring:
+  devtools:
+    livereload:
+      enabled: false
+  profiles:
+    active: @activated-profile@
 
 app:
-  readme-url: "https://www.zybuluo.com/Civin/note/2542177"
+  readme-url: "https://gatsby.blog/posts/567dae2a/"
   version: @app.version@
-  #输入目录
-  base-in-dir-path: 请替换为你的输入目录
-  #输出目录
-  base-out-dir-path: 请替换为你的输出目录
-  #水印图片路径
-  blur-image-path: blur.png
-  #目录文件所在目录
-  cata-dir-path: #${app.base-in-dir-path}/../5 目录
-  #处理线程数
-  max-worker-num: 4
+  author: JGatsby, Civin@bupt.cn
+  name: "图片批处理程序"
+  logging-file-path: ${logging.file.path}
+
+  global-task-config:
+    #输入目录
+    in-dir-path: 请替换为你的输入目录
+    #输出目录
+    out-dir-path: 请替换为你的输出目录
+    #处理线程数
+    max-worker-num: 4
+
+    file-name-regex: ^(?!seka).*$ #不以seka开头的文件名
+
+    recursive: true #是否递归处理子目录
+    enforce: false #是否强制覆盖已存在的文件
   #处理项
-  process-tasks:
-    IMAGE_TRANSFORM:
-      #任务类型 目前只有4重类型：IMAGE_TRANSFORM、IMAGE_COMPRESS、DRAW_BLUR、PDF_MERGE
-      task-type: IMAGE_TRANSFORM
-      #输出目录
-      out-dir-path: ${app.base-out-dir-path}/2 JP2000无损
-      #输入目录
-      in-dir-path: ${app.base-in-dir-path}
-      #文件名正则表达式
-      file-name-regex: ^(?!seka).*$ #不以seka开头的文件名
-        #输出格式
-      format: jp2
-
-    IMAGE_COMPRESS:
-      task-type: IMAGE_COMPRESS
-      out-dir-path: ${app.base-out-dir-path}/3 水印有损JP2000/无水印
-      in-dir-path: ${app.base-in-dir-path}
-      file-name-regex: #^(?!seka).*$ #不以seka开头的文件名
-      #压缩限制大小
-      compress-limit: 500
-
-    DRAW_BLUR:
-      task-type: DRAW_BLUR
-      out-dir-path: ${app.base-out-dir-path}/3 水印有损JP2000/有水印
-      in-dir-path: ${app.base-in-dir-path}
-      file-name-regex: #^(?!seka).*$ #不以seka开头的文件名
-      blur-image-path: ${app.blur-image-path}
-
-    PDF_MERGE:
-      task-type: PDF_MERGE
-      out-dir-path: ${app.base-out-dir-path}/4 PDF/无水印
-      in-dir-path: ${app.base-in-dir-path}
-      file-name-regex: ^(?!seka).*$ #不以seka开头的文件名
-      #目录文件所在目录
-      cata-dir-path: ${app.cata-dir-path}
-
-    IMAGE_CUT:
-      task-type: PDF_MERGE
-      out-dir-path: ${app.base-out-dir-path}/4 PDF/无水印
-      in-dir-path: ${app.base-in-dir-path}
-      file-name-regex: #^(?!seka).*$ #不以seka开头的文件名
+  #任务类型 目前只有4重类型：IMAGE_TRANSFORM、IMAGE_COMPRESS、DRAW_BLUR、PDF_MERGE

@@ -17,7 +17,9 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 
 @Slf4j
 public class ImageTransformTask extends BaseTask{
@@ -25,28 +27,33 @@ public class ImageTransformTask extends BaseTask{
     private final File inFile;
     private final String format;
 
+    public static final Set<String> SUPORTTED_TARGET_FORMAT = Set.of(
+            "jpg","jp2","tif"
+    );
+
 
     public ImageTransformTask(File inFile, File outFile, String format) {
         this.inFile = inFile;
         this.format = format;
         this.outFile = outFile;
-        taskName = "格式转换: " + inFile.getName() + " to " + outFile.getAbsolutePath();
+        name = "格式转换: " + inFile.getAbsolutePath();
     }
 
-    int oriWDpi, oriHDpi;
+    int oriWDpi=600, oriHDpi=600;
 
     @Override
     public void doWork() throws Exception {
-        ImageInfo imageInfo = Imaging.getImageInfo(inFile);
-        oriWDpi = imageInfo.getPhysicalWidthDpi();
-        oriHDpi = imageInfo.getPhysicalHeightDpi();
+//        ImageInfo imageInfo = Imaging.getImageInfo(inFile);
+//        oriWDpi = imageInfo.getPhysicalWidthDpi();
+//        oriHDpi = imageInfo.getPhysicalHeightDpi();
         switch (format) {
             case "jp2" -> {
                 BufferedImage bf = ImageIO.read(inFile);
                 ImageIO.write(bf, "jpeg2000", outFile);
             }
-            case "jpg" -> {
-                this.transformToJpg();
+            case "jpg", "jpeg" -> {
+                BufferedImage bf = ImageIO.read(inFile);
+                ImageIO.write(bf, "jpeg", outFile);
             }
             case "tif", "tiff" -> {
                 this.transformToTif();
@@ -54,10 +61,14 @@ public class ImageTransformTask extends BaseTask{
         }
     }
 
+    /**
+     * 保留dpi信息
+     *
+     * @throws Exception
+     */
     private void transformToTif() throws Exception {
 
         BufferedImage bf = ImageIO.read(inFile);
-
         String name = null;
         ImageWriter writer = null;
         Iterator<ImageWriter> writers = ImageIO.getImageWritersByFormatName(format);
@@ -68,18 +79,11 @@ public class ImageTransformTask extends BaseTask{
 
         ImageWriteParam param = writer.getDefaultWriteParam();
 
-        try (ImageOutputStream ios = ImageIO.createImageOutputStream(outFile);
-             ImageInputStream iis = ImageIO.createImageInputStream(inFile);
-        ) {
-
-            ImageReader reader = ImageIO.getImageReaders(iis).next();
-            reader.setInput(iis);
+        try (ImageOutputStream ios = ImageIO.createImageOutputStream(outFile);) {
             IIOMetadata metadata = writer.getDefaultImageMetadata(ImageTypeSpecifier.createFromRenderedImage(bf), param);
             // 获取图像元数据
-
             var tiffImageMetadata = (TIFFImageMetadata) metadata;
             TIFFIFD rootIFD = tiffImageMetadata.getRootIFD();
-
             TIFFField xResolutionField = tiffImageMetadata.getTIFFField(0x011a);
             TIFFField yResolutionField = tiffImageMetadata.getTIFFField(0x011b);
             var xdata = (long[][]) xResolutionField.getData();
@@ -89,8 +93,8 @@ public class ImageTransformTask extends BaseTask{
             rootIFD.addTIFFField(xResolutionField);
             writer.setOutput(ios);
             writer.write(null, new IIOImage(bf, null, metadata), param);
+            writer.dispose();
         }
-
     }
 
     private void transformToJpg() throws IOException {
@@ -103,7 +107,11 @@ public class ImageTransformTask extends BaseTask{
             IIOMetadata metadata = writer.getDefaultImageMetadata(ImageTypeSpecifier.createFromRenderedImage(bf), param);
             IIOMetadataNode root = (IIOMetadataNode) metadata.getAsTree(metadata.getNativeMetadataFormatName());
             IIOMetadataNode jfif = (IIOMetadataNode) root.getElementsByTagName("app0JFIF").item(0);
-
+            if(jfif==null){
+                log.debug("{} jfif 标签为空添加jfif",name);
+                jfif = new IIOMetadataNode("app0JFIF");
+                root.appendChild(jfif);
+            }
             jfif.setAttribute("resUnits", "1");
             jfif.setAttribute("Xdensity", String.valueOf(oriWDpi));
             jfif.setAttribute("Ydensity", String.valueOf(oriHDpi));

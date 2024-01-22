@@ -4,9 +4,39 @@ logging:
     fun.gatsby: DEBUG
 
 app:
-  #输入目录
-  base-in-dir-path: D:\datasets\图片处理模板\1 扫描原图（TIFF格式）
-  #输出目录
-  base-out-dir-path: D:\output
-  #水印图片路径
-  blur-image-path: src/main/resources/blur.png
+
+  global-task-config:
+    #输入目录
+    in-dir-path: D:\原始备份\提取txt文档\TXT
+    #输出目录
+    out-dir-path: D:\temp\out
+    enforce: false
+    max-worker-num: 2
+
+  process-tasks:
+    IMAGE_TRANSFORM:
+      #输出格式
+      format: jpg
+
+    IMAGE_COMPRESS:
+      #压缩限制大小
+      compress-limit: 500
+      format: jp2
+
+    DRAW_BLUR:
+      blur-image-path: D:\原始备份\图片处理模板\2 模糊图
+    PDF_MERGE:
+      #目录文件所在目录
+      cata-dir-path: D:\原始备份\图片处理模板\5 目录
+      pdf-image-scale: 0.25
+    IMAGE_CUT:
+      label-file-path: D:\原始备份\图片处理模板\4 标签文件
+    DOUBLE_LAYER_PDF_GENERATE:
+      #目录文件所在目录
+      cata-dir-path: D:\原始备份\图片处理模板\5 目录
+      label-dir-path: D:\原始备份\双层pdf相关\label
+    LABELED_DATASET_COLLECT:
+      rate-of-train: 0.9
+    PDF_ADD_CATA:
+      #目录文件所在目录
+      cata-dir-path: ${app.global-task-config.in-dir-path}

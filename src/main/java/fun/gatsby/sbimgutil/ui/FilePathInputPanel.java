@@ -1,22 +1,16 @@
 package fun.gatsby.sbimgutil.ui;
 
 import javax.swing.*;
+import java.io.File;
 
 public class FilePathInputPanel extends JPanel {
 
     private final JTextField textField = new JTextField();
     private final JLabel label = new JLabel("File Path");
-    private final JButton button = new JButton("选择目标文件夹");
+    private final JButton button = new JButton("选择");
     private final int mode;
     private int columns = 20;
-
-
-    public FilePathInputPanel(String labelText) {
-        super();
-        this.label.setText(labelText);
-        this.mode = JFileChooser.DIRECTORIES_ONLY;
-        init();
-    }
+    private JFileChooser fileChooser;
 
     public FilePathInputPanel(String labelText, int columns) {
         this(labelText, columns, JFileChooser.DIRECTORIES_ONLY);
@@ -27,6 +21,7 @@ public class FilePathInputPanel extends JPanel {
         this.label.setText(labelText);
         this.mode = mode;
         this.columns = columns;
+        fileChooser = new JFileChooser(labelText);
         init();
     }
 
@@ -37,7 +32,6 @@ public class FilePathInputPanel extends JPanel {
         add(button);
 
         button.addActionListener(e -> {
-            JFileChooser fileChooser = new JFileChooser();
             fileChooser.setFileSelectionMode(mode);
             int result = fileChooser.showOpenDialog(this);
             if (result == JFileChooser.APPROVE_OPTION) {
@@ -51,6 +45,9 @@ public class FilePathInputPanel extends JPanel {
     }
 
     public void setFilePath(String filePath) {
+        if(filePath==null)
+            return;
         textField.setText(filePath);
+        fileChooser.setCurrentDirectory(new File(filePath));
     }
 }

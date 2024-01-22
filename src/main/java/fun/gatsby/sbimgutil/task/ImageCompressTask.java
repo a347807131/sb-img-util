@@ -1,6 +1,7 @@
 package fun.gatsby.sbimgutil.task;
 
 import fun.gatsby.sbimgutil.utils.ImageUtils;
+import fun.gatsby.sbimgutil.utils.PicCompressUtils;
 import lombok.extern.slf4j.Slf4j;
 
 import javax.imageio.ImageIO;
@@ -8,6 +9,9 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 
+/**
+ * jp2压缩
+ */
 @Slf4j
 public class ImageCompressTask extends BaseTask {
     private final File inFile;
@@ -17,7 +21,7 @@ public class ImageCompressTask extends BaseTask {
         this.inFile = inFile;
         this.outFile = outFile;
         this.limit = limit;
-        taskName = "压缩图片: " + inFile.getName() + " to " + outFile.getAbsolutePath();
+        name = "压缩图片: " + inFile.getAbsolutePath();
     }
 
 
@@ -28,6 +32,6 @@ public class ImageCompressTask extends BaseTask {
             log.error("读取图片失败:{}", inFile);
             return;
         }
-        ImageUtils.imageCompress(bufferedImage, outFile, limit);
+        PicCompressUtils.imageCompress(bufferedImage, outFile, limit);
     }
 }

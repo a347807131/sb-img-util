@@ -6,6 +6,7 @@ import fun.gatsby.sbimgutil.utils.ImageUtils;
 //import com.itextpdf.text.Image;
 //import com.itextpdf.text.PageSize;
 //import com.itextpdf.text.pdf.PdfWriter;
+import fun.gatsby.sbimgutil.utils.PicCompressUtils;
 import lombok.extern.slf4j.Slf4j;
 //import org.apache.pdfbox.pdmodel.PDDocument;
 //import org.apache.pdfbox.pdmodel.PDPage;
@@ -58,7 +59,7 @@ public class DemoTest {
             encoding = -0.001f * fsize + 0.227f;
             while (size > 0.5f || size < 0.4f) {
 //                bufferedImageToSave = ImageIO.read(outFile);
-                ImageUtils.transformImgToJp2(bufferedImageToSave, new FileOutputStream(outFile), quality, encoding);
+                PicCompressUtils.transformImgToJp2(bufferedImageToSave, new FileOutputStream(outFile), quality, encoding);
                 size = outFile.length() / (1024 * 1024f);
                 log.info("输出文件大小{}m,原文件大小{}m", size, oriTifFile.length() / 1024);
                 System.out.println(encoding);
@@ -93,7 +94,7 @@ public class DemoTest {
         BufferedImage bufferedImageToSave = ImageIO.read(oriTifFile);
         float fsize = oriTifFile.length() / (1024f * 1024);
         float encoding = -0.001f * fsize + 0.227f;
-        ImageUtils.transformImgToJp2(bufferedImageToSave, new FileOutputStream(outFile), quality, encoding);
+        PicCompressUtils.transformImgToJp2(bufferedImageToSave, new FileOutputStream(outFile), quality, encoding);
         log.info("输出文件大小{}m,原文件大小{}m", outFile.length() / 1024, oriTifFile.length() / 1024);
     }
 

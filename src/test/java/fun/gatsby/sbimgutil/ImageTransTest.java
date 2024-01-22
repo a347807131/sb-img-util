@@ -113,7 +113,11 @@ public class ImageTransTest {
     @Test
     public void t10() throws Exception {
 
-        ImageTransformTask imageTransformTask = new ImageTransformTask(new File("temp.jpg"), new File("temp.tif"), "tif");
+
+        File inFile = Path.of("src/test/resources/image", "0001.jpg").toFile();
+        Path tempFile = Path.of("output", inFile.getName() + ".tif");
+        ImageTransformTask imageTransformTask = new ImageTransformTask(inFile, tempFile.toFile(), "tif");
         imageTransformTask.doWork();
+        Runtime.getRuntime().exec("explorer /select," + tempFile);
     }
 }

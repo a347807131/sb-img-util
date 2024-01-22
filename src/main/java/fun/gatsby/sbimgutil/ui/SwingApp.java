@@ -1,12 +1,11 @@
 package fun.gatsby.sbimgutil.ui;
 
 import fun.gatsby.sbimgutil.config.AppConfig;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 
 import javax.swing.*;
 
-@Component
 public class SwingApp extends JFrame {
 
     final
@@ -15,17 +14,19 @@ public class SwingApp extends JFrame {
     final
     MainPanel mainPanel;
 
-    public SwingApp(MainPanel mainPanel, AppConfig appConfig) {
-        String title = "%s author: %s, ver %s".formatted(
-                "图片批处理程序", "JGatsby", appConfig.getVersion()
+    public SwingApp(AppConfig appConfig) {
+        this.appConfig = appConfig;
+        mainPanel = new MainPanel(appConfig);
+        String title = "%s ver %s, author: %s".formatted(
+                appConfig.getName(),
+                appConfig.getVersion(),
+                appConfig.getAuthor()
         );
         setTitle(title);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setSize(640, 480);
+        setSize(360, 540);
         setResizable(false);
         setLocationRelativeTo(null);
-        this.mainPanel = mainPanel;
         add(mainPanel);
-        this.appConfig = appConfig;
     }
 }

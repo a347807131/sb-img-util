@@ -17,6 +17,7 @@ public interface ITask extends Runnable {
     }
 
     default void onError(Throwable e) {
+
     }
 
     /**

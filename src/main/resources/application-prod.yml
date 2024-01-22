@@ -1,0 +1,6 @@
+logging:
+  level:
+    root: INFO
+    fun.gatsby: INFO
+  file:
+    path: "${user.home}\\.${app.name}\\logs"

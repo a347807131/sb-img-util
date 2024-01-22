@@ -4,9 +4,26 @@ import java.io.File;
 import java.io.FileFilter;
 import java.io.FilenameFilter;
 import java.util.Collection;
+import java.util.LinkedList;
 import java.util.List;
 
 public class FileFetchUtils {
+
+    /**
+     * 非递归获取文件
+     */
+    public static void fetchFile(Collection<File> container, File dir) {
+        fetchFile(container, dir, null);
+    }
+
+    public static void fetchFile(Collection<File> container, File dir,FileFilter filter) {
+        File[] files = dir.listFiles(filter);
+        if (files == null) return;
+        for (File file : files) {
+            if (!file.isDirectory())
+                container.add(file);
+        }
+    }
 
     public static void fetchFileRecursively(Collection<File> container, File dir) {
         fetchFileRecursively(container, dir, null);

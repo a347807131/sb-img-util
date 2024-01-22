@@ -2,21 +2,17 @@ package fun.gatsby.sbimgutil.task;
 
 
 import cn.hutool.core.date.LocalDateTimeUtil;
-import fun.gatsby.sbimgutil.context.TaskExcutor;
 import fun.gatsby.sbimgutil.schedule.ITask;
 import fun.gatsby.sbimgutil.schedule.TaskStateEnum;
-import fun.gatsby.sbimgutil.utils.ConsoleProgressBar;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
 
 import javax.imageio.ImageIO;
-import javax.imageio.ImageWriter;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
-import java.util.Iterator;
 
 
 @Slf4j
@@ -25,11 +21,10 @@ public abstract class BaseTask implements ITask {
     //bugfixed
     static {
         ImageIO.getImageWritersByFormatName("jpeg2000").next();
-        ImageIO.getImageWritersByFormatName("tiff").next();
     }
 
     private LocalDateTime startDate;
-    protected String taskName;
+    protected String name;
     protected TaskStateEnum state = TaskStateEnum.NEW;
     protected File outFile;
 
@@ -49,25 +44,35 @@ public abstract class BaseTask implements ITask {
         startDate = LocalDateTime.now();
     }
 
+    @Override
+    public void run() {
+        ITask.super.run();
+    }
 
     @Override
     public void after() {
-        if (outFile != null && outFile.exists())
-            outFile.renameTo(new File(outFile.getParentFile(), outFile.getName().substring(0, outFile.getName().lastIndexOf("."))));
+        if (outFile != null && outFile.exists()) {
+            String fileName = outFile.getName().substring(0, outFile.getName().lastIndexOf("."));
+            File finalFile = new File(outFile.getParentFile(), fileName);
+            if(finalFile.exists()){
+                finalFile.delete();
+            }
+            outFile.renameTo(finalFile);
+        }
 
         long between = LocalDateTimeUtil.between(startDate, LocalDateTime.now(), ChronoUnit.SECONDS);
-        log.debug("任务完成:{},执行耗时：{}s", taskName, between);
+        log.debug("任务完成:[{}] ,执行耗时：{}s", name, between);
         state = TaskStateEnum.FINISHED;
-
-        ConsoleProgressBar progressBar = TaskExcutor.getGlobalConsoleProgressBar();
-        if (progressBar != null) {
-            progressBar.iterate();
-        }
     }
 
     @Override
     public void onError(Throwable e) {
         state = TaskStateEnum.ERROR;
-        log.error("任务执行异常",e);
+        log.error("任务"+name+"执行异常",e);
+    }
+
+    @Override
+    public String toString() {
+        return name;
     }
 }

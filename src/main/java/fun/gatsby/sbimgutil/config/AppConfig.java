@@ -19,23 +19,33 @@ import java.util.stream.Collectors;
 public class AppConfig {
     String readmeUrl;
     String version;
-    int maxWorkerNum;
-    String baseInDirPath;
-    String baseOutDirPath;
-    String blurImagePath;
-    String cataDirPath;
+    String author;
+    String name;
+    String loggingFilePath;
+
     Map<String, ProcessTask> processTasks;
+
+    GlobalTaskConfig globalTaskConfig;
+
+    @Data
+    static public class GlobalTaskConfig {
+        int maxWorkerNum;
+        String inDirPath;
+        String outDirPath;
+        boolean recursive = true;
+        String fileNameRegex;
+        boolean enforce=false;
+    }
 
     @Data
     static public class ProcessTask {
-        String taskType;
         String blurImagePath;
         int compressLimit = 500;
-        String outDirPath;
-        String inDirPath;
         String format;
-        String fileNameRegex;
         String cataDirPath;
-        String dependOn;
+        String labelDirPath;
+        String labelFilePath;
+        float rateOfTrain;
+        float pdfImageScale=1;
     }
 }
