@@ -1,8 +1,6 @@
 package fun.gatsby.sbimgutil.task;
 
-import baidumodel.entity.chat.BaiduChatMessage;
-import baidumodel.entity.chat.ErnieBot4Param;
-import baidumodel.entity.chat.ErnieBot4Response;
+import baidumodel.entity.chat.*;
 import baidumodel.service.BaiduService;
 import cn.hutool.core.io.FileUtil;
 import com.alibaba.fastjson2.JSON;
@@ -87,19 +85,18 @@ public class NlpTask extends BaseTask{
         nlpResult.setFileName(pageTextFile.getName());
 
         StringBuilder ptsb = new StringBuilder();
-        StringBuilder ctsb = new StringBuilder();
         var shardedRawTexts = new LinkedList<String>();
         for (int j = 0; j < rawText.length(); j += maxShardSize) {
             int endIndex = Math.min(j + maxShardSize, rawText.length());
             shardedRawTexts.add(rawText.substring(j, endIndex));
         }
         for (String shardedRawText : shardedRawTexts) {
-            var outs = doNlp(shardedRawText);
-            ptsb.append(outs.getT1());
-            ctsb.append(outs.getT2());
+            var outText = doNlp(shardedRawText);
+            log.debug(String.valueOf(outText));
+            ptsb.append(outText);
         }
+
         nlpResult.punctuatedText=ptsb.toString();
-        nlpResult.chineseText=ctsb.toString();
         nlpResult.setEndTime(new Date());
         return nlpResult;
     }
@@ -108,31 +105,31 @@ public class NlpTask extends BaseTask{
      * 对原始的古文进行断句和翻译
      * @param rawText 原始古文
      */
-    public static final BaiduService baiduService = new BaiduService("5stQ7R7IxVlDoMzSQBBGGmiS", "73QKH26Cq5SvmftOTVkjZRH53So8ysXC");
-    private Tuple2<String, String> doNlp( String rawText) throws Exception{
+    public final BaiduService baiduService = new BaiduService("XHbymTtGiG4fcaKXv6TuqM63", "9uftaQhGoluK78NbgMajmeGiB8gQ1Fji");
+    private String doNlp( String rawText) {
         if(StringUtils.isBlank(rawText)||rawText.length()<=2)
-            return Tuples.of(rawText,rawText);
+            return rawText;
 
-        String content = PROMOT.genComposedPromotMsg(rawText);
+        String content = Promot.genComposedPromot(rawText);
         BaiduChatMessage msg = new BaiduChatMessage("user", content);
-        ErnieBot4Param param = ErnieBot4Param.builder()
+        ErnieBotTurboParam param = ErnieBotTurboParam.builder()
+                .penalty_score(1f)
                 .user_id("1")
-                .temperature(0.95f).penalty_score(1.0f)
+                .temperature(0.95f)
                 .messages(Collections.singletonList(
-                        msg
-                )).build();
-        // 构建请求参数
-        // 发起请求，获取请求响应
-        ErnieBot4Response ernieBot4Response;
-        try {
-            ernieBot4Response = baiduService.ernieBot4(param, baiduService.getToken());
-        }catch (Exception e){
-            log.error("调用百度接口失败",e);
-            throw new Exception("调用百度接口失败");
+                        msg))
+                .build();
+
+        for (int i = 1; i <= 3; i++) {
+            ErnieBotTurboResponse response = baiduService.ernieBotTurbo(param, baiduService.getToken());
+            String rawResult = response.getResult();
+            try {
+                return Promot.extractFromResponseResult(rawResult);
+            }catch (Exception e){
+                log.warn("出现结果解析失败，开始重新请求并处理，{}/3",i);
+            }
         }
-        // 解析响应，获取结果
-        String rawResult = ernieBot4Response.getResult();
-        return PROMOT.extractFromResponseResult(rawResult);
+        throw new RuntimeException("nlp处理失败:"+rawText);
     }
 
 
@@ -157,64 +154,60 @@ public class NlpTask extends BaseTask{
             return tasks;
         }
     }
+    /**
+     * 片段化结果
+     */
+    @AllArgsConstructor
+    @NoArgsConstructor
+    @Data
+    public static class NlpResult {
+
+        String fileName;
+        /**
+         * 断句结果
+         */
+        String punctuatedText;
+        /**
+         * 翻译结果
+         */
+        String chineseText;
+        /**
+         * 原始文本
+         */
+        String rawText;
+        Date endTime;
+        Date startTime;
+    }
 }
 
-class Promot{
-    public static final String PUNCTUATE_TRANSLATE_PROMOT=
-            "对古文进行解析，注意准确无误，并遵循古文的语法和语义规则。\n"+
-                    "输出范围: 禁止输出其它额外信息。输出格式只能为：断句结果：- \n翻译结果：- \n"  +
-                    "指令: 对下列古文进行断句添加标点并翻译成现代中文。古文原文如下：%s";
-    Promot(){
+@Slf4j
+class Promot {
+    public static final String PUNCTUATE_TRANSLATE_PROMOT =
+            "对古文进行断句，遵循古文的语法和语义规则。\n" +
+                    "输出范围: 禁止输出其它额外说明信息。输出格式只能为：断句结果如下：- \n" +
+                    "指令: 对下列古文进行断句添加标点。古文原文如下：%s";
+
+    Promot() {
 
     }
-    String genComposedPromotMsg(String...strs){
-        return PUNCTUATE_TRANSLATE_PROMOT.formatted(strs);
+
+    static String genComposedPromot(String... strs) {
+        return String.format(PUNCTUATE_TRANSLATE_PROMOT, strs);
     }
 
-    Tuple2<String, String> extractFromResponseResult(String rawResultText){
-        var text=rawResultText;
+    static String extractFromResponseResult(String rawResultText) throws Exception {
+        var text = rawResultText;
         text = text.replace("\n", "");
-        String punctuatedResultGuideText = "断句结果：";
-        String translatedResultGuideText = "翻译结果：";
-        int punctuatedResultGuideTextIndex = text.indexOf("断句结果：");
-        int translatedResultGuideTextIndex = text.indexOf("翻译结果：");
+        String punctuatedResultGuideText = "断句结果如下：";
+        int punctuatedResultGuideTextIndex = text.indexOf(punctuatedResultGuideText);
 
         try {
-            String punctuatedText = text.substring(
-                    punctuatedResultGuideTextIndex + punctuatedResultGuideText.length(),
-                    translatedResultGuideTextIndex
+            return text.substring(
+                    punctuatedResultGuideTextIndex + punctuatedResultGuideText.length()
             );
-            String chineseText = text.substring(
-                    translatedResultGuideTextIndex + translatedResultGuideText.length()
-            );
-            return Tuples.of(punctuatedText,chineseText);
-        }catch (Exception e){
-            throw new RuntimeException(e);
+        } catch (Exception e) {
+            log.error("原始nlp文本解析失败，原始结果文本:[{}]", text, e);
+            throw new Exception(e);
         }
     }
-
-}
-/**
- * 片段化结果
- */
-@AllArgsConstructor
-@NoArgsConstructor
-@Data
-class NlpResult {
-
-    String fileName;
-    /**
-     * 断句结果
-     */
-    String punctuatedText;
-    /**
-     * 翻译结果
-     */
-    String chineseText;
-    /**
-     * 原始文本
-     */
-    String rawText;
-    Date endTime;
-    Date startTime;
 }

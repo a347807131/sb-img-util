@@ -3,7 +3,10 @@ package fun.gatsby.sbimgutil;
 import cn.hutool.core.io.FileUtil;
 import com.alibaba.fastjson2.JSON;
 import fun.gatsby.sbimgutil.task.FiveBackspaceReplaceTask;
+import fun.gatsby.sbimgutil.task.NlpTask;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.junit.jupiter.api.Test;
 
 import java.io.File;
@@ -45,7 +48,7 @@ public class FileTest {
         allChts.addAll(myChts);
         allChts.addAll(chts);
         var sorted = allChts.stream().sorted().toList();
-        FileUtil.writeLines(sorted, path.resolve("my_chinese_cht_dict.txt").toFile(),"utf-8");
+        FileUtil.writeLines(sorted, path.resolve("my_chinese_chts_dict.txt").toFile(),"utf-8");
     }
 
     @Test
@@ -101,4 +104,37 @@ public class FileTest {
         );
     }
 
+    @Test
+    public void t5() throws IOException {
+
+        LinkedHashMap<File, List<File>> dirToFiles=FileUtil.loopFiles("D:\\原始备份\\提取txt文档\\NLP").stream()
+                .collect(
+                LinkedHashMap::new,
+                (m, k) -> {
+                    File parent = k.getParentFile();
+                    m.computeIfAbsent(parent, v -> new LinkedList<>()).add(k);
+                },
+                LinkedHashMap::putAll
+        );
+
+        Path outDir = Path.of("out");
+        for (Map.Entry<File, List<File>> entry : dirToFiles.entrySet()) {
+            File dir = entry.getKey();
+            var files = entry.getValue();
+            files=files.stream().sorted(Comparator.naturalOrder()).toList();
+            Path txtSaveDir = outDir.resolve(dir.getName());
+            FileUtils.forceMkdir(txtSaveDir.toFile());
+            for (File file : files) {
+                List<NlpTask.NlpResult> nlpResults= FileUtil.readLines(file, StandardCharsets.UTF_8)
+                        .stream()
+                        .filter(e-> !StringUtils.isBlank(e))
+                        .map(e -> JSON.parseObject(e, NlpTask.NlpResult.class))
+                        .toList();
+                for (NlpTask.NlpResult nlpResult : nlpResults) {
+                    File textFile = txtSaveDir.resolve(nlpResult.getFileName()).toFile();
+                    FileUtils.writeStringToFile(textFile,nlpResult.getPunctuatedText(),"utf-8");
+                }
+            }
+        }
+    }
 }
