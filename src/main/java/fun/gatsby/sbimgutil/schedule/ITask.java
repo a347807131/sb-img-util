@@ -1,5 +1,7 @@
 package fun.gatsby.sbimgutil.schedule;
 
+import lombok.extern.slf4j.Slf4j;
+
 import java.io.IOException;
 
 public interface ITask extends Runnable {
