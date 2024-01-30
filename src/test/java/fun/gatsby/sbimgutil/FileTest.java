@@ -2,8 +2,9 @@ package fun.gatsby.sbimgutil;
 
 import cn.hutool.core.io.FileUtil;
 import com.alibaba.fastjson2.JSON;
-import fun.gatsby.sbimgutil.task.FiveBackspaceReplaceTask;
 import fun.gatsby.sbimgutil.task.NlpTask;
+import fun.gatsby.sbimgutil.utils.FileOcrResult;
+import fun.gatsby.sbimgutil.utils.GJCoolOcrApiResult;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -15,8 +16,6 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.*;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 @Slf4j
 public class FileTest {
@@ -117,13 +116,15 @@ public class FileTest {
                 LinkedHashMap::putAll
         );
 
-        Path outDir = Path.of("out");
+        Path outDir = Path.of("Output");
         for (Map.Entry<File, List<File>> entry : dirToFiles.entrySet()) {
             File dir = entry.getKey();
             var files = entry.getValue();
             files=files.stream().sorted(Comparator.naturalOrder()).toList();
             Path txtSaveDir = outDir.resolve(dir.getName());
             FileUtils.forceMkdir(txtSaveDir.toFile());
+            StringBuilder ptsb = new StringBuilder();
+            StringBuilder ctsb = new StringBuilder();
             for (File file : files) {
                 List<NlpTask.NlpResult> nlpResults= FileUtil.readLines(file, StandardCharsets.UTF_8)
                         .stream()
@@ -131,10 +132,25 @@ public class FileTest {
                         .map(e -> JSON.parseObject(e, NlpTask.NlpResult.class))
                         .toList();
                 for (NlpTask.NlpResult nlpResult : nlpResults) {
-                    File textFile = txtSaveDir.resolve(nlpResult.getFileName()).toFile();
-                    FileUtils.writeStringToFile(textFile,nlpResult.getPunctuatedText(),"utf-8");
+                    ptsb.append(nlpResult.getPunctuatedText());
+                    ctsb.append(nlpResult.getChineseText());
                 }
+                //保存到文件
+                Path outFilePath1 = txtSaveDir.resolve("punctuated text.txt");
+                Path outFilePath2 = txtSaveDir.resolve("chinese text.txt");
+                Files.writeString(outFilePath1, ptsb.toString(), StandardCharsets.UTF_8);
+                Files.writeString(outFilePath2, ctsb.toString(), StandardCharsets.UTF_8);
             }
         }
+    }
+
+    @Test
+    public void t6(){
+        File file = new File("D:\\原始备份\\ocr\\ocr龙泉市示例\\ocr示例/0010.json");
+        String json = FileUtil.readString(file, "gbk");
+        var gJCoolOcrApiResult = JSON.parseObject(json, GJCoolOcrApiResult.class);
+
+        FileOcrResult fileOcrResult = FileOcrResult.parse(gJCoolOcrApiResult);
+
     }
 }

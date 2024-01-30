@@ -7,7 +7,7 @@
 #define MyAppPublisher "My Company, Inc."
 #define MyAppURL "https://www.gatsby.fun/"
 #define MyAppExeName "sb-img-util.exe"
-#define BuildDir "./build\sb-img-util"
+#define BuildDir "./build"
 
 [Setup]
 ; NOTE: The value of AppId uniquely identifies this application. Do not use the same AppId value in installers for other applications.

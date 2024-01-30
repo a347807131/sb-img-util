@@ -20,6 +20,7 @@ import org.springframework.web.client.RestTemplate;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.LinkedHashMap;
@@ -64,5 +65,14 @@ public class PdfTest {
     @Test
     public void t3(){
         String s = FileUtil.readUtf8String(new File("temp"));
+    }
+
+
+    @Test
+    public void t4(){
+
+        Path path=Path.of("D:\\原始备份\\ocr\\ocr龙泉市示例\\ocr示例");
+        var file = path.resolve("0010.json").toFile();
+        var fileOcrResult = JSON.parseObject(FileUtil.readString(file, "gbk"));
     }
 }
