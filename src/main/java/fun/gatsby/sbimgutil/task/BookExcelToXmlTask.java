@@ -15,18 +15,21 @@ import java.util.List;
 public class BookExcelToXmlTask extends BaseTask {
     private final File excelFile;
     private final Path outDir;
+    private final boolean isMaterBook;
 
-    public BookExcelToXmlTask(File excelFile, Path outDir) {
+
+    public BookExcelToXmlTask(File excelFile,boolean isMaterBook, Path outDir) {
+        this.isMaterBook = isMaterBook;
         this.excelFile = excelFile;
         this.outDir = outDir;
         this.name = "BookExcelToXmlTask" + excelFile.getName();
     }
     @Override
     public void doWork() throws Throwable {
-        ExcelToXml.changeSingleBook(excelFile.getAbsolutePath(),false, outDir);
+        ExcelToXml.changeSingleBook(excelFile.getAbsolutePath(),!isMaterBook, outDir);
     }
 
-    public static class TaskGenerator extends BaseTaskGenerator {
+    static class TaskGenerator extends BaseTaskGenerator {
         public TaskGenerator(AppConfig.GlobalTaskConfig gtc, AppConfig.ProcessTask processTask) {
             super(gtc, processTask, TaskTypeEnum.BOOK_EXCEL_TO_XML);
         }
@@ -38,7 +41,7 @@ public class BookExcelToXmlTask extends BaseTask {
                     .filter(file -> file.getName().endsWith(".xls") || file.getName().endsWith(".xlsx")).toList();
             for (File excelFile : excelFiles) {
                 var outDir = genOutFile(excelFile, FileUtil.extName(excelFile)).getParentFile().toPath();
-                tasks.add(new BookExcelToXmlTask(excelFile, outDir));
+                tasks.add(new BookExcelToXmlTask(excelFile,processTask.isMasterBook(),outDir));
             }
             return tasks;
         }

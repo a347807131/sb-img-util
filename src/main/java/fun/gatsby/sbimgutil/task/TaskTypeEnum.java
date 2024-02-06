@@ -48,6 +48,20 @@ public enum TaskTypeEnum {
                     }
                 };
             }
+            case BOOK_EXCEL_TO_XML -> {
+                return new TaskItemTabbedPanel.ItemPanel() {
+                    private JRadioButton isMasterBook;
+                    {
+                        isMasterBook=new JRadioButton("是否主书");
+                        add(isMasterBook);
+                    }
+                    @Override
+                    public Map.Entry<TaskTypeEnum, AppConfig.ProcessTask> getCurrentProcessTaskEntry() {
+                        processTask.setMasterBook(isMasterBook.isSelected());
+                        return Map.entry(TaskTypeEnum.this,processTask);
+                    }
+                };
+            }
             case IMAGE_TRANSFORM -> {
                 return new TaskItemTabbedPanel.ItemPanel() {
                     final JComboBox<String> formatComboBox;

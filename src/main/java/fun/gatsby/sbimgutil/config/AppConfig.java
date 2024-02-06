@@ -47,5 +47,7 @@ public class AppConfig {
         String labelFilePath;
         float rateOfTrain;
         float pdfImageScale=1;
+
+        boolean isMasterBook;
     }
 }
