@@ -13,6 +13,7 @@ import org.dom4j.io.XMLWriter;
 import java.io.FileInputStream;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Supplier;
@@ -31,15 +32,15 @@ public class ExcelToXml {
         String filePath = "C:\\Users\\Gatsby\\OneDrive - bupt.edu.cn\\桌面\\文献整理登记表.xls";
         // 单本书 单本或主从结构的一部书，内容存在一个xls文件的5个sheet中
         try {
-            changeSingleBook(filePath, false);
+            changeSingleBook(filePath, false,Path.of("Output"));
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
-    public static void changeSingleBook(String filePath, Boolean isCong) throws IOException {
+    public static void changeSingleBook(String filePath, Boolean isCong, Path outDir) throws IOException {
         // 读取Excel文件写入xml文件
-        writeXmlInfo(readExcelInfo(filePath), isCong);
+        writeXmlInfo(readExcelInfo(filePath), isCong,outDir);
     }
 
     public static VolumeBook readExcelInfo(String filePath) throws IOException {
@@ -343,7 +344,7 @@ public class ExcelToXml {
         }
     }
 
-    public static void writeXmlInfo(VolumeBook volumeBook, Boolean isCong) {
+    public static void writeXmlInfo(VolumeBook volumeBook, Boolean isCong, Path outDir) {
         try {
             String bookId = "";
             // 创建根元素 <book>
@@ -573,8 +574,7 @@ public class ExcelToXml {
 
             // 创建一个XMLWriter来将XML写入文件
             OutputFormat format = OutputFormat.createPrettyPrint();
-            XMLWriter writer = new XMLWriter(new FileWriter("" + bookId + ".xml"), format);
-
+            XMLWriter writer = new XMLWriter(new FileWriter(outDir.resolve( bookId + ".xml").toFile()), format);
             // 将XML写入文件
             writer.write(document);
             writer.close();

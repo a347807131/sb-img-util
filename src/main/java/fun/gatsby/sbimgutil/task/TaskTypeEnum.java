@@ -21,7 +21,8 @@ public enum TaskTypeEnum {
     PDF_SPLIT("pdf拆分"),
     PDF_ADD_CATA("pdf添加目录"),
     PDF_IMAGE_SCALE("pdf图片缩放"),
-    NLP("自然语言处理")
+    NLP("自然语言处理"),
+    BOOK_EXCEL_TO_XML("书籍excel转xml")
     ;
     public final String taskCnName;
     TaskTypeEnum(String taskCnName) {
@@ -175,7 +176,8 @@ public enum TaskTypeEnum {
             case PDF_SPLIT -> taskGenerator = new PdfSplitTask.TaskGenerator(gtc, processTask);
             case PDF_ADD_CATA -> taskGenerator = new PdfAddCataTask.TaskGenerator(gtc, processTask);
             case NLP -> taskGenerator = new NlpTask.TaskGenerator(gtc, processTask);
-            case IMAGE_TRANSFORM, IMAGE_COMPRESS, DRAW_BLUR,BOOK_IMAGE_FIX ,FIVE_BACKSPACE_REPLACE ->
+            case BOOK_EXCEL_TO_XML -> taskGenerator = new BookExcelToXmlTask.TaskGenerator(gtc, processTask);
+            default ->
                     taskGenerator = new BaseTaskGenerator(gtc, processTask,this);
         }
         return taskGenerator;

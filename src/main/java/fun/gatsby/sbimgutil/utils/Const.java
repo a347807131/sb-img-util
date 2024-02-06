@@ -11,7 +11,7 @@ import static fun.gatsby.sbimgutil.task.TaskTypeEnum.*;
 public interface Const {
 
     List<String> SUPORTTED_FORMATS = List.of(
-            "jpg", "jp2", "tif", "tiff","jpeg","txt","pdf"
+            "jpg", "jp2", "tif", "tiff","jpeg","txt","pdf","xls"
     );
 
     List<TaskTypeEnum> ENABLED_TASK_TYPES=List.of(
@@ -19,12 +19,12 @@ public interface Const {
             PDF_MERGE,
             IMAGE_COMPRESS,
             DRAW_BLUR,
-
-            NLP,
+//            NLP,
 //            IMAGE_CUT,
 //            DOUBLE_LAYER_PDF_GENERATE,
 //            LABELED_DATASET_COLLECT,
             PDF_SPLIT,
-            PDF_ADD_CATA
+            PDF_ADD_CATA,
+            BOOK_EXCEL_TO_XML
     );
 }

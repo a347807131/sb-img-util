@@ -22,18 +22,18 @@ public class FileOcrResult {
     int timeTake;
     Page page;
 
-    public static FileOcrResult parse(GJCoolOcrApiResult gJCoolOcrApiResult) {
-
-        FileOcrResult ocrResult = new FileOcrResult();
-        ocrResult.name=gJCoolOcrApiResult.getFileName();
-        ocrResult.size=gJCoolOcrApiResult.getSize();
-
-        Page page = new Page();
-        page.direction=gJCoolOcrApiResult.getLayout() == 1 ? "H" : "V";
-        page.width=gJCoolOcrApiResult.getWidth()+"";
-        page.height=gJCoolOcrApiResult.getHeight()+"";
-        gJCoolOcrApiResult.
-    }
+//    public static FileOcrResult parse(GJCoolOcrApiResult gJCoolOcrApiResult) {
+//
+//        FileOcrResult ocrResult = new FileOcrResult();
+//        ocrResult.name=gJCoolOcrApiResult.getFileName();
+//        ocrResult.size=gJCoolOcrApiResult.getSize();
+//
+//        Page page = new Page();
+//        page.direction=gJCoolOcrApiResult.getLayout() == 1 ? "H" : "V";
+//        page.width=gJCoolOcrApiResult.getWidth()+"";
+//        page.height=gJCoolOcrApiResult.getHeight()+"";
+//        gJCoolOcrApiResult.
+//    }
 
     @Data
     public static class Page {

@@ -38,7 +38,8 @@ public class BaseTaskGenerator implements ITaskGenerator{
                 case FIVE_BACKSPACE_REPLACE -> new FiveBackspaceReplaceTask(imgFile, outFile);
                 default -> null;
             };
-            tasks.add(task);
+            if(task!=null)
+                tasks.add(task);
         }
         return tasks;
     }
