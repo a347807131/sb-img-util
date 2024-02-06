@@ -28,5 +28,7 @@ public class SwingApp extends JFrame {
         setResizable(false);
         setLocationRelativeTo(null);
         add(mainPanel);
+        MenuBar menuBar = new MenuBar();
+        setJMenuBar(menuBar);
     }
 }
