@@ -3,11 +3,11 @@
 
 #define Author "JGatsby civin@bupt.cn"
 #define MyAppName "美斯齐-图片转换工具"
-#define MyAppVersion "v2.6"
+#define MyAppVersion "v2.7"
 #define MyAppPublisher "My Company, Inc."
 #define MyAppURL "https://www.gatsby.fun/"
 #define MyAppExeName "sb-img-util.exe"
-#define BuildDir "./build"
+#define BuildDir "./build/sb-img-util"
 
 [Setup]
 ; NOTE: The value of AppId uniquely identifies this application. Do not use the same AppId value in installers for other applications.

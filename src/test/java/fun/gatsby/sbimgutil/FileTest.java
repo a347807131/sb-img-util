@@ -4,7 +4,6 @@ import cn.hutool.core.io.FileUtil;
 import com.alibaba.fastjson2.JSON;
 import fun.gatsby.sbimgutil.task.NlpTask;
 import fun.gatsby.sbimgutil.utils.FileOcrResult;
-import fun.gatsby.sbimgutil.utils.GJCoolOcrApiResult;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -148,9 +147,6 @@ public class FileTest {
     public void t6(){
         File file = new File("D:\\原始备份\\ocr\\ocr龙泉市示例\\ocr示例/0010.json");
         String json = FileUtil.readString(file, "gbk");
-        var gJCoolOcrApiResult = JSON.parseObject(json, GJCoolOcrApiResult.class);
-
-        FileOcrResult fileOcrResult = FileOcrResult.parse(gJCoolOcrApiResult);
 
     }
 }
