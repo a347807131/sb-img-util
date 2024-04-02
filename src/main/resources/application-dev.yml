@@ -11,7 +11,7 @@ app:
     #输出目录
     out-dir-path: D:\temp\out
     enforce: false
-    max-worker-num: 74
+    max-worker-num: 4
 
   process-tasks:
     IMAGE_TRANSFORM:

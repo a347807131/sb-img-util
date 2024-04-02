@@ -28,7 +28,7 @@ public class ImageTransformTask extends BaseTask{
     private final String format;
 
     public static final Set<String> SUPORTTED_TARGET_FORMAT = Set.of(
-            "jpg","jp2","tif"
+            "jpg","jp2","tif","png"
     );
 
 
@@ -54,6 +54,10 @@ public class ImageTransformTask extends BaseTask{
             case "jpg", "jpeg" -> {
                 BufferedImage bf = ImageIO.read(inFile);
                 ImageIO.write(bf, "jpeg", outFile);
+            }
+            case "png" -> {
+                BufferedImage bf = ImageIO.read(inFile);
+                ImageIO.write(bf, "png", outFile);
             }
             case "tif", "tiff" -> {
                 this.transformToTif();

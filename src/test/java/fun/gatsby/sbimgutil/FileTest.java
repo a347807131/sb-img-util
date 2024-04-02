@@ -3,7 +3,6 @@ package fun.gatsby.sbimgutil;
 import cn.hutool.core.io.FileUtil;
 import com.alibaba.fastjson2.JSON;
 import fun.gatsby.sbimgutil.task.NlpTask;
-import fun.gatsby.sbimgutil.utils.FileOcrResult;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;

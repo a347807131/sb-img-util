@@ -1,30 +1,16 @@
 package fun.gatsby.sbimgutil;
 
 import cn.hutool.core.io.FileUtil;
-import com.alibaba.fastjson2.JSON;
-import com.formdev.flatlaf.json.Json;
-import fun.gatsby.sbimgutil.task.DoubleLayerPdfGenerateTask;
+import com.alibaba.fastjson.JSON;
 import fun.gatsby.sbimgutil.task.PdfImageScaleTask;
-import fun.gatsby.sbimgutil.utils.FileOcrResult;
+import fun.gatsby.sbimgutil.utils.FileOcrResultVO;
+import fun.gatsby.sbimgutil.utils.GJCoolOcrApiResultVO;
 import fun.gatsby.sbimgutil.utils.ImagesConverter2;
-import org.apache.commons.io.FileUtils;
 import org.junit.jupiter.api.Test;
-import org.springframework.core.io.FileSystemResource;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.MediaType;
-import org.springframework.util.LinkedMultiValueMap;
-import org.springframework.util.MultiValueMap;
-import org.springframework.web.client.RestTemplate;
 
 import java.io.File;
-import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
-import java.util.Arrays;
 import java.util.LinkedHashMap;
-import java.util.LinkedList;
 import java.util.Map;
 
 public class PdfTest {
@@ -43,7 +29,7 @@ public class PdfTest {
         Path ocrJsonFilesDir = Path.of("D:\\ocr_data\\GJ-1686706576288\\ocr");
         Path imgFilesDir = Path.of("D:\\原始备份\\提取txt文档\\图片\\0002");
 
-        Map<File, FileOcrResult> map=FileUtil.loopFiles(imgFilesDir.toFile()).stream()
+        Map<File, FileOcrResultVO> map=FileUtil.loopFiles(imgFilesDir.toFile()).stream()
                 .collect(
                         LinkedHashMap::new,
                         (fileFileOcrResult, imageFile) -> {
@@ -52,8 +38,8 @@ public class PdfTest {
                                     +"json"
                                     ;
                             File ocrJsonFile = ocrJsonFilesDir.resolve(resultFileName).toFile();
-                            FileOcrResult fileOcrResult = JSON.parseObject(FileUtil.readUtf8String(ocrJsonFile), FileOcrResult.class);
-                            fileFileOcrResult.put(imageFile, fileOcrResult);
+                            FileOcrResultVO fileOcrResultVO = JSON.parseObject(FileUtil.readUtf8String(ocrJsonFile), FileOcrResultVO.class);
+                            fileFileOcrResult.put(imageFile, fileOcrResultVO);
                         },
                         LinkedHashMap::putAll
                 );
@@ -71,8 +57,8 @@ public class PdfTest {
     @Test
     public void t4(){
 
-        Path path=Path.of("D:\\原始备份\\ocr\\ocr龙泉市示例\\ocr示例");
+        Path path=Path.of("C:\\Users\\Gatsby\\OneDrive - bupt.edu.cn\\桌面\\msq work temp\\古籍酷ocr示例");
         var file = path.resolve("0010.json").toFile();
-        var fileOcrResult = JSON.parseObject(FileUtil.readString(file, "gbk"));
+        var resultVO = JSON.parseObject(FileUtil.readString(file, "gbk"), GJCoolOcrApiResultVO.class);
     }
 }

@@ -8,7 +8,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Data
-public class FileOcrResult {
+public class FileOcrResultVO {
     /**
      * 文件名
      */
@@ -121,7 +121,7 @@ public class FileOcrResult {
                 String text;
                 int score;
                 String choices;
-                Double[] scores;
+                double[] scores;
                 String WordType;
                 String WordFlag;
                 int[] position;

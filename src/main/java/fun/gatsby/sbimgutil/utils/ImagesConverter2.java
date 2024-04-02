@@ -23,7 +23,6 @@ import com.itextpdf.layout.Document;
 import com.itextpdf.layout.element.Paragraph;
 import com.itextpdf.layout.element.Text;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 
 import java.awt.*;
@@ -33,7 +32,6 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.util.*;
 import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * @author 张治忠
@@ -46,10 +44,10 @@ public class ImagesConverter2 {
 //            PdfFontFactory.createFont("font/simhei.ttf", PdfEncodings.IDENTITY_H, false);
 
     private final File cataFile;
-    private final Map<File, FileOcrResult> imgFileToFileOcrResultMap;
+    private final Map<File, FileOcrResultVO> imgFileToFileOcrResultMap;
 
 
-    public ImagesConverter2(Map<File,FileOcrResult> imgFileToFileOcrResultMap, File cataFile) throws IOException {
+    public ImagesConverter2(Map<File, FileOcrResultVO> imgFileToFileOcrResultMap, File cataFile) throws IOException {
         this.imgFileToFileOcrResultMap=imgFileToFileOcrResultMap;
         this.cataFile=cataFile;
         byte[] fontContents = IOUtils.toByteArray(Objects.requireNonNull(getClass().getResourceAsStream("/font/simhei.ttf")));
@@ -58,7 +56,7 @@ public class ImagesConverter2 {
     }
 
     public static ImagesConverter2 of(Path ocrJsonFilesDirPath,Path imgFilesDir, File cataFile) throws IOException {
-        Map<File, FileOcrResult> imgFileToOcrResultFileMap= FileUtil.loopFiles(imgFilesDir.toFile()).stream()
+        Map<File, FileOcrResultVO> imgFileToOcrResultFileMap= FileUtil.loopFiles(imgFilesDir.toFile()).stream()
                 .collect(
                         LinkedHashMap::new,
                         (fileFileOcrResult, imageFile) -> {
@@ -67,8 +65,8 @@ public class ImagesConverter2 {
                                     +"json"
                                     ;
                             File ocrJsonFile = ocrJsonFilesDirPath.resolve(resultFileName).toFile();
-                            FileOcrResult fileOcrResult = JSON.parseObject(FileUtil.readUtf8String(ocrJsonFile), FileOcrResult.class);
-                            fileFileOcrResult.put(imageFile, fileOcrResult);
+                            FileOcrResultVO fileOcrResultVO = JSON.parseObject(FileUtil.readUtf8String(ocrJsonFile), FileOcrResultVO.class);
+                            fileFileOcrResult.put(imageFile, fileOcrResultVO);
                         },
                         LinkedHashMap::putAll
                 );
@@ -89,7 +87,7 @@ public class ImagesConverter2 {
         Document doc = new Document(pdfDoc);
         doc.setMargins(0,0,0,0);
 
-        List<Map.Entry<File, FileOcrResult>> sortedEntries = imgFileToFileOcrResultMap.entrySet().stream().sorted((e1, e2) -> {
+        List<Map.Entry<File, FileOcrResultVO>> sortedEntries = imgFileToFileOcrResultMap.entrySet().stream().sorted((e1, e2) -> {
             String name1 = e1.getKey().getName();
             String name2 = e2.getKey().getName();
             return name1.compareTo(name2);
@@ -98,9 +96,9 @@ public class ImagesConverter2 {
         for (int i = 0; i < sortedEntries.size(); i++) {
             var entry=sortedEntries.get(i);
             File imgFile = entry.getKey();
-            FileOcrResult fileOcrResult = entry.getValue();
-            if(fileOcrResult==null) continue;
-            FileOcrResult.Page page = fileOcrResult.getPage();
+            FileOcrResultVO fileOcrResultVO = entry.getValue();
+            if(fileOcrResultVO ==null) continue;
+            FileOcrResultVO.Page page = fileOcrResultVO.getPage();
             ImageData imageData = ImageDataFactory.create(imgFile.getAbsolutePath());
             PdfPage pdfPage = pdfDoc.addNewPage(new PageSize(imageData.getWidth(), imageData.getHeight()));
             PdfCanvas canvas = new PdfCanvas(pdfPage);
@@ -125,9 +123,9 @@ public class ImagesConverter2 {
      * 插入透明文字
      */
 
-    private void insertTextBoxes(FileOcrResult.Page page,  Document doc, int pageNum) {
+    private void insertTextBoxes(FileOcrResultVO.Page page, Document doc, int pageNum) {
         Rectangle pageSize = doc.getPdfDocument().getPage(pageNum).getPageSize();
-        for (FileOcrResult.Page.Line line : page.getLines()) {
+        for (FileOcrResultVO.Page.Line line : page.getLines()) {
             int[] position = line.getPosition();
             Point ptl = new Point(position[0], position[1]);
             Point ptr = new Point(position[2], position[1]);
