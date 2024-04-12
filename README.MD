@@ -1,3 +1,11 @@
+## 打包方法
+
+```bash
+mvn package
+git-bash
+./package.sh
+```
+
 ## 程序说明：
 
 该程序是以java编写的图书tif文件处理软件，可完成tif格式转换(jp2 jpg)、tif图片压缩(500k)
