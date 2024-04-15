@@ -134,8 +134,8 @@ public class NlpTask extends BaseTask{
 
 
     public static class TaskGenerator extends BaseTaskGenerator {
-        public TaskGenerator(AppConfig.GlobalTaskConfig gtc, AppConfig.ProcessTask processTask) {
-            super(gtc, processTask, TaskTypeEnum.NLP);
+        public TaskGenerator(AppConfig.GlobalTaskConfig gtc, Map<String,Object> configMap) {
+            super(gtc, configMap, TaskTypeEnum.NLP);
         }
 
         @Override

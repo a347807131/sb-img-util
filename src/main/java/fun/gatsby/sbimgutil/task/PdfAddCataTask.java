@@ -15,6 +15,7 @@ import org.apache.commons.lang3.StringUtils;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
+import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -36,6 +37,9 @@ public class PdfAddCataTask extends BaseTask{
 
     static class TaskGenerator extends BaseTaskGenerator {
 
+        public record ProcessTaskConfig(String cataDirPath) {
+        }
+
         public TaskGenerator(AppConfig.GlobalTaskConfig gtc, AppConfig.ProcessTask processTask) {
             super(gtc, processTask, TaskTypeEnum.PDF_ADD_CATA);
         }
@@ -44,12 +48,20 @@ public class PdfAddCataTask extends BaseTask{
         public List<ITask> generate() throws IOException {
 
             LinkedList<ITask> tasks = new LinkedList<>();
-            // FIXME: 12/1/2023 递归控制
-            List<File> pdfFiles = FileUtil.loopFiles(gtc.getInDirPath(), file -> {
-                if (StringUtils.isEmpty(gtc.getFileNameRegex()) || !file.getName().matches(gtc.getFileNameRegex()))
-                    return false;
-                return file.getName().endsWith("pdf");
-            });
+            List<File> pdfFiles;
+            if(gtc.isRecursive()){
+                pdfFiles = FileUtil.loopFiles(gtc.getInDirPath(), file -> {
+                    if (StringUtils.isEmpty(gtc.getFileNameRegex()) || !file.getName().matches(gtc.getFileNameRegex()))
+                        return false;
+                    return file.getName().endsWith("pdf");
+                });
+            }else {
+                pdfFiles = Arrays.stream(FileUtil.ls(gtc.getInDirPath())).filter(file -> {
+                    if (StringUtils.isEmpty(gtc.getFileNameRegex()) || !file.getName().matches(gtc.getFileNameRegex()))
+                        return false;
+                    return file.getName().endsWith("pdf");
+                }).toList();
+            }
 
             for (File file : pdfFiles) {
                 String txtFileRelativePath = file.getAbsolutePath().replace(

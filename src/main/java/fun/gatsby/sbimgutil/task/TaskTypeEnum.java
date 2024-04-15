@@ -1,5 +1,6 @@
 package fun.gatsby.sbimgutil.task;
 
+import cn.hutool.core.bean.BeanUtil;
 import fun.gatsby.sbimgutil.config.AppConfig;
 import fun.gatsby.sbimgutil.ui.FilePathInputPanel;
 import fun.gatsby.sbimgutil.ui.TaskItemTabbedPanel;
@@ -180,19 +181,19 @@ public enum TaskTypeEnum {
         }
     }
 
-    public BaseTaskGenerator newTaskGenerator(AppConfig.GlobalTaskConfig gtc, AppConfig.ProcessTask processTask) {
+    public BaseTaskGenerator newTaskGenerator(AppConfig.GlobalTaskConfig gtc, Map<String,Object> configMap) {
         BaseTaskGenerator taskGenerator=null;
         switch (this) {
-            case PDF_MERGE -> taskGenerator = new PdfMergeTask.TaskGenerator(gtc, processTask);
-            case DOUBLE_LAYER_PDF_GENERATE -> taskGenerator = new DoubleLayerPdfGenerateTask.TaskGenerator(gtc, processTask);
-            case LABELED_DATASET_COLLECT -> taskGenerator=new LabeledDatasetCollectTask.TaskGenerator(gtc, processTask);
-            case IMAGE_CUT -> taskGenerator = new ImageCutTask.TaskGenerator(gtc, processTask);
-            case PDF_SPLIT -> taskGenerator = new PdfSplitTask.TaskGenerator(gtc, processTask);
-            case PDF_ADD_CATA -> taskGenerator = new PdfAddCataTask.TaskGenerator(gtc, processTask);
-            case NLP -> taskGenerator = new NlpTask.TaskGenerator(gtc, processTask);
-            case BOOK_EXCEL_TO_XML -> taskGenerator = new BookExcelToXmlTask.TaskGenerator(gtc, processTask);
+            case PDF_MERGE -> taskGenerator = new PdfMergeTask.TaskGenerator(gtc, configMap);
+            case DOUBLE_LAYER_PDF_GENERATE -> taskGenerator = new DoubleLayerPdfGenerateTask.TaskGenerator(gtc, configMap);
+            case LABELED_DATASET_COLLECT -> taskGenerator=new LabeledDatasetCollectTask.TaskGenerator(gtc, configMap);
+            case IMAGE_CUT -> taskGenerator = new ImageCutTask.TaskGenerator(gtc, configMap);
+            case PDF_SPLIT -> taskGenerator = new PdfSplitTask.TaskGenerator(gtc, configMap);
+            case PDF_ADD_CATA -> taskGenerator = new PdfAddCataTask.TaskGenerator(gtc, configMap);
+            case NLP -> taskGenerator = new NlpTask.TaskGenerator(gtc, configMap);
+            case BOOK_EXCEL_TO_XML -> taskGenerator = new BookExcelToXmlTask.TaskGenerator(gtc, configMap);
             default ->
-                    taskGenerator = new BaseTaskGenerator(gtc, processTask,this);
+                    taskGenerator = new BaseTaskGenerator(gtc, configMap,this);
         }
         return taskGenerator;
     }

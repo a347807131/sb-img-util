@@ -19,7 +19,7 @@ import java.util.*;
 public class BaseTaskGenerator implements ITaskGenerator{
 
     AppConfig.GlobalTaskConfig gtc;
-    AppConfig.ProcessTask processTask;
+    Map<String,Object> configMap;
     private final TaskTypeEnum taskTypeEnum;
 
 
@@ -31,11 +31,11 @@ public class BaseTaskGenerator implements ITaskGenerator{
                 continue;
             }
             ITask task =  switch (taskTypeEnum){
-                case IMAGE_TRANSFORM -> new ImageTransformTask(imgFile, outFile, processTask.getFormat());
-                case IMAGE_COMPRESS -> new ImageCompressTask(imgFile, outFile, processTask.getCompressLimit());
-                case DRAW_BLUR -> new DrawBlurTask(imgFile, outFile, new File(processTask.getBlurImagePath()));
-                case BOOK_IMAGE_FIX -> new BookImageFixTask(imgFile, outFile);
-                case FIVE_BACKSPACE_REPLACE -> new FiveBackspaceReplaceTask(imgFile, outFile);
+                case IMAGE_TRANSFORM -> new ImageTransformTask(imgFile, outFile, configMap);
+                case IMAGE_COMPRESS -> new ImageCompressTask(imgFile, outFile, configMap);
+                case DRAW_BLUR -> new DrawBlurTask(imgFile, outFile, configMap);
+                case BOOK_IMAGE_FIX -> new BookImageFixTask(imgFile, outFile,configMap);
+                case FIVE_BACKSPACE_REPLACE -> new FiveBackspaceReplaceTask(imgFile, outFile,configMap);
                 default -> null;
             };
             if(task!=null)
