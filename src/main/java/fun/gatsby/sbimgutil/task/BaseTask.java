@@ -31,13 +31,13 @@ public abstract class BaseTask implements ITask {
     @Override
     public void before() throws IOException {
         if (outFile != null) {
-            outFile = new File(outFile.getParentFile(), outFile.getName() + ".tmp");
+            outFile = new File(outFile.getParentFile(), outFile.getName() + "");
             if (outFile.exists()) {
                 Files.delete(outFile.toPath());
             }
-            if (!outFile.getParentFile().exists()) {
+//            if (!outFile.getParentFile().exists()) {
                 FileUtils.forceMkdirParent(outFile);
-            }
+//            }
         }
 
         state = TaskStateEnum.RUNNING;
@@ -51,14 +51,14 @@ public abstract class BaseTask implements ITask {
 
     @Override
     public void after() {
-        if (outFile != null && outFile.exists()) {
-            String fileName = outFile.getName().substring(0, outFile.getName().lastIndexOf("."));
-            File finalFile = new File(outFile.getParentFile(), fileName);
-            if(finalFile.exists()){
-                finalFile.delete();
-            }
-            outFile.renameTo(finalFile);
-        }
+//        if (outFile != null && outFile.exists()) {
+//            String fileName = outFile.getName().substring(0, outFile.getName().lastIndexOf("."));
+//            File finalFile = new File(outFile.getParentFile(), fileName);
+//            if(finalFile.exists()){
+//                finalFile.delete();
+//            }
+//            outFile.renameTo(finalFile);
+//        }
 
         long between = LocalDateTimeUtil.between(startDate, LocalDateTime.now(), ChronoUnit.SECONDS);
         log.debug("任务完成:[{}] ,执行耗时：{}s", name, between);

@@ -22,7 +22,8 @@ public enum TaskTypeEnum {
     PDF_ADD_CATA("pdf添加目录"),
     PDF_IMAGE_SCALE("pdf图片缩放"),
     NLP("自然语言处理"),
-    BOOK_EXCEL_TO_XML("书籍excel转xml")
+    BOOK_EXCEL_TO_XML("书籍excel转xml"),
+    EXTRACT_SOUNDTRACK_FROM_VIDEO("音频提取")
     ;
     public final String taskCnName;
     TaskTypeEnum(String taskCnName) {
@@ -191,6 +192,7 @@ public enum TaskTypeEnum {
             case PDF_ADD_CATA -> taskGenerator = new PdfAddCataTask.TaskGenerator(gtc, processTask);
             case NLP -> taskGenerator = new NlpTask.TaskGenerator(gtc, processTask);
             case BOOK_EXCEL_TO_XML -> taskGenerator = new BookExcelToXmlTask.TaskGenerator(gtc, processTask);
+            case EXTRACT_SOUNDTRACK_FROM_VIDEO -> taskGenerator = new Mp3ExtractTask.TaskGenerator(gtc, processTask);
             default ->
                     taskGenerator = new BaseTaskGenerator(gtc, processTask,this);
         }
