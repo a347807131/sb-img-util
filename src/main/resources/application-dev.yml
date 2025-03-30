@@ -7,9 +7,9 @@ app:
 
   global-task-config:
     #输入目录
-    in-dir-path: "/Volumes/影视/media/videos on onedrive/Captures"
+    in-dir-path: /Volumes/影视/media/bili-sync/我的收藏
     #输出目录
-    out-dir-path: /Volumes/影视/media/temp
+    out-dir-path: /Volumes/影视/media/音频提取/
     enforce: false
     max-worker-num: 4
 

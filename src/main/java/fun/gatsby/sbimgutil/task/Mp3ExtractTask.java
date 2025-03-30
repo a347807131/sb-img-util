@@ -2,19 +2,23 @@ package fun.gatsby.sbimgutil.task;
 
 import fun.gatsby.sbimgutil.config.AppConfig;
 import fun.gatsby.sbimgutil.schedule.ITask;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.filefilter.FileFileFilter;
 import org.apache.commons.io.filefilter.FileFilterUtils;
 import org.apache.commons.io.filefilter.IOFileFilter;
 
 import java.io.*;
+import java.nio.file.Files;
 import java.util.List;
 
+@Slf4j
 public class Mp3ExtractTask extends BaseTask{
     File inFile;
     public Mp3ExtractTask(File inFile, File outFile){
         this.inFile=inFile;
         this.outFile=outFile;
 
+        this.name="音频提取"+inFile.getAbsolutePath();
     }
     private static final String CMDFORMATSTR="ffmpeg -i \"%s\" -q:a 0 \"%s\"";
 
@@ -62,7 +66,28 @@ public class Mp3ExtractTask extends BaseTask{
         public IOFileFilter getFileFileter() {
              var fileterSuper=super.getFileFileter();
             IOFileFilter suffixFileFilter = FileFilterUtils.suffixFileFilter(".mp4");
-            return FileFilterUtils.and(fileterSuper,suffixFileFilter);
+            //TODO
+            var upFileter=new FileFilter() {
+                @Override
+                public boolean accept(File file) {
+                    String fileName = file.getName();
+                    var nfoFileName=fileName.substring(0,fileName.lastIndexOf("."))+ ".nfo";
+                    File nfoFile = new File(file.getParent(), nfoFileName);
+                    try {
+                        var content=Files.readString(nfoFile.toPath());
+                        if(content.contains("<name>23191782</name>"))
+                            return true;
+                    } catch (IOException e) {
+                        log.error("nfo解析");
+                        return false;
+                    }
+                    //解析xml
+                    return false;
+                }
+            };
+            return FileFilterUtils.and(fileterSuper,suffixFileFilter,
+                    FileFilterUtils.asFileFilter(upFileter)
+                    );
         }
 
         @Override
