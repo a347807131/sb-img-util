@@ -1,12 +1,14 @@
 package fun.gatsby.sbimgutil.task;
 
-import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.io.FileUtil;
 import fun.gatsby.sbimgutil.config.AppConfig;
 import fun.gatsby.sbimgutil.schedule.ITask;
 import fun.gatsby.sbimgutil.utils.Const;
 import lombok.AllArgsConstructor;
+import org.apache.commons.io.IOCase;
 import org.apache.commons.io.filefilter.FileFileFilter;
+import org.apache.commons.io.filefilter.FileFilterUtils;
+import org.apache.commons.io.filefilter.IOFileFilter;
 import org.apache.commons.lang.StringUtils;
 import org.apache.logging.log4j.util.Strings;
 
@@ -98,43 +100,42 @@ public class BaseTaskGenerator implements ITaskGenerator{
 
     public LinkedHashMap<File, List<File>> loadSortedDirToFilesMap() {
         Path inPath = Path.of(gtc.getInDirPath());
-        String fileNameRegex = gtc.getFileNameRegex();
         List<File> files ;
         if(gtc.isRecursive()){
              files = FileUtil.loopFiles(inPath.toFile());
         }else {
             files = Arrays.stream(Objects.requireNonNull(inPath.toFile().listFiles(e -> !e.isDirectory()))).toList();
         }
+
         //@formatter:off-->
-        return files.stream()
-                .filter(file -> Strings.isBlank(fileNameRegex) || file.getName().matches(fileNameRegex))
-                .filter(file -> Const.SUPORTTED_FORMATS.contains(FileUtil.extName(file)))
-                .collect(
-                        LinkedHashMap::new,
-                        (m, k) -> {
-                            File parent = k.getParentFile();
-                            m.computeIfAbsent(parent, v -> new LinkedList<>()).add(k);
-                        },
-                        LinkedHashMap::putAll
-                );
+        return FileFilterUtils.filterList(getFileFileter(),files).stream()
+            .collect(
+                LinkedHashMap::new,
+                (m, k) -> {
+                    File parent = k.getParentFile();
+                    m.computeIfAbsent(parent, v -> new LinkedList<>()).add(k);
+                },
+                LinkedHashMap::putAll
+            );
         //@formatter:on-->
     }
 
-    LinkedHashMap<File, List<File>> loadSortedDirToFilesMap(FileFilter fileFilter) {
-        Path inPath = Path.of(gtc.getInDirPath());
+    public IOFileFilter getFileFileter(){
         String fileNameRegex = gtc.getFileNameRegex();
-        //@formatter:off-->
-        return FileUtil.loopFiles(inPath.toFile()).stream()
-                .filter(file -> Strings.isBlank(fileNameRegex) || file.getName().matches(fileNameRegex))
-                .filter(file -> Const.SUPORTTED_FORMATS.contains(FileUtil.extName(file)))
-                .collect(
-                        LinkedHashMap::new,
-                        (m, k) -> {
-                            File parent = k.getParentFile();
-                            m.computeIfAbsent(parent, v -> new LinkedList<>()).add(k);
-                        },
-                        LinkedHashMap::putAll
-                );
-        //@formatter:on-->
+        var fileExtFileter=new FileFilter() {
+            @Override
+            public boolean accept(File file) {
+                return Const.SUPORTTED_FORMATS.contains(FileUtil.extName(file));
+            }
+        };
+        var fileNameFileter=new FileFilter() {
+            @Override
+            public boolean accept(File file) {
+                return Strings.isBlank(fileNameRegex) || file.getName().matches(fileNameRegex);
+            }
+        };
+        return FileFilterUtils.and(
+            FileFilterUtils.asFileFilter(fileExtFileter),FileFilterUtils.asFileFilter(fileNameFileter)
+        );
     }
 }

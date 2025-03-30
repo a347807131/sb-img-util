@@ -45,7 +45,7 @@ public abstract class BaseTask implements ITask {
     @Override
     public void before() throws IOException {
         if (outFile != null) {
-            outFile = new File(outFile.getParentFile(), outFile.getName() + ".tmp");
+            this.outFile=new File(outFile.getParentFile(), "temp."+outFile.getName());
             if (outFile.exists()) {
                 Files.delete(outFile.toPath());
             }
@@ -66,7 +66,7 @@ public abstract class BaseTask implements ITask {
     @Override
     public void after() {
         if (outFile != null && outFile.exists()) {
-            String fileName = outFile.getName().substring(0, outFile.getName().lastIndexOf("."));
+            String fileName = outFile.getName().replace("temp.","");
             File finalFile = new File(outFile.getParentFile(), fileName);
             if(finalFile.exists()){
                 finalFile.delete();

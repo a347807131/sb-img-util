@@ -7,9 +7,9 @@ app:
 
   global-task-config:
     #输入目录
-    in-dir-path: D:\原始备份\1958-02-cutout
+    in-dir-path: /Volumes/影视/media/bili-sync/我的收藏
     #输出目录
-    out-dir-path: D:\temp\out
+    out-dir-path: /Volumes/影视/media/音频提取/
     enforce: false
     max-worker-num: 4
 
@@ -22,6 +22,8 @@ app:
       #压缩限制大小
       compress-limit: 500
       format: jp2
+    EXTRACT_SOUNDTRACK_FROM_VIDEO:
+      format: mp3
 
     DRAW_BLUR:
       blur-image-path: D:\原始备份\图片处理模板\2 模糊图

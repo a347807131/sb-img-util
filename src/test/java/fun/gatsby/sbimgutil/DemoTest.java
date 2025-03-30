@@ -1,6 +1,7 @@
 package fun.gatsby.sbimgutil;
 
 import cn.hutool.core.date.LocalDateTimeUtil;
+import fun.gatsby.sbimgutil.task.Mp3ExtractTask;
 import fun.gatsby.sbimgutil.utils.ImageUtils;
 //import com.itextpdf.text.BadElementException;
 //import com.itextpdf.text.Image;
@@ -134,5 +135,21 @@ public class DemoTest {
     @Test
     public void test5() throws IOException {
         Desktop.getDesktop().open(new File("guide.pdf"));
+    }
+
+    @Test
+    public void t1(){
+        File file = new File("BV1SU4y1z7aC.mp4");
+        Mp3ExtractTask task = new Mp3ExtractTask(file, new File("out.mp3"));
+        task.run();
+    }
+    @Test
+    public void t6() throws Exception {
+        File in = new File("BV1SU4y1z7aC.mp4");
+        File out = new File("out.mp3");
+
+        var cmd="ffmpeg -i %s -q:a 0 %s".formatted(in.getAbsolutePath(),out.getAbsolutePath());
+        Process process = Runtime.getRuntime().exec(cmd);
+        int exitCode = process.waitFor();
     }
 }
