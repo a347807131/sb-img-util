@@ -1,5 +1,6 @@
 package fun.gatsby.sbimgutil.task;
 
+import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.io.FileUtil;
 import fun.gatsby.sbimgutil.config.AppConfig;
 import fun.gatsby.sbimgutil.schedule.ITask;
@@ -19,12 +20,13 @@ import java.util.*;
 public class BaseTaskGenerator implements ITaskGenerator{
 
     AppConfig.GlobalTaskConfig gtc;
-    Map<String,Object> configMap;
+    AppConfig.ProcessTask processTask;
     private final TaskTypeEnum taskTypeEnum;
 
 
     public List<ITask> generate() throws IOException {
         var tasks = new LinkedList<ITask>();
+        Map<String,Object> configMap = BeanUtil.beanToMap(processTask);
         for (File imgFile : loadImageFiles()) {
             File outFile = genOutFile(imgFile,processTask.getFormat());
             if (outFile.exists() && !gtc.isEnforce()) {

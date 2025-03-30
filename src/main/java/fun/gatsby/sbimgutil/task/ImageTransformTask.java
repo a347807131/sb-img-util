@@ -1,8 +1,10 @@
 package fun.gatsby.sbimgutil.task;
 
+import cn.hutool.core.bean.BeanUtil;
 import com.github.jaiimageio.impl.plugins.tiff.TIFFIFD;
 import com.github.jaiimageio.impl.plugins.tiff.TIFFImageMetadata;
 import com.github.jaiimageio.plugins.tiff.TIFFField;
+import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.imaging.ImageInfo;
 import org.apache.commons.imaging.ImageReadException;
@@ -16,27 +18,30 @@ import javax.imageio.stream.ImageOutputStream;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 
 @Slf4j
 public class ImageTransformTask extends BaseTask{
 
-    private final File inFile;
-    private final String format;
+    private final Config config;
+
+    record Config (
+        String ext
+    ){}
 
     public static final Set<String> SUPORTTED_TARGET_FORMAT = Set.of(
             "jpg","jp2","tif","png"
     );
 
 
-    public ImageTransformTask(File inFile, File outFile, String format) {
-        this.inFile = inFile;
-        this.format = format;
-        this.outFile = outFile;
-        name = "格式转换: " + inFile.getAbsolutePath();
+    public ImageTransformTask(File inFile, File outFile, Map<String,Object> configMap){
+        super(inFile, outFile, configMap);
+        config = BeanUtil.toBean(configMap, Config.class);
+    }
+
+    @Override
+    public String getName() {
+        return "格式转换: " + inFile.getAbsolutePath();
     }
 
     int oriWDpi=600, oriHDpi=600;
@@ -46,7 +51,7 @@ public class ImageTransformTask extends BaseTask{
 //        ImageInfo imageInfo = Imaging.getImageInfo(inFile);
 //        oriWDpi = imageInfo.getPhysicalWidthDpi();
 //        oriHDpi = imageInfo.getPhysicalHeightDpi();
-        switch (format) {
+        switch (config.ext) {
             case "jp2" -> {
                 BufferedImage bf = ImageIO.read(inFile);
                 ImageIO.write(bf, "jpeg2000", outFile);
@@ -75,7 +80,7 @@ public class ImageTransformTask extends BaseTask{
         BufferedImage bf = ImageIO.read(inFile);
         String name = null;
         ImageWriter writer = null;
-        Iterator<ImageWriter> writers = ImageIO.getImageWritersByFormatName(format);
+        Iterator<ImageWriter> writers = ImageIO.getImageWritersByFormatName(config.ext);
         while (!Objects.equals(name, "com.github.jaiimageio.impl.plugins.tiff.TIFFImageWriter")) {
             writer = writers.next();
             name = writer.getClass().getName();
@@ -104,7 +109,7 @@ public class ImageTransformTask extends BaseTask{
     private void transformToJpg() throws IOException {
         //##########################
         BufferedImage bf = ImageIO.read(inFile);
-        ImageWriter writer = ImageIO.getImageWritersByFormatName(format).next();
+        ImageWriter writer = ImageIO.getImageWritersByFormatName(config.ext).next();
         ImageWriteParam param = writer.getDefaultWriteParam();
         try (ImageOutputStream ios = ImageIO.createImageOutputStream(outFile);) {
             writer.setOutput(ios);
@@ -112,7 +117,7 @@ public class ImageTransformTask extends BaseTask{
             IIOMetadataNode root = (IIOMetadataNode) metadata.getAsTree(metadata.getNativeMetadataFormatName());
             IIOMetadataNode jfif = (IIOMetadataNode) root.getElementsByTagName("app0JFIF").item(0);
             if(jfif==null){
-                log.debug("{} jfif 标签为空添加jfif",name);
+                log.debug("{} jfif 标签为空添加jfif",getName());
                 jfif = new IIOMetadataNode("app0JFIF");
                 root.appendChild(jfif);
             }

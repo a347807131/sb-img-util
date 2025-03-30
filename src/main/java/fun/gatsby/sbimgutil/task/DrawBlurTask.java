@@ -1,5 +1,6 @@
 package fun.gatsby.sbimgutil.task;
 
+import cn.hutool.core.bean.BeanUtil;
 import fun.gatsby.sbimgutil.utils.ImageUtils;
 import lombok.extern.slf4j.Slf4j;
 
@@ -7,18 +8,21 @@ import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.util.Map;
 
 @Slf4j
 public class DrawBlurTask extends BaseTask{
 
-    private final File inFile;
     private final File blurImageFile;
 
-    public DrawBlurTask(File inFile, File outFile,File blurImageFile) {
-        this.inFile = inFile;
-        this.outFile = outFile;
-        this.blurImageFile = blurImageFile;
-        name= "绘制水印图: "+inFile.getAbsolutePath();
+    public DrawBlurTask(File inFile, File outFile, Map<String,Object> configMap){
+        super(inFile, outFile, configMap);
+        this.blurImageFile=new File(configMap.get("blurImageFile").toString());
+    }
+
+    @Override
+    public String getName() {
+        return "压缩图片: " + inFile.getAbsolutePath();
     }
 
     @Override

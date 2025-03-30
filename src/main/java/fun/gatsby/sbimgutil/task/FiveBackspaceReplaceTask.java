@@ -12,18 +12,21 @@ import java.nio.file.Files;
 import java.nio.file.StandardOpenOption;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Slf4j
 public class FiveBackspaceReplaceTask extends BaseTask{
 
-    private final File inFile;
     StringBuilder sbOut=new StringBuilder();
 
-    public FiveBackspaceReplaceTask(File inFile, File outFile) {
-        this.name = "FiveBackspaceReplaceTask";
-        this.inFile = inFile;
-        this.outFile = outFile;
+    public FiveBackspaceReplaceTask(File inFile, File outFile, Map<String,Object> configMap) {
+        super(inFile, outFile, configMap);
+    }
+
+    @Override
+    public String getName() {
+        return "FiveBackspaceReplaceTask" + outFile;
     }
 
     @Override
@@ -50,5 +53,4 @@ public class FiveBackspaceReplaceTask extends BaseTask{
             append(children);
         }
     }
-
 }

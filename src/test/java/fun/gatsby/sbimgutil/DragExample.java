@@ -9,7 +9,7 @@ public class DragExample extends JFrame {
     private JLabel label;
 
     public DragExample() {
-        panel = new JPanel();
+        panel = new DragPanel();
         label = new JLabel("拖拽我");
         label.setOpaque(true); // 设置为不透明，以便显示背景色
         label.setBackground(Color.GREEN);

@@ -1,5 +1,6 @@
 package fun.gatsby.sbimgutil.task;
 
+import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.lang.Assert;
 import fun.gatsby.sbimgutil.context.PyApiProcessManager;
 import lombok.Data;
@@ -30,10 +31,13 @@ public class BookImageFixTask extends BaseTask{
 //        url=PyApiProcessManager.getInstance().getPyApiServerUrl()+API_ADDRESS;
     }
 
-    public BookImageFixTask(File inFile, File outFile) {
-        this.inFile = inFile;
-        this.outFile = outFile;
-        this.name="修复图片:"+inFile.getAbsolutePath();
+    public BookImageFixTask(File inFile, File outFile, Map<String,Object> configMap){
+        super(inFile, outFile, configMap);
+    }
+
+    @Override
+    public String getName() {
+        return null;
     }
 
     @Override

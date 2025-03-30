@@ -2,6 +2,7 @@ package fun.gatsby.sbimgutil.task;
 
 import baidumodel.entity.chat.*;
 import baidumodel.service.BaiduService;
+import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.io.FileUtil;
 import com.alibaba.fastjson2.JSON;
 import fun.gatsby.lang.tuple.Tuple2;
@@ -33,12 +34,12 @@ public class NlpTask extends BaseTask{
     File outDir;
     int maxShardSize=300;
 
-    public NlpTask(Map.Entry<File, List<File>> entry, File outDir) {
+    public NlpTask(Map.Entry<File, List<File>> entry, File outDir, Map<String,Object> configMap) {
+        super(null,null,configMap);
         this.containerDir=entry.getKey();
         this.rawTextFiles = entry.getValue();
         this.outDir = outDir;
         this.isf = new File(outDir, "intermediate_results.txt");
-        this.name="%s的%s页断句翻译任务".formatted(containerDir.getAbsolutePath(),rawTextFiles.size());
     }
 
     @Override
@@ -134,21 +135,22 @@ public class NlpTask extends BaseTask{
 
 
     public static class TaskGenerator extends BaseTaskGenerator {
-        public TaskGenerator(AppConfig.GlobalTaskConfig gtc, Map<String,Object> configMap) {
-            super(gtc, configMap, TaskTypeEnum.NLP);
+        public TaskGenerator(AppConfig.GlobalTaskConfig gtc, AppConfig.ProcessTask processTask) {
+            super(gtc, processTask, TaskTypeEnum.NLP);
         }
 
         @Override
         public List<ITask> generate() throws IOException {
             LinkedList<ITask> tasks = new LinkedList<>();
             LinkedHashMap<File, List<File>> dirToFiles = loadSortedDirToFilesMap();
+            Map<String, Object> configMap = BeanUtil.beanToMap(processTask);
             for (Map.Entry<File, List<File>> entry : dirToFiles.entrySet()) {
                 File dir = entry.getKey();
 //                if(!dir.getName().equals("0009")) continue;
                 File outDir = genOutFile(dir);
                 if(new File(outDir,"nlp.txt").exists())
                     continue;
-                NlpTask task = new NlpTask(entry, outDir);
+                NlpTask task = new NlpTask(entry, outDir, configMap);
                 tasks.add(task);
             }
             return tasks;

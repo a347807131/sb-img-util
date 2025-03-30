@@ -25,6 +25,7 @@ public class PdfAddCataTask extends BaseTask{
     private final File outFile;
 
     public PdfAddCataTask(File pdfFile, File cataFile, File outFile){
+        super(pdfFile,outFile,null);
         this.pdfFile = pdfFile;
         this.cataFile = cataFile;
         this.outFile = outFile;

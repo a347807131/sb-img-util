@@ -2,6 +2,7 @@ package fun.gatsby.sbimgutil.task;
 
 public class OcrTask extends BaseTask{
     public OcrTask(){
+        super(null,null,null);
 
     }
     @Override

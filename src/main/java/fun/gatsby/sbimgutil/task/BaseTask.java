@@ -1,6 +1,7 @@
 package fun.gatsby.sbimgutil.task;
 
 
+import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.date.LocalDateTimeUtil;
 import fun.gatsby.sbimgutil.schedule.ITask;
 import fun.gatsby.sbimgutil.schedule.TaskStateEnum;
@@ -13,7 +14,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
-
+import java.util.Map;
 
 @Slf4j
 public abstract class BaseTask implements ITask {
@@ -23,10 +24,23 @@ public abstract class BaseTask implements ITask {
         ImageIO.getImageWritersByFormatName("jpeg2000").next();
     }
 
-    private LocalDateTime startDate;
     protected String name;
+
+    private LocalDateTime startDate;
     protected TaskStateEnum state = TaskStateEnum.NEW;
     protected File outFile;
+    protected File inFile;
+    protected Map<String,Object> configMap;
+
+    public BaseTask(){
+    }
+
+    public BaseTask(File inFile, File outFile, Map<String,Object> configMap){
+        this.inFile = inFile;
+        this.outFile = outFile;
+        this.configMap=configMap;
+        this.name="%s->%s".formatted(inFile.getName(), outFile.getName());
+    }
 
     @Override
     public void before() throws IOException {
@@ -61,18 +75,22 @@ public abstract class BaseTask implements ITask {
         }
 
         long between = LocalDateTimeUtil.between(startDate, LocalDateTime.now(), ChronoUnit.SECONDS);
-        log.debug("任务完成:[{}] ,执行耗时：{}s", name, between);
+        log.debug("任务完成:[{}] ,执行耗时：{}s", getName(), between);
         state = TaskStateEnum.FINISHED;
     }
 
     @Override
     public void onError(Throwable e) {
         state = TaskStateEnum.ERROR;
-        log.error("任务"+name+"执行异常",e);
+        log.error("任务"+getName()+"执行异常",e);
     }
 
     @Override
     public String toString() {
-        return name;
+        return getName() + "@" + state.name();
     }
+
+    public String getName(){
+        return "%s->%s".formatted(inFile.getName(), outFile.getName());
+    };
 }

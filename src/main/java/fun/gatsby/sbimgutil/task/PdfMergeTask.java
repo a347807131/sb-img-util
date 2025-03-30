@@ -21,16 +21,16 @@ public class PdfMergeTask extends BaseTask {
 
     private float imageScale=1f;
 
-    public PdfMergeTask(List<File> inFiles, File outFile, File cataFile,float scale) {
+    public PdfMergeTask(List<File> inFiles, File outFile, Map<String,Object> configMap) {
+        super(null, outFile, configMap);
         this.inFiles = inFiles;
-        this.outFile = outFile;
-        this.cataFile = cataFile;
-        this.imageScale=scale;
-        this.name = "合并pdf -> " + outFile.getAbsolutePath();
+        cataFile=new File(configMap.get("cataDirPath").toString());
+        this.imageScale=configMap.get("pdfImageScale")==null?1f:(float)configMap.get("pdfImageScale");
     }
-    public PdfMergeTask(List<File> inFiles, File outFile) {
-        this.inFiles = inFiles;
-        this.outFile = outFile;
+
+    @Override
+    public String getName() {
+        return "合并pdf -> " + outFile.getAbsolutePath();
     }
 
     @Override
@@ -65,22 +65,23 @@ public class PdfMergeTask extends BaseTask {
 
         public List<ITask> generate() {
             List<ITask> tasks = new LinkedList<>();
-            for (Map.Entry<File, List<File>> entry : loadSortedDirToFilesMap().entrySet()) {
-                File dirThatFilesBelong = entry.getKey();
-                File outFile =
-                        genPdfOutFile(dirThatFilesBelong);
-                if (outFile.exists() && !gtc.isEnforce())
-                    continue;
-                List<File> imgs = entry.getValue();
-                String cataDirPath = processTask.getCataDirPath();
-                File cataFile = null;
-                if (Strings.isNotBlank(cataDirPath)) {
-                    String cataFileName = dirThatFilesBelong.getAbsolutePath().replace(new File(gtc.getInDirPath()).getAbsolutePath(), "") + ".txt";
-                    cataFile = new File(cataDirPath, cataFileName);
-                }
-                PdfMergeTask task = new PdfMergeTask(imgs, outFile, cataFile,processTask.getPdfImageScale());
-                tasks.add(task);
-            }
+            //TODO
+//            for (Map.Entry<File, List<File>> entry : loadSortedDirToFilesMap().entrySet()) {
+//                File dirThatFilesBelong = entry.getKey();
+//                File outFile =
+//                        genPdfOutFile(dirThatFilesBelong);
+//                if (outFile.exists() && !gtc.isEnforce())
+//                    continue;
+//                List<File> imgs = entry.getValue();
+//                String cataDirPath = cataFile.getCataDirPath();
+//                File cataFile = null;
+//                if (Strings.isNotBlank(cataDirPath)) {
+//                    String cataFileName = dirThatFilesBelong.getAbsolutePath().replace(new File(gtc.getInDirPath()).getAbsolutePath(), "") + ".txt";
+//                    cataFile = new File(cataDirPath, cataFileName);
+//                }
+//                PdfMergeTask task = new PdfMergeTask(imgs, outFile, cataFile,processTask.getPdfImageScale());
+//                tasks.add(task);
+//            }
             return tasks;
         }
     }
