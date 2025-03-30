@@ -23,13 +23,6 @@ public class ImageCutTask extends BaseTask {
     private final List<Rectangle> rectangles;
     private final Path outDirPath;
 
-    public ImageCutTask(File inFile, Path outDirPath, Rectangle[] rectangles) {
-        this.inFile = inFile;
-        this.rectangles = Arrays.asList(rectangles);
-        this.outDirPath = outDirPath;
-        this.name = TaskTypeEnum.IMAGE_CUT.taskCnName + inFile.getAbsolutePath();
-    }
-
     public ImageCutTask(Label label, Path outDirPath) {
         this.inFile = label.getMarkedImageFile();
         this.outDirPath = outDirPath;

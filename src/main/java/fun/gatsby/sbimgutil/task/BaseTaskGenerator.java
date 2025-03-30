@@ -1,5 +1,6 @@
 package fun.gatsby.sbimgutil.task;
 
+import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.io.FileUtil;
 import fun.gatsby.sbimgutil.config.AppConfig;
 import fun.gatsby.sbimgutil.schedule.ITask;
