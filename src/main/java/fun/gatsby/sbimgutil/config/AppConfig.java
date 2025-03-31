@@ -22,6 +22,8 @@ public class AppConfig {
     String author;
     String name;
     String loggingFilePath;
+    String startMode;
+    String taskToStartup;
 
     Map<String, ProcessTask> processTasks;
 

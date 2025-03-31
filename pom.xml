@@ -20,6 +20,9 @@
         <changelist>-SNAPSHOT</changelist>  <!-- Remove "-SNAPSHOT" for release -->
         <app.version>${revision}${changelist}</app.version>
         <flatlaf.version>3.2</flatlaf.version>
+        <jib-maven-plugin.architecture>amd64</jib-maven-plugin.architecture>
+        <jib-maven-plugin.image>a347807131/ffmpeg-jdk:latest</jib-maven-plugin.image>
+        <jib-maven-plugin.version>3.4.4</jib-maven-plugin.version>
     </properties>
     <repositories>
         <repository>
@@ -227,7 +230,6 @@
         </profile>
     </profiles>
     <build>
-
         <resources>
             <resource>
                 <directory>src/main/resources</directory>
@@ -258,6 +260,78 @@
                         </exclude>
                     </excludes>
                 </configuration>
+            </plugin>
+            <plugin>
+                <groupId>com.google.cloud.tools</groupId>
+                <artifactId>jib-maven-plugin</artifactId>
+                <version>${jib-maven-plugin.version}</version>
+                <configuration>
+                    <from>
+                        <image>${jib-maven-plugin.image}</image>
+                        <auth>
+                            <username>a347807131</username>
+                            <password>dckr_pat_oWuDA6zWyvj1TZihHMGIqWUSCME</password>
+                        </auth>
+                        <platforms>
+                            <platform>
+                                <architecture>${jib-maven-plugin.architecture}</architecture>
+                                <os>linux</os>
+                            </platform>
+                        </platforms>
+                    </from>
+                    <to>
+                        <image>a347807131/${project.artifactId}:${project.version}</image>
+                        <auth>
+                            <username>a347807131</username>
+                            <password>dckr_pat_oWuDA6zWyvj1TZihHMGIqWUSCME</password>
+                        </auth>
+                    </to>
+                    <container>
+                        <entrypoint>
+                            <shell>bash</shell>
+                            <option>-c</option>
+                            <arg>/entrypoint.sh</arg>
+                        </entrypoint>
+                        <!--                        <ports>-->
+                        <!--                            <port>8080</port>-->
+                        <!--                        </ports>-->
+                        <environment>
+                            <SPRING_OUTPUT_ANSI_ENABLED>ALWAYS</SPRING_OUTPUT_ANSI_ENABLED>
+                            <JHIPSTER_SLEEP>3</JHIPSTER_SLEEP>
+                        </environment>
+                        <creationTime>USE_CURRENT_TIMESTAMP</creationTime>
+                        <user>1000</user>
+                    </container>
+                    <extraDirectories>
+                        <paths>src/main/docker/jib</paths>
+                        <permissions>
+                            <permission>
+                                <file>/entrypoint.sh</file>
+                                <mode>755</mode>
+                            </permission>
+                            <permission>
+                                <file>/data/in</file>
+                                <mode>755</mode>
+                            </permission>
+                            <permission>
+                                <file>/data/out</file>
+                                <mode>755</mode>
+                            </permission>
+                        </permissions>
+                    </extraDirectories>
+                    <pluginExtensions>
+                        <pluginExtension>
+                            <implementation>com.google.cloud.tools.jib.maven.extension.springboot.JibSpringBootExtension</implementation>
+                        </pluginExtension>
+                    </pluginExtensions>
+                </configuration>
+                <dependencies>
+                    <dependency>
+                        <groupId>com.google.cloud.tools</groupId>
+                        <artifactId>jib-spring-boot-extension-maven</artifactId>
+                        <version>0.1.0</version>
+                    </dependency>
+                </dependencies>
             </plugin>
         </plugins>
     </build>

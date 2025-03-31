@@ -1,5 +1,6 @@
 package fun.gatsby.sbimgutil.task;
 
+import cn.hutool.core.io.FileUtil;
 import fun.gatsby.sbimgutil.config.AppConfig;
 import fun.gatsby.sbimgutil.schedule.ITask;
 import lombok.extern.slf4j.Slf4j;
@@ -57,6 +58,13 @@ public class Mp3ExtractTask extends BaseTask{
             throw new RuntimeException("处理失败");
     }
 
+    @Override
+    public String toString() {
+        return name;
+    }
+
+    static List<String> EXTENSIONS = List.of("mp4","avi","mkv","wmv","flv","rmvb","rm","mov","mpg","mpeg","m4v","3gp","ts","rmi");
+
     public static class TaskGenerator extends BaseTaskGenerator {
         public TaskGenerator(AppConfig.GlobalTaskConfig gtc, AppConfig.ProcessTask processTask) {
             super(gtc, processTask, TaskTypeEnum.EXTRACT_SOUNDTRACK_FROM_VIDEO);
@@ -65,28 +73,16 @@ public class Mp3ExtractTask extends BaseTask{
         @Override
         public IOFileFilter getFileFileter() {
              var fileterSuper=super.getFileFileter();
-            IOFileFilter suffixFileFilter = FileFilterUtils.suffixFileFilter(".mp4");
-            //TODO
-            var upFileter=new FileFilter() {
+            var extFilter=new FileFilter() {
                 @Override
                 public boolean accept(File file) {
                     String fileName = file.getName();
-                    var nfoFileName=fileName.substring(0,fileName.lastIndexOf("."))+ ".nfo";
-                    File nfoFile = new File(file.getParent(), nfoFileName);
-                    try {
-                        var content=Files.readString(nfoFile.toPath());
-                        if(content.contains("<name>23191782</name>"))
-                            return true;
-                    } catch (IOException e) {
-                        log.error("nfo解析");
-                        return false;
-                    }
-                    //解析xml
-                    return false;
+                    String ext = FileUtil.extName(file);
+                    return EXTENSIONS.contains(ext);
                 }
             };
-            return FileFilterUtils.and(fileterSuper,suffixFileFilter,
-                    FileFilterUtils.asFileFilter(upFileter)
+            return FileFilterUtils.and(fileterSuper,
+                    FileFilterUtils.asFileFilter(extFilter)
                     );
         }
 

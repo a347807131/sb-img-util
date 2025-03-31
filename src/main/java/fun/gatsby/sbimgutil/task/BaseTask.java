@@ -21,7 +21,7 @@ public abstract class BaseTask implements ITask {
 
     //bugfixed
     static {
-        ImageIO.getImageWritersByFormatName("jpeg2000").next();
+//        ImageIO.getImageWritersByFormatName("jpeg2000").next();
     }
 
     protected String name;
@@ -42,10 +42,11 @@ public abstract class BaseTask implements ITask {
         this.name="%s->%s".formatted(inFile.getName(), outFile.getName());
     }
 
+    static final String TEMP_FILE_PREFIX = "temp.";
     @Override
     public void before() throws IOException {
         if (outFile != null) {
-            this.outFile=new File(outFile.getParentFile(), "temp."+outFile.getName());
+            this.outFile=new File(outFile.getParentFile(), TEMP_FILE_PREFIX+outFile.getName());
             if (outFile.exists()) {
                 Files.delete(outFile.toPath());
             }
@@ -66,7 +67,7 @@ public abstract class BaseTask implements ITask {
     @Override
     public void after() {
         if (outFile != null && outFile.exists()) {
-            String fileName = outFile.getName().replace("temp.","");
+            String fileName = outFile.getName().substring(TEMP_FILE_PREFIX.length());
             File finalFile = new File(outFile.getParentFile(), fileName);
             if(finalFile.exists()){
                 finalFile.delete();

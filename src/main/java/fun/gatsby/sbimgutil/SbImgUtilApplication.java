@@ -1,18 +1,20 @@
 package fun.gatsby.sbimgutil;
 
 import fun.gatsby.sbimgutil.config.AppConfig;
-import fun.gatsby.sbimgutil.ui.SwingApp;
+import fun.gatsby.sbimgutil.context.TaskExecutor;
+import fun.gatsby.sbimgutil.task.TaskTypeEnum;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.WebApplicationType;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.context.ApplicationContext;
 
-import java.awt.*;
+import java.util.Map;
+import java.util.concurrent.ExecutionException;
 
 @Slf4j
 @SpringBootApplication
-public class SbImgUtilApplication {
+public class SbImgUtilApplication  {
 
     public static ApplicationContext ctx;
 
@@ -24,10 +26,19 @@ public class SbImgUtilApplication {
         SbImgUtilApplication.ctx = ctx;
         AppConfig appConfig = ctx.getBean(AppConfig.class);
 
-        EventQueue.invokeLater(() -> {
-            var swingApp = new SwingApp(appConfig);
-            swingApp.setVisible(true);
-        });
+
+        TaskTypeEnum taskTypeEnum = TaskTypeEnum.valueOf(appConfig.getTaskToStartup());
+        TaskExecutor executor = new TaskExecutor(
+                appConfig.getGlobalTaskConfig(),
+                Map.entry(taskTypeEnum, appConfig.getProcessTasks().get(taskTypeEnum.name()))
+        );
+            try {
+                executor.excute();
+            } catch (ExecutionException | InterruptedException e) {
+                throw new RuntimeException(e);
+            }
+//            var swingApp = new SwingApp(appConfig);
+//            swingApp.setVisible(true);
     }
 
 }

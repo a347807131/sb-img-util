@@ -41,6 +41,7 @@ public class BaseTaskGenerator implements ITaskGenerator{
                 case DRAW_BLUR -> new DrawBlurTask(imgFile, outFile, configMap);
                 case BOOK_IMAGE_FIX -> new BookImageFixTask(imgFile, outFile,configMap);
                 case FIVE_BACKSPACE_REPLACE -> new FiveBackspaceReplaceTask(imgFile, outFile,configMap);
+                case EXTRACT_SOUNDTRACK_FROM_VIDEO -> new Mp3ExtractTask(imgFile, outFile);
                 default -> null;
             };
             if(task!=null)
@@ -136,7 +137,7 @@ public class BaseTaskGenerator implements ITaskGenerator{
             }
         };
         return FileFilterUtils.and(
-            FileFilterUtils.asFileFilter(fileExtFileter),FileFilterUtils.asFileFilter(fileNameFileter)
+            FileFilterUtils.asFileFilter(fileNameFileter)
         );
     }
 }
