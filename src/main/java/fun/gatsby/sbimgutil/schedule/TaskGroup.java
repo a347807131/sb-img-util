@@ -43,7 +43,6 @@ public class TaskGroup<T> extends LinkedList<Runnable> {
 
     @Setter
     protected Runnable taskPerDone = () -> {
-        log.debug("name:{} 执行完成", name);
     };
 
     public TaskGroup() {

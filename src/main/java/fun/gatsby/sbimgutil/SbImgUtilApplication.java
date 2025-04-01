@@ -3,6 +3,7 @@ package fun.gatsby.sbimgutil;
 import fun.gatsby.sbimgutil.config.AppConfig;
 import fun.gatsby.sbimgutil.context.TaskExecutor;
 import fun.gatsby.sbimgutil.task.TaskTypeEnum;
+import fun.gatsby.sbimgutil.utils.ConsoleProgress;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.WebApplicationType;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -26,19 +27,21 @@ public class SbImgUtilApplication  {
         SbImgUtilApplication.ctx = ctx;
         AppConfig appConfig = ctx.getBean(AppConfig.class);
 
+        ConsoleProgress cpb= new ConsoleProgress();
+        Runnable funcPerTaskDone = () -> {
+            String progress = String.format("任务进度: %s", cpb.iterate());
+            log.info(progress);
+        };
 
         TaskTypeEnum taskTypeEnum = TaskTypeEnum.valueOf(appConfig.getTaskToStartup());
         TaskExecutor executor = new TaskExecutor(
                 appConfig.getGlobalTaskConfig(),
-                Map.entry(taskTypeEnum, appConfig.getProcessTasks().get(taskTypeEnum.name()))
+                Map.entry(taskTypeEnum, appConfig.getProcessTasks().get(taskTypeEnum.name())),
+                funcPerTaskDone
         );
-            try {
-                executor.excute();
-            } catch (ExecutionException | InterruptedException e) {
-                throw new RuntimeException(e);
-            }
-//            var swingApp = new SwingApp(appConfig);
-//            swingApp.setVisible(true);
+        cpb.setTotal(executor.getTaskCount());
+        executor.excute();
+        ctx.stop();
     }
 
 }

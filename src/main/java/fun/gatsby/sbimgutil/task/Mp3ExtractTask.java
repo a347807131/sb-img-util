@@ -11,6 +11,7 @@ import org.apache.commons.io.filefilter.IOFileFilter;
 import java.io.*;
 import java.nio.file.Files;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 @Slf4j
 public class Mp3ExtractTask extends BaseTask{
@@ -32,30 +33,17 @@ public class Mp3ExtractTask extends BaseTask{
         var cmd=CMDFORMATSTR.formatted(inFile.getAbsolutePath(),outFile.getAbsolutePath());
         ProcessBuilder pb = new ProcessBuilder("/bin/sh", "-c",cmd);
         Process process = pb.start();
-        int exitCode = process.waitFor();
 
-        // 读取标准输出流
-        BufferedReader inputReader = new BufferedReader(
-                new InputStreamReader(process.getInputStream())
-        );
-        // 读取错误流
-        BufferedReader errorReader = new BufferedReader(
-                new InputStreamReader(process.getErrorStream())
-        );
-
-        // 打印输出和错误信息
-        String line;
-        while ((line = inputReader.readLine()) != null) {
-            System.out.println("输出: " + line);
+        //超时检查
+        if(!process.waitFor(10, TimeUnit.MINUTES)){
+            throw new RuntimeException("ffmpeg process timeout 10m,[%s]".formatted(inFile.getAbsolutePath()));
         }
-        while ((line = errorReader.readLine()) != null) {
-            System.out.println(line);
-        }
+        process.destroyForcibly();
+    }
 
-        // 等待命令执行完成并获取退出码
-        System.out.println("退出码: " + exitCode);
-        if(exitCode!=0)
-            throw new RuntimeException("处理失败");
+    @Override
+    public String getName() {
+        return toString();
     }
 
     @Override

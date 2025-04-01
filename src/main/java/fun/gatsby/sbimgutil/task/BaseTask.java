@@ -76,7 +76,7 @@ public abstract class BaseTask implements ITask {
         }
 
         long between = LocalDateTimeUtil.between(startDate, LocalDateTime.now(), ChronoUnit.SECONDS);
-        log.debug("任务完成:[{}] ,执行耗时：{}s", getName(), between);
+        log.info("任务完成:[{}] ,执行耗时：{}s", getName(), between);
         state = TaskStateEnum.FINISHED;
     }
 

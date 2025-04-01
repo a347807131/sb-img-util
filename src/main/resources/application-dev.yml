@@ -7,9 +7,9 @@ app:
   task-to-startup: EXTRACT_SOUNDTRACK_FROM_VIDEO
   global-task-config:
     #输入目录
-    in-dir-path: "/Volumes/jav/media/jav uncensored"
+    in-dir-path: "/Volumes/av/media/杂av"
     #输出目录
-    out-dir-path: /Volumes/影视/media/音频提取/javun/
+    out-dir-path: "/Volumes/影视/media/音频提取/杂av/"
     enforce: false
     max-worker-num: 4
 
