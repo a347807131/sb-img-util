@@ -1,25 +1,18 @@
 package fun.gatsby.sbimgutil.task.builder;
 
-import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.io.FileUtil;
 import cn.hutool.core.util.ReflectUtil;
 import cn.hutool.core.util.TypeUtil;
 import fun.gatsby.sbimgutil.config.AppConfig;
-import fun.gatsby.sbimgutil.schedule.ITask;
 import fun.gatsby.sbimgutil.task.*;
-import fun.gatsby.sbimgutil.utils.Const;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.io.filefilter.FileFilterUtils;
 import org.apache.commons.io.filefilter.IOFileFilter;
-import org.apache.commons.lang.StringUtils;
 import org.apache.logging.log4j.util.Strings;
 
 import java.io.File;
 import java.io.FileFilter;
-import java.io.FilenameFilter;
 import java.io.IOException;
-import java.lang.reflect.Constructor;
-import java.lang.reflect.Type;
 import java.nio.file.Path;
 import java.util.*;
 
@@ -42,6 +35,7 @@ public abstract class AbstractTaskBuilder<T extends BaseTask> implements TaskBui
         return tasks;
     }
 
+    @Override
     public T build(File inFile) throws IOException {
         File outFile = outFile(inFile);
         return ReflectUtil.newInstance(getTaskClass(), inFile, outFile, configMap);
@@ -54,7 +48,8 @@ public abstract class AbstractTaskBuilder<T extends BaseTask> implements TaskBui
         return (Class<T>) type;
     }
 
-    File outFile(File inFile) {
+    @Override
+    public File outFile(File inFile) {
         return outFile(inFile,configMap.get("format").toString());
     }
 
@@ -78,7 +73,8 @@ public abstract class AbstractTaskBuilder<T extends BaseTask> implements TaskBui
         return Path.of(gtc.getOutDirPath(), midpiece, outFileName).toFile();
     }
 
-    List<File> loadInFiles() {
+    @Override
+    public List<File> loadInFiles() {
         return loadSortedDirToFilesMap().values().stream().collect(
             LinkedList::new,
             LinkedList::addAll,
@@ -108,10 +104,12 @@ public abstract class AbstractTaskBuilder<T extends BaseTask> implements TaskBui
         //@formatter:on-->
     }
 
+    @Override
     public Set<String> getSupportedExts(){
         return null;
     }
 
+    @Override
     public IOFileFilter getFileFileter(){
         String fileNameRegex = gtc.getFileNameRegex();
         var fileExtFileter=new FileFilter() {
