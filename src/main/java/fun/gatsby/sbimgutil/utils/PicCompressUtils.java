@@ -63,9 +63,9 @@ public class PicCompressUtils {
             else if (compressTime < 5) {
                 System.gc();
                 if (fsize > limitM)
-                    encoding *= 0.9;
+                    encoding *= 0.9f;
                 else if (fsize < limitM * 0.8)
-                    encoding *= 1.1;
+                    encoding *= 1.1f;
                 else break;
             } else
                 throw new IOException("压缩次数过多，为防爆内存，异常推出");

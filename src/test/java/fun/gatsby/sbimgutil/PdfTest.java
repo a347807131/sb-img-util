@@ -2,7 +2,6 @@ package fun.gatsby.sbimgutil;
 
 import cn.hutool.core.io.FileUtil;
 import com.alibaba.fastjson.JSON;
-import fun.gatsby.sbimgutil.task.PdfImageScaleTask;
 import fun.gatsby.sbimgutil.utils.FileOcrResultVO;
 import fun.gatsby.sbimgutil.utils.GJCoolOcrApiResultVO;
 import fun.gatsby.sbimgutil.utils.ImagesConverter2;
@@ -15,14 +14,6 @@ import java.util.Map;
 
 public class PdfTest {
 
-    @Test
-    public void t1(){
-
-        var dir=Path.of("D:\\out\\27030166");
-        var outFile=dir.resolve("0001_0.25.pdf").toFile();
-        PdfImageScaleTask pdfImageScaleTask = new PdfImageScaleTask(dir.resolve("0001.pdf").toFile(),outFile);
-        pdfImageScaleTask.run();
-    }
 
     @Test
     public void t2() throws Exception {

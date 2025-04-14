@@ -1,19 +1,12 @@
 package fun.gatsby.sbimgutil;
 
 import fun.gatsby.sbimgutil.config.AppConfig;
-import fun.gatsby.sbimgutil.context.TaskExecutor;
-import fun.gatsby.sbimgutil.task.TaskTypeEnum;
 import jakarta.annotation.PostConstruct;
-import org.junit.Before;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.context.annotation.Profile;
 
 import java.io.IOException;
-import java.util.Map;
 import java.util.concurrent.ExecutionException;
 
 @SpringBootTest(properties = "spring.profiles.active=dev")

@@ -1,10 +1,13 @@
 package fun.gatsby.sbimgutil.context;
 
+import cn.hutool.core.util.ReflectUtil;
 import fun.gatsby.sbimgutil.config.AppConfig;
+import fun.gatsby.sbimgutil.schedule.ITask;
 import fun.gatsby.sbimgutil.schedule.ProcessTaskGroup;
 import fun.gatsby.sbimgutil.schedule.TaskGroup;
 import fun.gatsby.sbimgutil.schedule.TaskScheduleForkJoinPool;
 import fun.gatsby.sbimgutil.task.*;
+import fun.gatsby.sbimgutil.task.builder.TaskBuilder;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.IOException;
@@ -12,7 +15,6 @@ import java.util.*;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ForkJoinPool;
 import java.util.concurrent.ForkJoinTask;
-import java.util.function.IntConsumer;
 
 @Slf4j
 public class TaskExecutor {
@@ -21,7 +23,7 @@ public class TaskExecutor {
     private final TaskGroup<Runnable> taskGroup;
     ForkJoinPool forkJoinPool;
 
-    public TaskExecutor(AppConfig.GlobalTaskConfig gtc, Map.Entry<TaskTypeEnum, AppConfig.ProcessTask> entry) throws IOException {
+    public TaskExecutor(AppConfig.GlobalTaskConfig gtc, Map.Entry<TaskEnum, Map<String,Object>> entry) throws IOException {
         this.forkJoinPool = new TaskScheduleForkJoinPool(gtc.getMaxWorkerNum());
         this.gtc=gtc;
         taskGroup=loadTasks(entry);
@@ -31,29 +33,30 @@ public class TaskExecutor {
 
     public TaskExecutor(
             AppConfig.GlobalTaskConfig gtc,
-            Map.Entry<TaskTypeEnum, AppConfig.ProcessTask> entry,
+            Map.Entry<TaskEnum, Map<String,Object>> taskEnumToConfigMapEntry,
             Runnable funcPerTaskDone
     ) throws IOException {
         this.forkJoinPool = new TaskScheduleForkJoinPool(gtc.getMaxWorkerNum());
         this.gtc=gtc;
-        TaskTypeEnum taskType = entry.getKey();
-        AppConfig.ProcessTask processTask = entry.getValue();
-        var taskGroup = new ProcessTaskGroup(taskType.taskCnName,funcPerTaskDone);
-        BaseTaskGenerator taskGenerator = taskType.newTaskGenerator(gtc, processTask);
-        if(taskGenerator!=null){
-            taskGroup.addAll(taskGenerator.generate());
-        }
+        TaskEnum taskType = taskEnumToConfigMapEntry.getKey();
+        var configMap = taskEnumToConfigMapEntry.getValue();
+        var taskGroup = new ProcessTaskGroup(taskType.getCnName(),funcPerTaskDone);
+
+        var builderClass = taskType.getBuilderClass();
+        TaskBuilder<? extends ITask> taskBuilder = ReflectUtil.newInstance(builderClass, gtc, configMap);
+        List<ITask> tasks =(List<ITask>) taskBuilder.build();
+        taskGroup.addAll(tasks);
         this.taskGroup=taskGroup;
     }
 
-    public TaskGroup<Runnable> loadTasks(Map.Entry<TaskTypeEnum, AppConfig.ProcessTask> entry) throws IOException {
-        TaskTypeEnum taskTypeEnum = entry.getKey();
-        AppConfig.ProcessTask processTask = entry.getValue();
-        var taskGroup = new ProcessTaskGroup(taskTypeEnum.taskCnName);
-        BaseTaskGenerator taskGenerator = taskTypeEnum.newTaskGenerator(gtc, processTask);
-        if(taskGenerator!=null){
-            taskGroup.addAll(taskGenerator.generate());
-        }
+    public TaskGroup<Runnable> loadTasks(Map.Entry<TaskEnum, Map<String,Object>> taskEnumToConfigMapEntry) throws IOException {
+        TaskEnum taskType = taskEnumToConfigMapEntry.getKey();
+        var configMap = taskEnumToConfigMapEntry.getValue();
+        var taskGroup = new ProcessTaskGroup(taskType.getCnName());
+        var builderClass = taskType.getBuilderClass();
+        TaskBuilder<? extends ITask> taskBuilder = ReflectUtil.newInstance(builderClass, gtc, configMap);
+        List<ITask> tasks =(List<ITask>) taskBuilder.build();
+        taskGroup.addAll(tasks);
         return taskGroup;
     }
 

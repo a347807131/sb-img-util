@@ -42,7 +42,7 @@ public class AppConfig {
     @Data
     static public class ProcessTask {
         String blurImagePath;
-        int compressLimit = 500;
+        int limit = 500;
         String format;
         String cataDirPath;
         String labelDirPath;

@@ -5,8 +5,6 @@ import baidumodel.service.BaiduService;
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.io.FileUtil;
 import com.alibaba.fastjson2.JSON;
-import fun.gatsby.lang.tuple.Tuple2;
-import fun.gatsby.lang.tuple.Tuples;
 import fun.gatsby.sbimgutil.config.AppConfig;
 import fun.gatsby.sbimgutil.schedule.ITask;
 import lombok.AllArgsConstructor;
@@ -24,7 +22,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 @Slf4j
-public class NlpTask extends BaseTask{
+public class PunctuateTask extends BaseTask{
 
     private final List<File> rawTextFiles;
     private final File isf;
@@ -32,9 +30,9 @@ public class NlpTask extends BaseTask{
     final static Promot PROMOT=new Promot();
 
     File outDir;
-    int maxShardSize=300;
+    final static int maxShardSize=300;
 
-    public NlpTask(Map.Entry<File, List<File>> entry, File outDir, Map<String,Object> configMap) {
+    public PunctuateTask(Map.Entry<File, List<File>> entry, File outDir, Map<String,Object> configMap) {
         super(null,null,configMap);
         this.containerDir=entry.getKey();
         this.rawTextFiles = entry.getValue();
@@ -133,29 +131,6 @@ public class NlpTask extends BaseTask{
         throw new RuntimeException("nlp处理失败:"+rawText);
     }
 
-
-    public static class TaskGenerator extends BaseTaskGenerator {
-        public TaskGenerator(AppConfig.GlobalTaskConfig gtc, AppConfig.ProcessTask processTask) {
-            super(gtc, processTask, TaskTypeEnum.NLP);
-        }
-
-        @Override
-        public List<ITask> generate() throws IOException {
-            LinkedList<ITask> tasks = new LinkedList<>();
-            LinkedHashMap<File, List<File>> dirToFiles = loadSortedDirToFilesMap();
-            Map<String, Object> configMap = BeanUtil.beanToMap(processTask);
-            for (Map.Entry<File, List<File>> entry : dirToFiles.entrySet()) {
-                File dir = entry.getKey();
-//                if(!dir.getName().equals("0009")) continue;
-                File outDir = genOutFile(dir);
-                if(new File(outDir,"nlp.txt").exists())
-                    continue;
-                NlpTask task = new NlpTask(entry, outDir, configMap);
-                tasks.add(task);
-            }
-            return tasks;
-        }
-    }
     /**
      * 片段化结果
      */

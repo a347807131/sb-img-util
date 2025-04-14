@@ -16,7 +16,9 @@ import org.apache.logging.log4j.util.Strings;
 
 import java.io.File;
 import java.io.FileFilter;
+import java.io.FilenameFilter;
 import java.io.IOException;
+import java.lang.reflect.Constructor;
 import java.lang.reflect.Type;
 import java.nio.file.Path;
 import java.util.*;
@@ -25,28 +27,25 @@ import java.util.*;
 public abstract class AbstractTaskBuilder<T extends BaseTask> implements TaskBuilder<T>{
 
     final AppConfig.GlobalTaskConfig gtc;
-//    final Map<String, Object> configMap;
-    final AppConfig.ProcessTask processTask;
-
+    final Map<String, Object> configMap;
 
     @Override
     public List<T> build() throws IOException {
-
         var tasks = new LinkedList<T>();
-        Map<String,Object> configMap = BeanUtil.beanToMap(processTask);
-        for (File imgFile : loadImageFiles()) {
-            File outFile = genOutFile(imgFile,processTask.getFormat());
+        for (File inFile : loadInFiles()) {
+            File outFile = outFile(inFile);
             if (outFile.exists() && !gtc.isEnforce()) {
                 continue;
             }
-            T task = ReflectUtil.newInstance(getTaskClass(), imgFile, outFile, configMap);
-            tasks.add(task);
+            tasks.add(build(inFile));
         }
         return tasks;
-        ReflectUtil.newInstance(getTaskClass(), );
     }
 
-
+    public T build(File inFile) throws IOException {
+        File outFile = outFile(inFile);
+        return ReflectUtil.newInstance(getTaskClass(), inFile, outFile, configMap);
+    }
 
     @Override
     public Class<T> getTaskClass() {
@@ -55,21 +54,8 @@ public abstract class AbstractTaskBuilder<T extends BaseTask> implements TaskBui
         return (Class<T>) type;
     }
 
-    File genPdfOutFile(File dirFilesBelong) {
-        String outFileName = dirFilesBelong.getName() + ".pdf";
-        String midpiece = dirFilesBelong.getAbsolutePath().replace(
-                new File(gtc.getInDirPath()).getAbsolutePath(), ""
-        );
-        Path fleOutDirPath = Path.of(gtc.getOutDirPath(), midpiece);
-        if (!StringUtils.isEmpty(midpiece)) {
-            fleOutDirPath = fleOutDirPath.getParent();
-        }
-        Path outFilePath = fleOutDirPath.resolve(outFileName);
-        return outFilePath.toFile();
-    }
-
-    File genOutFile(File inFile) {
-        return genOutFile(inFile,null);
+    File outFile(File inFile) {
+        return outFile(inFile,configMap.get("format").toString());
     }
 
     /**
@@ -78,7 +64,7 @@ public abstract class AbstractTaskBuilder<T extends BaseTask> implements TaskBui
      * @param format 后缀 无分隔符
      * @return
      */
-    File genOutFile(File inFile,String format) {
+    File outFile(File inFile,String format) {
         String inFileName = inFile.getName();
         String outFileName = inFileName;
         if (Strings.isNotBlank(format)) {
@@ -92,11 +78,11 @@ public abstract class AbstractTaskBuilder<T extends BaseTask> implements TaskBui
         return Path.of(gtc.getOutDirPath(), midpiece, outFileName).toFile();
     }
 
-    List<File> loadImageFiles() {
+    List<File> loadInFiles() {
         return loadSortedDirToFilesMap().values().stream().collect(
-                LinkedList::new,
-                LinkedList::addAll,
-                LinkedList::addAll
+            LinkedList::new,
+            LinkedList::addAll,
+            LinkedList::addAll
         );
     }
 
@@ -111,15 +97,19 @@ public abstract class AbstractTaskBuilder<T extends BaseTask> implements TaskBui
 
         //@formatter:off-->
         return FileFilterUtils.filterList(getFileFileter(),files).stream()
-                .collect(
-                        LinkedHashMap::new,
-                        (m, k) -> {
-                            File parent = k.getParentFile();
-                            m.computeIfAbsent(parent, v -> new LinkedList<>()).add(k);
-                        },
-                        LinkedHashMap::putAll
-                );
+            .collect(
+                LinkedHashMap::new,
+                (m, k) -> {
+                    File parent = k.getParentFile();
+                    m.computeIfAbsent(parent, v -> new LinkedList<>()).add(k);
+                },
+                LinkedHashMap::putAll
+            );
         //@formatter:on-->
+    }
+
+    public Set<String> getSupportedExts(){
+        return null;
     }
 
     public IOFileFilter getFileFileter(){
@@ -127,17 +117,21 @@ public abstract class AbstractTaskBuilder<T extends BaseTask> implements TaskBui
         var fileExtFileter=new FileFilter() {
             @Override
             public boolean accept(File file) {
-                return Const.SUPORTTED_FORMATS.contains(FileUtil.extName(file));
+                if(getSupportedExts()==null) return true;
+                return getSupportedExts().contains(FileUtil.extName(file));
             }
         };
+
         var fileNameFileter=new FileFilter() {
             @Override
             public boolean accept(File file) {
                 return Strings.isBlank(fileNameRegex) || file.getName().matches(fileNameRegex);
             }
         };
+
         return FileFilterUtils.and(
-                FileFilterUtils.asFileFilter(fileNameFileter)
+            FileFilterUtils.asFileFilter(fileExtFileter),
+            FileFilterUtils.asFileFilter(fileNameFileter)
         );
     }
 }

@@ -16,7 +16,6 @@ import java.util.concurrent.TimeUnit;
 
 @Slf4j
 public class Mp3ExtractTask extends BaseTask{
-    File inFile;
     public Mp3ExtractTask(File inFile, File outFile, Map<String,Object> configMap) {
         super(inFile, outFile, configMap);
     }
@@ -61,31 +60,4 @@ public class Mp3ExtractTask extends BaseTask{
     }
 
     static List<String> EXTENSIONS = List.of("mp4","avi","mkv","wmv","flv","rmvb","rm","mov","mpg","mpeg","m4v","3gp","ts","rmi");
-
-    public static class TaskGenerator extends BaseTaskGenerator {
-        public TaskGenerator(AppConfig.GlobalTaskConfig gtc, AppConfig.ProcessTask processTask) {
-            super(gtc, processTask, TaskTypeEnum.EXTRACT_SOUNDTRACK_FROM_VIDEO);
-        }
-
-        @Override
-        public IOFileFilter getFileFileter() {
-             var fileterSuper=super.getFileFileter();
-            var extFilter=new FileFilter() {
-                @Override
-                public boolean accept(File file) {
-                    String fileName = file.getName();
-                    String ext = FileUtil.extName(file);
-                    return EXTENSIONS.contains(ext);
-                }
-            };
-            return FileFilterUtils.and(fileterSuper,
-                    FileFilterUtils.asFileFilter(extFilter)
-                    );
-        }
-
-        @Override
-        public List<ITask> generate() throws IOException {
-            return super.generate();
-        }
-    }
 }

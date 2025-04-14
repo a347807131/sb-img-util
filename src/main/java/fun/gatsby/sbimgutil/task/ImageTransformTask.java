@@ -29,11 +29,6 @@ public class ImageTransformTask extends BaseTask{
         String ext
     ){}
 
-    public static final Set<String> SUPORTTED_TARGET_FORMAT = Set.of(
-            "jpg","jp2","tif","png"
-    );
-
-
     public ImageTransformTask(File inFile, File outFile, Map<String,Object> configMap){
         super(inFile, outFile, configMap);
         config = BeanUtil.toBean(configMap, Config.class);

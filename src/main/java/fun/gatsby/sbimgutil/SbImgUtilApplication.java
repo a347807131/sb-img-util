@@ -1,17 +1,16 @@
 package fun.gatsby.sbimgutil;
 
+import cn.hutool.core.bean.BeanUtil;
 import fun.gatsby.sbimgutil.config.AppConfig;
 import fun.gatsby.sbimgutil.context.TaskExecutor;
-import fun.gatsby.sbimgutil.task.TaskTypeEnum;
+import fun.gatsby.sbimgutil.task.TaskEnum;
 import fun.gatsby.sbimgutil.utils.ConsoleProgress;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.boot.WebApplicationType;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.context.ApplicationContext;
 
 import java.util.Map;
-import java.util.concurrent.ExecutionException;
 
 @Slf4j
 @SpringBootApplication
@@ -33,10 +32,13 @@ public class SbImgUtilApplication  {
             log.info(progress);
         };
 
-        TaskTypeEnum taskTypeEnum = TaskTypeEnum.valueOf(appConfig.getTaskToStartup());
+        TaskEnum taskEnum = TaskEnum.valueOf(appConfig.getTaskToStartup());
+        AppConfig.ProcessTask processTask = appConfig.getProcessTasks().get(taskEnum.name());
+        Map<String, Object> configMap = BeanUtil.beanToMap(processTask);
+
         TaskExecutor executor = new TaskExecutor(
                 appConfig.getGlobalTaskConfig(),
-                Map.entry(taskTypeEnum, appConfig.getProcessTasks().get(taskTypeEnum.name())),
+                Map.entry(taskEnum, configMap),
                 funcPerTaskDone
         );
         cpb.setTotal(executor.getTaskCount());

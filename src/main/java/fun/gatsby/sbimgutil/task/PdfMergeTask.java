@@ -10,7 +10,6 @@ import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.*;
 
 @Slf4j
@@ -21,10 +20,10 @@ public class PdfMergeTask extends BaseTask {
 
     private float imageScale=1f;
 
-    public PdfMergeTask(List<File> inFiles, File outFile, Map<String,Object> configMap) {
+    public PdfMergeTask(List<File> inFiles, File outFile, File cataFile, Map<String,Object> configMap) {
         super(null, outFile, configMap);
         this.inFiles = inFiles;
-        cataFile=new File(configMap.get("cataDirPath").toString());
+        this.cataFile =cataFile;
         this.imageScale=configMap.get("pdfImageScale")==null?1f:(float)configMap.get("pdfImageScale");
     }
 
@@ -44,7 +43,7 @@ public class PdfMergeTask extends BaseTask {
                 log.error("cataFile is null" + outFile.getAbsolutePath());
                 throw new IOException("cataFile is null" + outFile.getAbsolutePath());
             } else {
-                if(imageScale>=1)
+                if (imageScale >= 1)
                     PDFUtils.mergeIntoPdf(inFiles, cataFile, os);
                 else
                     PDFUtils.mergeIntoPdfWithScale(inFiles, cataFile, os, imageScale);
@@ -55,34 +54,6 @@ public class PdfMergeTask extends BaseTask {
         } catch (Exception e) {
             log.error("merge pdf:{} error", outFile, e);
             throw new RuntimeException(e);
-        }
-    }
-
-    public static class TaskGenerator extends BaseTaskGenerator {
-        public TaskGenerator(AppConfig.GlobalTaskConfig gtc, AppConfig.ProcessTask processTask) {
-            super(gtc, processTask,TaskTypeEnum.PDF_MERGE);
-        }
-
-        public List<ITask> generate() {
-            List<ITask> tasks = new LinkedList<>();
-            //TODO
-//            for (Map.Entry<File, List<File>> entry : loadSortedDirToFilesMap().entrySet()) {
-//                File dirThatFilesBelong = entry.getKey();
-//                File outFile =
-//                        genPdfOutFile(dirThatFilesBelong);
-//                if (outFile.exists() && !gtc.isEnforce())
-//                    continue;
-//                List<File> imgs = entry.getValue();
-//                String cataDirPath = cataFile.getCataDirPath();
-//                File cataFile = null;
-//                if (Strings.isNotBlank(cataDirPath)) {
-//                    String cataFileName = dirThatFilesBelong.getAbsolutePath().replace(new File(gtc.getInDirPath()).getAbsolutePath(), "") + ".txt";
-//                    cataFile = new File(cataDirPath, cataFileName);
-//                }
-//                PdfMergeTask task = new PdfMergeTask(imgs, outFile, cataFile,processTask.getPdfImageScale());
-//                tasks.add(task);
-//            }
-            return tasks;
         }
     }
 }

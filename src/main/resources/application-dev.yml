@@ -4,12 +4,12 @@ logging:
     fun.gatsby: DEBUG
 
 app:
-  task-to-startup: EXTRACT_SOUNDTRACK_FROM_VIDEO
+  task-to-startup: SOUNDTRACK_EXTRACT
   global-task-config:
     #输入目录
     in-dir-path: "/Volumes/av/media/杂av"
     #输出目录
-    out-dir-path: "/Volumes/影视/media/音频提取/杂av/"
+    out-dir-path: "/Volumes/影视/media/音频提取/1111"
     enforce: false
     max-worker-num: 4
 
@@ -18,11 +18,11 @@ app:
       #输出格式
       format: jpg
 
-    IMAGE_COMPRESS:
+    JP2_COMPRESS:
       #压缩限制大小
-      compress-limit: 500
+      limit: 500
       format: jp2
-    EXTRACT_SOUNDTRACK_FROM_VIDEO:
+    SOUNDTRACK_EXTRACT:
       format: mp3
 
     DRAW_BLUR:
@@ -31,14 +31,6 @@ app:
       #目录文件所在目录
       cata-dir-path: D:\原始备份\图片处理模板\5 目录
       pdf-image-scale: 0.25
-    IMAGE_CUT:
-      label-file-path: D:\原始备份\图片处理模板\4 标签文件
-    DOUBLE_LAYER_PDF_GENERATE:
-      #目录文件所在目录
-      cata-dir-path: D:\原始备份\图片处理模板\5 目录
-      label-dir-path: D:\原始备份\双层pdf相关\label
-    LABELED_DATASET_COLLECT:
-      rate-of-train: 0.9
     PDF_ADD_CATA:
       #目录文件所在目录
       cata-dir-path: ${app.global-task-config.in-dir-path}

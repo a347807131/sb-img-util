@@ -2,7 +2,6 @@ package fun.gatsby.sbimgutil;
 
 import cn.hutool.core.io.FileUtil;
 import com.alibaba.fastjson2.JSON;
-import fun.gatsby.sbimgutil.task.NlpTask;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -99,47 +98,6 @@ public class FileTest {
         String chineseText = text.substring(
                 translatedResultGuideTextIndex+translatedResultGuideText.length()
         );
-    }
-
-    @Test
-    public void t5() throws IOException {
-
-        LinkedHashMap<File, List<File>> dirToFiles=FileUtil.loopFiles("D:\\原始备份\\提取txt文档\\NLP").stream()
-                .collect(
-                LinkedHashMap::new,
-                (m, k) -> {
-                    File parent = k.getParentFile();
-                    m.computeIfAbsent(parent, v -> new LinkedList<>()).add(k);
-                },
-                LinkedHashMap::putAll
-        );
-
-        Path outDir = Path.of("Output");
-        for (Map.Entry<File, List<File>> entry : dirToFiles.entrySet()) {
-            File dir = entry.getKey();
-            var files = entry.getValue();
-            files=files.stream().sorted(Comparator.naturalOrder()).toList();
-            Path txtSaveDir = outDir.resolve(dir.getName());
-            FileUtils.forceMkdir(txtSaveDir.toFile());
-            StringBuilder ptsb = new StringBuilder();
-            StringBuilder ctsb = new StringBuilder();
-            for (File file : files) {
-                List<NlpTask.NlpResult> nlpResults= FileUtil.readLines(file, StandardCharsets.UTF_8)
-                        .stream()
-                        .filter(e-> !StringUtils.isBlank(e))
-                        .map(e -> JSON.parseObject(e, NlpTask.NlpResult.class))
-                        .toList();
-                for (NlpTask.NlpResult nlpResult : nlpResults) {
-                    ptsb.append(nlpResult.getPunctuatedText());
-                    ctsb.append(nlpResult.getChineseText());
-                }
-                //保存到文件
-                Path outFilePath1 = txtSaveDir.resolve("punctuated text.txt");
-                Path outFilePath2 = txtSaveDir.resolve("chinese text.txt");
-                Files.writeString(outFilePath1, ptsb.toString(), StandardCharsets.UTF_8);
-                Files.writeString(outFilePath2, ctsb.toString(), StandardCharsets.UTF_8);
-            }
-        }
     }
 
     @Test

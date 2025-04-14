@@ -5,6 +5,7 @@ import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.date.LocalDateTimeUtil;
 import fun.gatsby.sbimgutil.schedule.ITask;
 import fun.gatsby.sbimgutil.schedule.TaskStateEnum;
+import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
 
@@ -17,6 +18,7 @@ import java.time.temporal.ChronoUnit;
 import java.util.Map;
 
 @Slf4j
+@NoArgsConstructor
 public abstract class BaseTask implements ITask {
 
     //bugfixed
