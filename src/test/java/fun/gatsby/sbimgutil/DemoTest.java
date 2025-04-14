@@ -140,7 +140,7 @@ public class DemoTest {
     @Test
     public void t1(){
         File file = new File("BV1SU4y1z7aC.mp4");
-        Mp3ExtractTask task = new Mp3ExtractTask(file, new File("out.mp3"));
+        Mp3ExtractTask task = new Mp3ExtractTask(file, new File("out.mp3"),null);
         task.run();
     }
     @Test

@@ -41,7 +41,7 @@ public class BaseTaskGenerator implements ITaskGenerator{
                 case DRAW_BLUR -> new DrawBlurTask(imgFile, outFile, configMap);
                 case BOOK_IMAGE_FIX -> new BookImageFixTask(imgFile, outFile,configMap);
                 case FIVE_BACKSPACE_REPLACE -> new FiveBackspaceReplaceTask(imgFile, outFile,configMap);
-                case EXTRACT_SOUNDTRACK_FROM_VIDEO -> new Mp3ExtractTask(imgFile, outFile);
+                case EXTRACT_SOUNDTRACK_FROM_VIDEO -> new Mp3ExtractTask(imgFile, outFile,null);
                 default -> null;
             };
             if(task!=null)

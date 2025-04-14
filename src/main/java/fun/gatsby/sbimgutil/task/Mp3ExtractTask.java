@@ -11,16 +11,14 @@ import org.apache.commons.io.filefilter.IOFileFilter;
 import java.io.*;
 import java.nio.file.Files;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 @Slf4j
 public class Mp3ExtractTask extends BaseTask{
     File inFile;
-    public Mp3ExtractTask(File inFile, File outFile){
-        this.inFile=inFile;
-        this.outFile=outFile;
-
-        this.name="音频提取"+inFile.getAbsolutePath();
+    public Mp3ExtractTask(File inFile, File outFile, Map<String,Object> configMap) {
+        super(inFile, outFile, configMap);
     }
     private static final String CMDFORMATSTR="ffmpeg -i \"%s\" -q:a 0 \"%s\"";
 

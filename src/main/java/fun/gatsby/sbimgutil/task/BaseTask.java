@@ -32,9 +32,6 @@ public abstract class BaseTask implements ITask {
     protected File inFile;
     protected Map<String,Object> configMap;
 
-    public BaseTask(){
-    }
-
     public BaseTask(File inFile, File outFile, Map<String,Object> configMap){
         this.inFile = inFile;
         this.outFile = outFile;
