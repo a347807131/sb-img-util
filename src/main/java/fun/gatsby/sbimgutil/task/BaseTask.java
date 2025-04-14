@@ -54,6 +54,7 @@ public abstract class BaseTask implements ITask {
 
         state = TaskStateEnum.RUNNING;
         startDate = LocalDateTime.now();
+        log.info("开始执行任务:[{}]", getName());
     }
 
     @Override

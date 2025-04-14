@@ -22,12 +22,23 @@ public class Mp3ExtractTask extends BaseTask{
     }
     private static final String CMDFORMATSTR="ffmpeg -i \"%s\" -q:a 0 \"%s\"";
 
+    @Override
+    public void before() throws IOException {
+    }
+
     /**
      * ffmpeg -i input_video.mp4 -q:a 0 output_audio.mp3
      * @throws Throwable
      */
     @Override
     public void doWork() throws Throwable {
+        this.outFile=new File(outFile.getParentFile(), TEMP_FILE_PREFIX+outFile.getName());
+        if(outFile.exists()) {
+            log.info("{}的结果文件已存在,跳过",inFile);
+            return;
+        }
+        super.before();
+
         var cmd=CMDFORMATSTR.formatted(inFile.getAbsolutePath(),outFile.getAbsolutePath());
         ProcessBuilder pb = new ProcessBuilder("/bin/sh", "-c",cmd);
         Process process = pb.start();
