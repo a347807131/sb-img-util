@@ -59,7 +59,8 @@ public abstract class AbstractTaskBuilder<T extends BaseTask> implements TaskBui
      * @param format 后缀 无分隔符
      * @return
      */
-    File outFile(File inFile,String format) {
+    @Override
+    public File outFile(File inFile, String format) {
         String inFileName = inFile.getName();
         String outFileName = inFileName;
         if (Strings.isNotBlank(format)) {

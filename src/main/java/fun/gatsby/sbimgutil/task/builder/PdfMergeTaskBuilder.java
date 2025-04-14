@@ -35,18 +35,16 @@ public class PdfMergeTaskBuilder extends AbstractTaskBuilder<PdfMergeTask>{
     }
 
     @Override
-    List<File> loadInFiles() {
+    public List<File> loadInFiles() {
         LinkedHashMap<File, List<File>> dirToFilesMap = loadSortedDirToFilesMap();
         return new LinkedList<>(dirToFilesMap.keySet());
-//            PdfMergeTask task = new PdfMergeTask(imgs, outFile, cataFile,processTask.getPdfImageScale());
-
     }
 
     /**
      * @param dirFilesBelong 文件列表的所在目录
      * @return
      */
-    File outFile(File dirFilesBelong) {
+    public File outFile(File dirFilesBelong) {
         String outFileName = dirFilesBelong.getName() + ".pdf";
         String midpiece = dirFilesBelong.getAbsolutePath().replace(
                 new File(gtc.getInDirPath()).getAbsolutePath(), ""

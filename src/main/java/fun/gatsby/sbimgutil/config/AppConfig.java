@@ -50,6 +50,7 @@ public class AppConfig {
         float rateOfTrain;
         float pdfImageScale=1;
 
+        int timeout=15;
         boolean isMasterBook;
     }
 }

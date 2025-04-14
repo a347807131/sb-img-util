@@ -31,7 +31,6 @@ public class Mp3ExtractTask extends BaseTask{
      */
     @Override
     public void doWork() throws Throwable {
-        this.outFile=new File(outFile.getParentFile(), TEMP_FILE_PREFIX+outFile.getName());
         if(outFile.exists()) {
             log.info("{}的结果文件已存在,跳过",inFile);
             return;

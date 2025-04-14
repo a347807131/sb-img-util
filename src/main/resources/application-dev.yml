@@ -24,6 +24,7 @@ app:
       format: jp2
     SOUNDTRACK_EXTRACT:
       format: mp3
+      timeout: 15
 
     DRAW_BLUR:
       blur-image-path: D:\原始备份\图片处理模板\2 模糊图

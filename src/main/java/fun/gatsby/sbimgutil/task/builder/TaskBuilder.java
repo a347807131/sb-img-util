@@ -17,6 +17,8 @@ public interface TaskBuilder<T extends ITask> {
 
     File outFile(File inFile);
 
+    File outFile(File inFile, String format);
+
     List<File> loadInFiles();
 
     Set<String> getSupportedExts();
