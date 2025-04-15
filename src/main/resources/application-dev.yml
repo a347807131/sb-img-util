@@ -7,11 +7,11 @@ app:
   task-to-startup: SOUNDTRACK_EXTRACT
   global-task-config:
     #输入目录
-    in-dir-path: "/Volumes/av/media/杂av"
+    in-dir: "/Volumes/影视/media/bili-sync/UP主投稿/未明子"
     #输出目录
-    out-dir-path: "/Volumes/影视/media/音频提取/1111"
+    out-dir: "/Volumes/影视/media/音频提取/UP主投稿/未明子"
     enforce: false
-    max-worker-num: 4
+    threads: 4
 
   process-tasks:
     IMAGE_TRANSFORM:
@@ -24,14 +24,13 @@ app:
       format: jp2
     SOUNDTRACK_EXTRACT:
       format: mp3
-      timeout: 15
+      timeout: 1200
 
     DRAW_BLUR:
       blur-image-path: D:\原始备份\图片处理模板\2 模糊图
     PDF_MERGE:
       #目录文件所在目录
       cata-dir-path: D:\原始备份\图片处理模板\5 目录
-      pdf-image-scale: 0.25
     PDF_ADD_CATA:
       #目录文件所在目录
       cata-dir-path: ${app.global-task-config.in-dir-path}

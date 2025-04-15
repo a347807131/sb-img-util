@@ -50,15 +50,9 @@ public abstract class AbstractTaskBuilder<T extends BaseTask> implements TaskBui
 
     @Override
     public File outFile(File inFile) {
-        return outFile(inFile,configMap.get("format").toString());
+        return outFile(inFile,(String) configMap.get("format"));
     }
 
-    /**
-     *
-     * @param inFile
-     * @param format 后缀 无分隔符
-     * @return
-     */
     @Override
     public File outFile(File inFile, String format) {
         String inFileName = inFile.getName();
@@ -68,10 +62,10 @@ public abstract class AbstractTaskBuilder<T extends BaseTask> implements TaskBui
         }
         String olDdirPath = inFile.getParentFile().getAbsolutePath();
         String midpiece = olDdirPath.replace(
-                new File(gtc.getInDirPath()).getAbsolutePath(),
+                new File(gtc.getInDir()).getAbsolutePath(),
                 ""
         );
-        return Path.of(gtc.getOutDirPath(), midpiece, outFileName).toFile();
+        return Path.of(gtc.getOutDir(), midpiece, outFileName).toFile();
     }
 
     @Override
@@ -84,14 +78,10 @@ public abstract class AbstractTaskBuilder<T extends BaseTask> implements TaskBui
     }
 
     public LinkedHashMap<File, List<File>> loadSortedDirToFilesMap() {
-        Path inPath = Path.of(gtc.getInDirPath());
-        List<File> files ;
-        if(gtc.isRecursive()){
-            files = FileUtil.loopFiles(inPath.toFile());
-        }else {
-            files = Arrays.stream(Objects.requireNonNull(inPath.toFile().listFiles(e -> !e.isDirectory()))).toList();
-        }
-
+        Path inPath = Path.of(gtc.getInDir());
+        List<File> files =gtc.isRecursive()?
+            FileUtil.loopFiles(inPath.toFile()) :
+            Arrays.stream(Objects.requireNonNull(inPath.toFile().listFiles(e -> !e.isDirectory()))).toList();
         //@formatter:off-->
         return FileFilterUtils.filterList(getFileFileter(),files).stream()
             .collect(

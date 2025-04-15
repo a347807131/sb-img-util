@@ -15,12 +15,12 @@ public class PdfAddCateTaskBuilder extends AbstractTaskBuilder<PdfAddCataTask>{
 
     @Override
     public PdfAddCataTask build(File inFile) throws IOException {
+        var outFile = outFile(inFile);
         String txtFileRelativePath = inFile.getAbsolutePath().replace(
-                new File(gtc.getInDirPath()).getAbsolutePath(), "./"
+                new File(gtc.getInDir()).getAbsolutePath(), "./"
         ).replace(".pdf", ".txt");
         String cataDirPath = configMap.get("cataDirPath").toString();
         var cataFile = Path.of(cataDirPath, txtFileRelativePath).toFile();
-        var outFile = outFile(inFile);
         return  new PdfAddCataTask(inFile, cataFile, outFile);
     }
 }

@@ -26,31 +26,23 @@ public class AppConfig {
     String taskToStartup;
 
     Map<String, ProcessTask> processTasks;
-
     GlobalTaskConfig globalTaskConfig;
 
     @Data
     static public class GlobalTaskConfig {
-        int maxWorkerNum;
-        String inDirPath;
-        String outDirPath;
+        int threads;
+        String inDir;
+        String outDir;
         boolean recursive = true;
         String fileNameRegex;
         boolean enforce=false;
     }
-
     @Data
     static public class ProcessTask {
         String blurImagePath;
         int limit = 500;
         String format;
         String cataDirPath;
-        String labelDirPath;
-        String labelFilePath;
-        float rateOfTrain;
-        float pdfImageScale=1;
-
         int timeout=15;
-        boolean isMasterBook;
     }
 }

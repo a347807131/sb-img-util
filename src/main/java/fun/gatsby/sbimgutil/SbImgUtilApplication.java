@@ -33,7 +33,7 @@ public class SbImgUtilApplication  {
         };
 
         TaskEnum taskEnum = TaskEnum.valueOf(appConfig.getTaskToStartup());
-        AppConfig.ProcessTask processTask = appConfig.getProcessTasks().get(taskEnum.name());
+        var processTask = appConfig.getProcessTasks().get(taskEnum.name());
         Map<String, Object> configMap = BeanUtil.beanToMap(processTask);
 
         TaskExecutor executor = new TaskExecutor(

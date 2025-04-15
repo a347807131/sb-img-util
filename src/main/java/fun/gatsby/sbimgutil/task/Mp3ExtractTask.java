@@ -16,8 +16,13 @@ import java.util.concurrent.TimeUnit;
 
 @Slf4j
 public class Mp3ExtractTask extends BaseTask{
+    private final Integer timeout;
+
     public Mp3ExtractTask(File inFile, File outFile, Map<String,Object> configMap) {
         super(inFile, outFile, configMap);
+        this.timeout= Integer.parseInt(
+                configMap.getOrDefault("timeout", 600).toString()
+        );
     }
     private static final String CMDFORMATSTR="ffmpeg -i \"%s\" -q:a 0 \"%s\"";
 
@@ -42,7 +47,7 @@ public class Mp3ExtractTask extends BaseTask{
         Process process = pb.start();
 
         //超时检查
-        if(!process.waitFor(10, TimeUnit.MINUTES)){
+        if(!process.waitFor(timeout, TimeUnit.SECONDS)){
             throw new RuntimeException("ffmpeg process timeout 10m,[%s]".formatted(inFile.getAbsolutePath()));
         }
         process.destroyForcibly();

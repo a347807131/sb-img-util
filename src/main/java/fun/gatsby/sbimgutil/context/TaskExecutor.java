@@ -24,10 +24,10 @@ public class TaskExecutor {
     ForkJoinPool forkJoinPool;
 
     public TaskExecutor(AppConfig.GlobalTaskConfig gtc, Map.Entry<TaskEnum, Map<String,Object>> entry) throws IOException {
-        this.forkJoinPool = new TaskScheduleForkJoinPool(gtc.getMaxWorkerNum());
+        this.forkJoinPool = new TaskScheduleForkJoinPool(gtc.getThreads());
         this.gtc=gtc;
         taskGroup=loadTasks(entry);
-        if (Objects.equals(gtc.getInDirPath(),gtc.getOutDirPath()))
+        if (Objects.equals(gtc.getInDir(),gtc.getOutDir()))
             throw new IOException("输入输出目录不能相同");
     }
 
@@ -36,7 +36,7 @@ public class TaskExecutor {
             Map.Entry<TaskEnum, Map<String,Object>> taskEnumToConfigMapEntry,
             Runnable funcPerTaskDone
     ) throws IOException {
-        this.forkJoinPool = new TaskScheduleForkJoinPool(gtc.getMaxWorkerNum());
+        this.forkJoinPool = new TaskScheduleForkJoinPool(gtc.getThreads());
         this.gtc=gtc;
         TaskEnum taskType = taskEnumToConfigMapEntry.getKey();
         var configMap = taskEnumToConfigMapEntry.getValue();
@@ -61,6 +61,8 @@ public class TaskExecutor {
     }
 
     public void excute() throws ExecutionException, InterruptedException {
+        log.info("任务总数：{}",taskGroup.size());
+        log.info("启动参数{}",gtc);
         ForkJoinTask<?> forkJoinTask =
                 this.forkJoinPool.submit(() -> taskGroup.parallelStream().forEach(Runnable::run));
         forkJoinTask.get();

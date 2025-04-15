@@ -1,6 +1,7 @@
 package fun.gatsby.sbimgutil;
 
 import cn.hutool.core.date.LocalDateTimeUtil;
+import cn.hutool.core.io.FileUtil;
 import fun.gatsby.sbimgutil.task.Mp3ExtractTask;
 import fun.gatsby.sbimgutil.utils.ImageUtils;
 //import com.itextpdf.text.BadElementException;
@@ -21,6 +22,7 @@ import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.*;
+import java.nio.file.Path;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
@@ -151,5 +153,17 @@ public class DemoTest {
         var cmd="ffmpeg -i %s -q:a 0 %s".formatted(in.getAbsolutePath(),out.getAbsolutePath());
         Process process = Runtime.getRuntime().exec(cmd);
         int exitCode = process.waitFor();
+    }
+
+    @Test
+    public void t7(){
+        Path path = Path.of("/Volumes/影视/media/音频提取/UP主投稿/未明子");
+        List<File> files = FileUtil.loopFiles(path.toFile());
+        List<File> temp = files.stream().filter(e -> e.getName().startsWith("temp")).toList();
+        for (File file : temp) {
+            String substring = file.getName().substring(5);
+            System.out.println();
+        }
+
     }
 }

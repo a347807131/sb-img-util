@@ -28,7 +28,7 @@ public class PdfMergeTaskBuilder extends AbstractTaskBuilder<PdfMergeTask>{
         String cataDirPath = configMap.get("cataDirPath").toString();
         File cataFile = null;
         if (Strings.isNotBlank(cataDirPath)) {
-            String cataFileName = inFile.getAbsolutePath().replace(new File(gtc.getInDirPath()).getAbsolutePath(), "") + ".txt";
+            String cataFileName = inFile.getAbsolutePath().replace(new File(gtc.getInDir()).getAbsolutePath(), "") + ".txt";
             cataFile = new File(cataDirPath, cataFileName);
         }
         return new PdfMergeTask(imgFiles, outFile, cataFile,configMap);
@@ -47,9 +47,9 @@ public class PdfMergeTaskBuilder extends AbstractTaskBuilder<PdfMergeTask>{
     public File outFile(File dirFilesBelong) {
         String outFileName = dirFilesBelong.getName() + ".pdf";
         String midpiece = dirFilesBelong.getAbsolutePath().replace(
-                new File(gtc.getInDirPath()).getAbsolutePath(), ""
+                new File(gtc.getInDir()).getAbsolutePath(), ""
         );
-        Path fleOutDirPath = Path.of(gtc.getOutDirPath(), midpiece);
+        Path fleOutDirPath = Path.of(gtc.getOutDir(), midpiece);
         if (!StringUtils.isEmpty(midpiece)) {
             fleOutDirPath = fleOutDirPath.getParent();
         }
