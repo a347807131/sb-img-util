@@ -41,11 +41,11 @@ public abstract class BaseTask implements ITask {
         this.name="%s->%s".formatted(inFile.getName(), outFile.getName());
     }
 
-    static final String TEMP_FILE_PREFIX = "temp.";
+    static final String TEMP_FILE_PREFIX = ".tmp";
     @Override
     public void before() throws IOException {
         if (outFile != null) {
-            this.outFile=new File(outFile.getParentFile(), TEMP_FILE_PREFIX+outFile.getName());
+            this.outFile=new File(outFile.getParentFile(), outFile.getName()+TEMP_FILE_PREFIX);
             if (outFile.exists()) {
                 Files.delete(outFile.toPath());
             }
@@ -67,7 +67,7 @@ public abstract class BaseTask implements ITask {
     @Override
     public void after() {
         if (outFile != null && outFile.exists()) {
-            String fileName = outFile.getName().substring(TEMP_FILE_PREFIX.length());
+            String fileName = outFile.getName().substring(0, outFile.getName().length() - TEMP_FILE_PREFIX.length());
             File finalFile = new File(outFile.getParentFile(), fileName);
             if(finalFile.exists()){
                 finalFile.delete();
@@ -92,6 +92,6 @@ public abstract class BaseTask implements ITask {
     }
 
     public String getName(){
-        return "[%s] %s".formatted(getClass().getSimpleName(),inFile.getAbsoluteFile());
+        return "[%s] %s".formatted(getClass().getSimpleName(),inFile.getName());
     };
 }

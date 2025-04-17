@@ -15,7 +15,8 @@ public enum TaskEnum {
     PDF_SPLIT("pdf拆分", PdfMergeTaskBuilder.class),
     PDF_ADD_CATA("pdf添加目录", PdfAddCateTaskBuilder.class),
     PUNCTUATE("自然语言断句", PunctuateTaskBuilder.class),
-    SOUNDTRACK_EXTRACT("音频提取", SoundtrackExtractTaskBuilder.class)
+    SOUNDTRACK_EXTRACT("音频提取", SoundtrackExtractTaskBuilder.class),
+    TRANSCRIBE("音频转录", TranscribeBuilder.class),
     ;
     public final String cnName;
     public final Class<? extends TaskBuilder<? extends ITask>> builderClass;

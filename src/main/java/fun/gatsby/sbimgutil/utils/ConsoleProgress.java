@@ -69,7 +69,7 @@ public class ConsoleProgress {
         float speed = value == 0 ? 0 : secondsTotalSpent / value;
         int secondsLeft = (int) ((totalV - value) * speed);
 
-        sb.append(" | \t").append(floatPercentFormater.format(rate));
+        sb.append(" | \t").append(floatPercentFormater.format(rate)).append(" %s/%s".formatted(value,total.get()));
         sb.append(" | \t").append(floatFormater.format(speed)).append(" avg spu");
         sb.append(" | eta \t").append(genHMS(secondsLeft));
 //        sb.append(" |\t").append(totalV - value).append(" units left");

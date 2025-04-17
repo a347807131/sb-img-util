@@ -8,6 +8,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.junit.jupiter.api.Test;
 
 import java.io.File;
+import java.io.FileFilter;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -105,5 +106,9 @@ public class FileTest {
         File file = new File("D:\\原始备份\\ocr\\ocr龙泉市示例\\ocr示例/0010.json");
         String json = FileUtil.readString(file, "gbk");
 
+    }
+
+    @Test
+    public void t7(){
     }
 }

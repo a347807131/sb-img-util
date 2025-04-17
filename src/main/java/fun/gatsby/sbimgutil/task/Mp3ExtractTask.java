@@ -24,23 +24,14 @@ public class Mp3ExtractTask extends BaseTask{
                 configMap.getOrDefault("timeout", 600).toString()
         );
     }
-    private static final String CMDFORMATSTR="ffmpeg -i \"%s\" -q:a 0 \"%s\"";
-
-    @Override
-    public void before() throws IOException {
-    }
+    private static final String CMDFORMATSTR="ffmpeg -i \"%s\" -q:a 0 -f mp3 \"%s\"";
 
     /**
-     * ffmpeg -i input_video.mp4 -q:a 0 output_audio.mp3
+     * ffmpeg -i input_video.mp4 -q:a 0 -f mp3 output_audio.mp3
      * @throws Throwable
      */
     @Override
     public void doWork() throws Throwable {
-        if(outFile.exists()) {
-            log.info("{}的结果文件已存在,跳过",inFile);
-            return;
-        }
-        super.before();
 
         var cmd=CMDFORMATSTR.formatted(inFile.getAbsolutePath(),outFile.getAbsolutePath());
         ProcessBuilder pb = new ProcessBuilder("/bin/sh", "-c",cmd);

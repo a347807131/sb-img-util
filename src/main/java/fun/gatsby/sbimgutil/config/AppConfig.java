@@ -44,5 +44,6 @@ public class AppConfig {
         String ext;
         String cataDirPath;
         int timeout=15;
+        String apiUrl;
     }
 }
