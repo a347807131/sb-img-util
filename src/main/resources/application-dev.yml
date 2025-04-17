@@ -16,21 +16,20 @@ app:
   process-tasks:
     IMAGE_TRANSFORM:
       #输出格式
-      format: jpg
+      ext: jpg
 
     JP2_COMPRESS:
       #压缩限制大小
       limit: 500
-      format: jp2
     SOUNDTRACK_EXTRACT:
-      format: mp3
+      ext: mp3
       timeout: 1200
 
     DRAW_BLUR:
-      blur-image-path: D:\原始备份\图片处理模板\2 模糊图
+      blur-image-path: D:/原始备份/图片处理模板/2 模糊图
     PDF_MERGE:
       #目录文件所在目录
-      cata-dir-path: D:\原始备份\图片处理模板\5 目录
+      cata-dir-path: D:/原始备份/图片处理模板/5 目录
     PDF_ADD_CATA:
       #目录文件所在目录
       cata-dir-path: ${app.global-task-config.in-dir-path}

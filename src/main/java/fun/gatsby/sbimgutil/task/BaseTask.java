@@ -92,6 +92,6 @@ public abstract class BaseTask implements ITask {
     }
 
     public String getName(){
-        return "%s->%s".formatted(inFile.getName(), outFile.getName());
+        return "[%s] %s".formatted(getClass().getSimpleName(),inFile.getAbsoluteFile());
     };
 }

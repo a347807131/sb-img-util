@@ -4,6 +4,8 @@ import fun.gatsby.sbimgutil.schedule.ITask;
 import fun.gatsby.sbimgutil.task.builder.*;
 import lombok.Getter;
 
+import java.lang.invoke.CallSite;
+
 @Getter
 public enum TaskEnum {
     IMAGE_TRANSFORM("图片转换", ImageTransformTaskBuilder.class),

@@ -23,7 +23,7 @@ import java.util.*;
 @Slf4j
 public class ImageTransformTask extends BaseTask{
 
-    private final Config config;
+    String ext;
 
     record Config (
         String ext
@@ -31,12 +31,7 @@ public class ImageTransformTask extends BaseTask{
 
     public ImageTransformTask(File inFile, File outFile, Map<String,Object> configMap){
         super(inFile, outFile, configMap);
-        config = BeanUtil.toBean(configMap, Config.class);
-    }
-
-    @Override
-    public String getName() {
-        return "格式转换: " + inFile.getAbsolutePath();
+        this.ext = configMap.get("ext").toString();
     }
 
     int oriWDpi=600, oriHDpi=600;
@@ -46,7 +41,7 @@ public class ImageTransformTask extends BaseTask{
 //        ImageInfo imageInfo = Imaging.getImageInfo(inFile);
 //        oriWDpi = imageInfo.getPhysicalWidthDpi();
 //        oriHDpi = imageInfo.getPhysicalHeightDpi();
-        switch (config.ext) {
+        switch (ext) {
             case "jp2" -> {
                 BufferedImage bf = ImageIO.read(inFile);
                 ImageIO.write(bf, "jpeg2000", outFile);
@@ -75,7 +70,7 @@ public class ImageTransformTask extends BaseTask{
         BufferedImage bf = ImageIO.read(inFile);
         String name = null;
         ImageWriter writer = null;
-        Iterator<ImageWriter> writers = ImageIO.getImageWritersByFormatName(config.ext);
+        Iterator<ImageWriter> writers = ImageIO.getImageWritersByFormatName(ext);
         while (!Objects.equals(name, "com.github.jaiimageio.impl.plugins.tiff.TIFFImageWriter")) {
             writer = writers.next();
             name = writer.getClass().getName();
@@ -104,7 +99,7 @@ public class ImageTransformTask extends BaseTask{
     private void transformToJpg() throws IOException {
         //##########################
         BufferedImage bf = ImageIO.read(inFile);
-        ImageWriter writer = ImageIO.getImageWritersByFormatName(config.ext).next();
+        ImageWriter writer = ImageIO.getImageWritersByFormatName(ext).next();
         ImageWriteParam param = writer.getDefaultWriteParam();
         try (ImageOutputStream ios = ImageIO.createImageOutputStream(outFile);) {
             writer.setOutput(ios);

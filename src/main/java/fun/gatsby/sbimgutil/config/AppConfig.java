@@ -41,7 +41,7 @@ public class AppConfig {
     static public class ProcessTask {
         String blurImagePath;
         int limit = 500;
-        String format;
+        String ext;
         String cataDirPath;
         int timeout=15;
     }
