@@ -7,7 +7,6 @@ app:
   task-to-startup: SOUNDTRACK_EXTRACT
   global-task-config:
     #输入目录
-#    in-dir: "/Volumes/影视/media/音频提取/UP主投稿/未明子"
     in-dir: "/Volumes/av/media/杂AV"
     #输出目录
 #    out-dir: "/Volumes/影视/media/音频转录/UP主投稿/未明子"

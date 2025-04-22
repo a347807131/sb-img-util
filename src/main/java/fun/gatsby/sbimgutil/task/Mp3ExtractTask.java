@@ -35,11 +35,19 @@ public class Mp3ExtractTask extends BaseTask{
 
         var cmd=CMDFORMATSTR.formatted(inFile.getAbsolutePath(),outFile.getAbsolutePath());
         ProcessBuilder pb = new ProcessBuilder("/bin/sh", "-c",cmd);
+//        pb.inheritIO();
         Process process = pb.start();
-
+        var is = process.getErrorStream();
+//        fixed 输出占满缓存，导致程序卡死
+        // Create BufferedReader to read the output from FFmpeg process
+        BufferedReader reader = new BufferedReader(new InputStreamReader(is));
+        String line;
+        while ((line = reader.readLine()) != null) {
+//            System.out.println(line);
+        }
         //超时检查
         if(!process.waitFor(timeout, TimeUnit.SECONDS)){
-            throw new RuntimeException("ffmpeg process timeout 10m,[%s]".formatted(inFile.getAbsolutePath()));
+            throw new RuntimeException("ffmpeg process timeout {%s},[%s]".formatted(timeout,inFile.getAbsolutePath()));
         }
         process.destroyForcibly();
     }
@@ -54,5 +62,5 @@ public class Mp3ExtractTask extends BaseTask{
         return name;
     }
 
-    static List<String> EXTENSIONS = List.of("mp4","avi","mkv","wmv","flv","rmvb","rm","mov","mpg","mpeg","m4v","3gp","ts","rmi");
+    public final static List<String> EXTENSIONS = List.of("mp4","avi","mkv","wmv","flv","rmvb","rm","mov","mpg","mpeg","m4v","3gp","ts","rmi");
 }

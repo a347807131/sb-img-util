@@ -38,7 +38,7 @@ public abstract class BaseTask implements ITask {
         this.inFile = inFile;
         this.outFile = outFile;
         this.configMap=configMap;
-        this.name="%s->%s".formatted(inFile.getName(), outFile.getName());
+        this.name="%s->%s".formatted(inFile.getAbsolutePath(), outFile.getName());
     }
 
     static final String TEMP_FILE_PREFIX = ".tmp";
@@ -92,6 +92,6 @@ public abstract class BaseTask implements ITask {
     }
 
     public String getName(){
-        return "[%s] %s".formatted(getClass().getSimpleName(),inFile.getName());
+        return "%s %s".formatted(getClass().getSimpleName(),inFile.getAbsolutePath());
     };
 }

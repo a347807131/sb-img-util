@@ -50,7 +50,7 @@ public abstract class AbstractTaskBuilder<T extends BaseTask> implements TaskBui
 
     @Override
     public File outFile(File inFile) {
-        return outFile(inFile,(String) configMap.get("format"));
+        return outFile(inFile,(String) configMap.get("ext"));
     }
 
     @Override
