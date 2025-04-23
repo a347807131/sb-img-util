@@ -3,7 +3,7 @@
 
 #define Author "JGatsby civin@bupt.cn"
 #define MyAppName "美斯齐-图片转换工具"
-#define MyAppVersion "v2.7"
+#define MyAppVersion "v3.1"
 #define MyAppPublisher "My Company, Inc."
 #define MyAppURL "https://www.gatsby.fun/"
 #define MyAppExeName "sb-img-util.exe"

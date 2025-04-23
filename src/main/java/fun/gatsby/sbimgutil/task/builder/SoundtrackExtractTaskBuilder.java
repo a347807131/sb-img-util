@@ -3,6 +3,7 @@ package fun.gatsby.sbimgutil.task.builder;
 
 import fun.gatsby.sbimgutil.config.AppConfig;
 import fun.gatsby.sbimgutil.task.Mp3ExtractTask;
+import okhttp3.OkHttpClient;
 
 import java.io.File;
 import java.util.Map;
