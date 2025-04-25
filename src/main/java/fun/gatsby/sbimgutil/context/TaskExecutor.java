@@ -42,9 +42,7 @@ public class TaskExecutor {
         var configMap = taskEnumToConfigMapEntry.getValue();
         var taskGroup = new ProcessTaskGroup(taskType.getCnName(),funcPerTaskDone);
 
-        var builderClass = taskType.getBuilderClass();
-        TaskBuilder<? extends ITask> taskBuilder = ReflectUtil.newInstance(builderClass, gtc, configMap);
-        List<ITask> tasks =(List<ITask>) taskBuilder.build();
+        var tasks = taskType.getBuilder(gtc, configMap).build();
         taskGroup.addAll(tasks);
         this.taskGroup=taskGroup;
     }
@@ -53,9 +51,7 @@ public class TaskExecutor {
         TaskEnum taskType = taskEnumToConfigMapEntry.getKey();
         var configMap = taskEnumToConfigMapEntry.getValue();
         var taskGroup = new ProcessTaskGroup(taskType.getCnName());
-        var builderClass = taskType.getBuilderClass();
-        TaskBuilder<? extends ITask> taskBuilder = ReflectUtil.newInstance(builderClass, gtc, configMap);
-        List<ITask> tasks =(List<ITask>) taskBuilder.build();
+        var tasks = taskType.getBuilder(gtc, configMap).build();
         taskGroup.addAll(tasks);
         return taskGroup;
     }

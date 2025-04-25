@@ -4,15 +4,15 @@ logging:
     fun.gatsby: DEBUG
 
 app:
-  task-to-startup: SOUNDTRACK_EXTRACT
+  task-to-startup: DS_API_TEST
   global-task-config:
     #输入目录
-    in-dir: "/Volumes/av/media/杂AV"
+    in-dir: "/Users/jg/Documents/untitled folder"
     #输出目录
 #    out-dir: "/Volumes/影视/media/音频转录/UP主投稿/未明子"
     out-dir: "/Volumes/影视/temp"
     enforce: false
-    threads: 2
+    threads: 4
 
   process-tasks:
     IMAGE_TRANSFORM:
@@ -37,3 +37,5 @@ app:
     TRANSCRIBE:
       api-url:  https://71df-123-174-48-26.ngrok-free.app/api/transcribe
       timeout: 300
+    DS_API_TEST:
+      api_key: sk-237d194906e3476fb8249e89ce9366de

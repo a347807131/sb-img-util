@@ -1,10 +1,13 @@
 package fun.gatsby.sbimgutil.task;
 
+import cn.hutool.core.util.ReflectUtil;
+import fun.gatsby.sbimgutil.config.AppConfig;
 import fun.gatsby.sbimgutil.schedule.ITask;
 import fun.gatsby.sbimgutil.task.builder.*;
 import lombok.Getter;
 
 import java.lang.invoke.CallSite;
+import java.util.Map;
 
 @Getter
 public enum TaskEnum {
@@ -17,11 +20,21 @@ public enum TaskEnum {
     PUNCTUATE("自然语言断句", PunctuateTaskBuilder.class),
     SOUNDTRACK_EXTRACT("音频提取", SoundtrackExtractTaskBuilder.class),
     TRANSCRIBE("音频转录", TranscribeBuilder.class),
+    DS_API_TEST("测试", DsTaskBuilder.class),
     ;
     public final String cnName;
     public final Class<? extends TaskBuilder<? extends ITask>> builderClass;
+
     TaskEnum(String taskCnName,Class<? extends TaskBuilder<? extends ITask>> builderClass) {
         this.cnName = taskCnName;
         this.builderClass =builderClass;
+    }
+
+    public TaskBuilder<? extends Runnable> getBuilder(AppConfig.GlobalTaskConfig gtc, Map<String,Object> configMap) {
+        try {
+            return ReflectUtil.newInstance(builderClass, gtc, configMap);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 }
