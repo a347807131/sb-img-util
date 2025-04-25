@@ -14,6 +14,7 @@ fi
 export JAVA_HOME=$JDK_PATH_UNIX
 
 rm -rf "${OUTPUT_PATH}"
+sh ./mvnw clean package -Dmaven.test.skip=true
 
 JPKGCMD="${JAVA_HOME}/bin/jpackage"
 $JPKGCMD --type app-image --name "$APP_NAME" --input target \
