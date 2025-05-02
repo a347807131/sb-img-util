@@ -8,7 +8,5 @@ import org.springframework.stereotype.Component;
 public class DestroyEvent implements DisposableBean {
     @Override
     public void destroy() throws Exception {
-        if(PyApiProcessManager.loaded())
-            PyApiProcessManager.getInstance().destroy();
     }
 }

@@ -4,13 +4,13 @@ logging:
     fun.gatsby: DEBUG
 
 app:
-  task-to-startup: DS_API_TEST
+  task-to-startup: CHAT_API
   global-task-config:
     #输入目录
-    in-dir: "/Users/jg/Documents/untitled folder"
+    in-dir: "/Volumes/影视/media/音频转录/手动收录未明子b站视频音频"
     #输出目录
 #    out-dir: "/Volumes/影视/media/音频转录/UP主投稿/未明子"
-    out-dir: "/Volumes/影视/temp"
+    out-dir: "/Users/jg/Downloads/temp"
     enforce: false
     threads: 4
 
@@ -37,5 +37,5 @@ app:
     TRANSCRIBE:
       api-url:  https://71df-123-174-48-26.ngrok-free.app/api/transcribe
       timeout: 300
-    DS_API_TEST:
+    CHAT_API:
       api_key: sk-237d194906e3476fb8249e89ce9366de

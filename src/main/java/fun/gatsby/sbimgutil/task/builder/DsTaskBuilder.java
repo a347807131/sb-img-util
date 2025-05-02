@@ -1,14 +1,13 @@
 package fun.gatsby.sbimgutil.task.builder;
 
 import fun.gatsby.sbimgutil.config.AppConfig;
-import fun.gatsby.sbimgutil.task.DeepseekApiTask;
-import lombok.RequiredArgsConstructor;
+import fun.gatsby.sbimgutil.task.ChatApiTask;
 
 import java.io.File;
 import java.util.Map;
 import java.util.Set;
 
-public class DsTaskBuilder extends AbstractTaskBuilder<DeepseekApiTask>{
+public class DsTaskBuilder extends AbstractTaskBuilder<ChatApiTask>{
     public DsTaskBuilder(AppConfig.GlobalTaskConfig gtc, Map<String, Object> configMap) {
         super(gtc, configMap);
     }

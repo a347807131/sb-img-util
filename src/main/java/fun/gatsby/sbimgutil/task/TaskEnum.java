@@ -20,7 +20,7 @@ public enum TaskEnum {
     PUNCTUATE("自然语言断句", PunctuateTaskBuilder.class),
     SOUNDTRACK_EXTRACT("音频提取", SoundtrackExtractTaskBuilder.class),
     TRANSCRIBE("音频转录", TranscribeBuilder.class),
-    DS_API_TEST("测试", DsTaskBuilder.class),
+    CHAT_API("测试", DsTaskBuilder.class),
     ;
     public final String cnName;
     public final Class<? extends TaskBuilder<? extends ITask>> builderClass;

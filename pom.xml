@@ -21,7 +21,8 @@
         <app.version>${revision}${changelist}</app.version>
         <flatlaf.version>3.2</flatlaf.version>
         <jib-maven-plugin.architecture>amd64</jib-maven-plugin.architecture>
-        <jib-maven-plugin.image>a347807131/ffmpeg-jdk:latest</jib-maven-plugin.image>
+<!--        <jib-maven-plugin.image>a347807131/ffmpeg-jdk:latest</jib-maven-plugin.image>-->
+        <jib-maven-plugin.image>eclipse-temurin:17-jre-focal</jib-maven-plugin.image>
         <jib-maven-plugin.version>3.4.4</jib-maven-plugin.version>
     </properties>
     <repositories>
@@ -36,6 +37,12 @@
     </repositories>
 
     <dependencies>
+        <!-- https://mvnrepository.com/artifact/com.google.cloud/google-cloud-vertexai -->
+        <dependency>
+            <groupId>com.google.cloud</groupId>
+            <artifactId>google-cloud-vertexai</artifactId>
+            <version>1.20.1</version>
+        </dependency>
         <dependency>
             <groupId>com.walter</groupId>
             <artifactId>baidu-model-sdk</artifactId>
