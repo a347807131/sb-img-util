@@ -11,12 +11,13 @@ import java.nio.file.Path;
 import java.util.LinkedList;
 import java.util.List;
 
-public class PdfSplitTask extends BaseTask{
+public class PdfSplitTask extends BaseTask<Object>{
 
     private final File pdfFile;
     private final Path outDir;
 
     public PdfSplitTask(File pdfFile, Path outDir){
+        super(null,null,null);
         this.pdfFile = pdfFile;
         this.outDir = outDir;
     }

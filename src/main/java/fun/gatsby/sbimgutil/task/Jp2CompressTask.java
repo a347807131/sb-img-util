@@ -13,12 +13,14 @@ import java.util.Map;
  * jp2压缩
  */
 @Slf4j
-public class Jp2CompressTask extends BaseTask {
-    private final Integer limit;
+public class Jp2CompressTask extends BaseTask<Jp2CompressTask.Config> {
 
-    public Jp2CompressTask(File inFile, File outFile, Map<String,Object> configMap){
-        super(inFile, outFile, configMap);
-        limit=configMap.get("limit")==null?0:Integer.parseInt(configMap.get("limit").toString());
+    public record Config(
+        Integer limit
+    ){}
+
+    public Jp2CompressTask(File inFile, File outFile, Config config){
+        super(inFile, outFile, config);
     }
 
     @Override
@@ -33,6 +35,6 @@ public class Jp2CompressTask extends BaseTask {
             log.error("读取图片失败:{}", inFile);
             return;
         }
-        PicCompressUtils.imageCompress(bufferedImage, outFile, limit);
+        PicCompressUtils.imageCompress(bufferedImage, outFile, config.limit());
     }
 }

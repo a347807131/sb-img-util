@@ -2,6 +2,7 @@ package fun.gatsby.sbimgutil.task;
 
 import cn.hutool.core.bean.BeanUtil;
 import fun.gatsby.sbimgutil.utils.ImageUtils;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 import javax.imageio.ImageIO;
@@ -11,13 +12,14 @@ import java.io.IOException;
 import java.util.Map;
 
 @Slf4j
-public class DrawBlurTask extends BaseTask{
+public class DrawBlurTask extends BaseTask<DrawBlurTask.Config>{
 
-    private final File blurImageFile;
+    public record Config(
+        String blurImageFile
+    ) { }
 
-    public DrawBlurTask(File inFile, File outFile, Map<String,Object> configMap){
-        super(inFile, outFile, configMap);
-        this.blurImageFile=new File(configMap.get("blurImageFile").toString());
+    public DrawBlurTask(File inFile, File outFile, Config config){
+        super(inFile, outFile, config);
     }
 
     @Override
@@ -27,6 +29,8 @@ public class DrawBlurTask extends BaseTask{
 
     @Override
     public void doWork() throws IOException {
+        File blurImageFile = new File(config.blurImageFile);
+
         String format = inFile.getName().substring(inFile.getName().lastIndexOf(".") + 1);
         BufferedImage blurBufferedImage = ImageIO.read(blurImageFile);
         BufferedImage bufferedImage = ImageIO.read(inFile);

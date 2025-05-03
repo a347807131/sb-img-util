@@ -1,6 +1,6 @@
 package fun.gatsby.sbimgutil.task;
 
-public class OcrTask extends BaseTask{
+public class OcrTask extends BaseTask<Object>{
     public OcrTask(){
         super(null,null,null);
 

@@ -22,7 +22,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 @Slf4j
-public class PunctuateTask extends BaseTask{
+public class PunctuateTask extends BaseTask<Object>{
 
     private final List<File> rawTextFiles;
     private final File isf;

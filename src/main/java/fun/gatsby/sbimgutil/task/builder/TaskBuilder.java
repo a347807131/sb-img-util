@@ -1,5 +1,7 @@
 package fun.gatsby.sbimgutil.task.builder;
 
+import cn.hutool.core.bean.BeanUtil;
+import cn.hutool.core.util.TypeUtil;
 import fun.gatsby.sbimgutil.schedule.ITask;
 import org.apache.commons.io.filefilter.IOFileFilter;
 
@@ -18,8 +20,6 @@ public interface TaskBuilder<T extends ITask> {
      * 根据输入的单元文件生成任务
      */
     T build(File inFile) throws IOException;
-
-    Class<T> getTaskClass();
 
     /**
      * 根据输入单元文件生成对应的输出的文件

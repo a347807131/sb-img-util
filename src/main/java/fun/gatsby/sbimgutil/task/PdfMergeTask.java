@@ -13,7 +13,7 @@ import java.nio.file.Files;
 import java.util.*;
 
 @Slf4j
-public class PdfMergeTask extends BaseTask {
+public class PdfMergeTask extends BaseTask<Object> {
 
     private List<File> inFiles;
     private File cataFile;

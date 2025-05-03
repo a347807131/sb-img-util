@@ -7,14 +7,14 @@ app:
   task-to-startup: CHAT_API
   global-task-config:
     #输入目录
-    in-dir: "/Volumes/影视/media/音频转录/手动收录未明子b站视频音频"
+    in-dir: "/Volumes/影视/转录分析/文本分析"
     #输出目录
 #    out-dir: "/Volumes/影视/media/音频转录/UP主投稿/未明子"
     out-dir: "/Users/jg/Downloads/temp"
     enforce: false
     threads: 4
 
-  process-tasks:
+  task-config-map:
     IMAGE_TRANSFORM:
       #输出格式
       ext: jpg
@@ -38,4 +38,4 @@ app:
       api-url:  https://71df-123-174-48-26.ngrok-free.app/api/transcribe
       timeout: 300
     CHAT_API:
-      api_key: sk-237d194906e3476fb8249e89ce9366de
+      api-key: sk-237d194906e3476fb8249e89ce9366de

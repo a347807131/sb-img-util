@@ -19,15 +19,16 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-public class ChatApiTask extends BaseTask{
+public class ChatApiTask extends BaseTask<ChatApiTask.Config>{
     private static final RestTemplate REST_TEMPLATE = new RestTemplate();
-    private final String model;
-    private String apiKey;
+    @Data
+    public static class Config {
+        String apiKey;
+        String model;
+    }
 
-    public ChatApiTask(File inFile, File outFile, Map<String,Object> configMap) {
-        super(inFile, outFile, configMap);
-        apiKey = configMap.get("apiKey").toString();
-        model = configMap.get("model")==null? null:configMap.get("model").toString();
+    public ChatApiTask(File inFile, File outFile, Config config) {
+        super(inFile, outFile, config);
     }
     @Override
     public void doWork() throws Throwable {
@@ -49,7 +50,7 @@ public class ChatApiTask extends BaseTask{
         static final String MODEL = "gemini-2.5-flash-preview-04-17";
          public String getApiUrl(){
             return "https://generativelanguage.googleapis.com/v1beta/models/%s:generateContent?key=%s"
-                   .formatted(model==null? MODEL:model,API_KEY);
+                   .formatted(config.model==null? MODEL:config.model,API_KEY);
         }
 
         @Override
@@ -67,9 +68,9 @@ public class ChatApiTask extends BaseTask{
 
         public String getPromote(){
              return
-                """
-                将下列给出的语音转录文本编写为一篇正式的文章。
-                """;
+             """
+             将下列给出的语音转录文本编写为篇偏学术的文章。
+             """;
         }
 
         public List<String> call() throws IOException {
@@ -152,8 +153,9 @@ public class ChatApiTask extends BaseTask{
                 throw new RuntimeException(e);
             }
             ChatRequest request = new ChatRequest();
-//            request.setModel("deepseek-chat");
-            request.setModel(model);
+            request.setModel("deepseek-chat");
+            if(config.model!=null)
+                request.setModel(config.model);
             request.setMessages(List.of(message,m2));
             return new HttpEntity<>(request, headers);
         }
@@ -162,7 +164,7 @@ public class ChatApiTask extends BaseTask{
         public String getPromote() {
             return
                 """
-                将下列给出的语音转录文本编写为一篇正式的文章。
+                将下列给出的语音转录文本编写为篇偏学术的文章。
                 """;
         }
     }

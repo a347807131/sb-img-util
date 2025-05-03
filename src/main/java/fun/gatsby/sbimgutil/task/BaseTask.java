@@ -5,21 +5,24 @@ import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.date.LocalDateTimeUtil;
 import fun.gatsby.sbimgutil.schedule.ITask;
 import fun.gatsby.sbimgutil.schedule.TaskStateEnum;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
 
 import javax.imageio.ImageIO;
 import java.io.File;
 import java.io.IOException;
+import java.io.Serializable;
 import java.nio.file.Files;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.Map;
 
 @Slf4j
-@NoArgsConstructor
-public abstract class BaseTask implements ITask {
+@RequiredArgsConstructor
+public abstract class BaseTask<C> implements ITask {
 
     //bugfixed
     static {
@@ -30,25 +33,23 @@ public abstract class BaseTask implements ITask {
 
     private LocalDateTime startDate;
     protected TaskStateEnum state = TaskStateEnum.NEW;
-    protected File outFile;
-    protected File inFile;
-    protected Map<String,Object> configMap;
-
-    public BaseTask(File inFile, File outFile, Map<String,Object> configMap){
-        this.inFile = inFile;
-        this.outFile = outFile;
-        this.configMap=configMap;
-        this.name="%s->%s".formatted(inFile.getAbsolutePath(), outFile.getName());
-    }
+    protected final File outFile;
+    protected final File inFile;
+    @Getter
+    protected final C config;
 
     static final String TEMP_FILE_PREFIX = ".tmp";
     @Override
     public void before() throws IOException {
         if (outFile != null) {
-            this.outFile=new File(outFile.getParentFile(), outFile.getName()+TEMP_FILE_PREFIX);
             if (outFile.exists()) {
                 Files.delete(outFile.toPath());
             }
+            var tempFile=new File(outFile.getParentFile(), outFile.getName()+TEMP_FILE_PREFIX);
+            if (tempFile.exists()) {
+                Files.delete(tempFile.toPath());
+            }
+            outFile.renameTo(tempFile);
             if (!outFile.getParentFile().exists()) {
                 FileUtils.forceMkdirParent(outFile);
             }

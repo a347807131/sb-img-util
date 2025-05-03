@@ -4,7 +4,7 @@ import fun.gatsby.sbimgutil.utils.PDFUtils;
 
 import java.io.File;
 
-public class PdfAddCataTask extends BaseTask{
+public class PdfAddCataTask extends BaseTask<Object>{
     private final File pdfFile;
     private final File cataFile;
     private final File outFile;

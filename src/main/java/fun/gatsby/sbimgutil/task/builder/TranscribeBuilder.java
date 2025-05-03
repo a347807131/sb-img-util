@@ -16,14 +16,6 @@ public class TranscribeBuilder extends AbstractTaskBuilder<TranscribeTask>{
     }
 
     @Override
-    public List<TranscribeTask> build() throws IOException {
-        var timeout=(Integer)configMap.get("timeout");
-        RestTemplate restTemplate = new RestTemplate();
-        configMap.put("restTemplate",restTemplate);
-        return super.build();
-    }
-
-    @Override
     public File outFile(File inFile) {
         return super.outFile(inFile,"srt");
     }

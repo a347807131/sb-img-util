@@ -7,6 +7,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.filefilter.FileFileFilter;
 import org.apache.commons.io.filefilter.FileFilterUtils;
 import org.apache.commons.io.filefilter.IOFileFilter;
+import org.checkerframework.checker.units.qual.C;
 
 import java.io.*;
 import java.nio.file.Files;
@@ -15,14 +16,14 @@ import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 @Slf4j
-public class Mp3ExtractTask extends BaseTask{
-    private final Integer timeout;
+public class Mp3ExtractTask extends BaseTask<Mp3ExtractTask.Config>{
 
-    public Mp3ExtractTask(File inFile, File outFile, Map<String,Object> configMap) {
-        super(inFile, outFile, configMap);
-        this.timeout= Integer.parseInt(
-                configMap.getOrDefault("timeout", 600).toString()
-        );
+    public record Config(
+            Integer timeout
+    ){}
+
+    public Mp3ExtractTask(File inFile, File outFile, Config config) {
+        super(inFile, outFile, config);
     }
     private static final String CMDFORMATSTR="ffmpeg -i \"%s\" -q:a 0 -f mp3 \"%s\"";
 
@@ -46,8 +47,8 @@ public class Mp3ExtractTask extends BaseTask{
 //            System.out.println(line);
         }
         //超时检查
-        if(!process.waitFor(timeout, TimeUnit.SECONDS)){
-            throw new RuntimeException("ffmpeg process timeout {%s},[%s]".formatted(timeout,inFile.getAbsolutePath()));
+        if(!process.waitFor(config.timeout, TimeUnit.SECONDS)){
+            throw new RuntimeException("ffmpeg process timeout {%s},[%s]".formatted(config.timeout,inFile.getAbsolutePath()));
         }
         process.destroyForcibly();
     }

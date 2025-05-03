@@ -17,7 +17,8 @@ import java.net.URI;
 import java.nio.file.Files;
 import java.util.Map;
 
-public class TranscribeTask extends BaseTask{
+public class TranscribeTask extends BaseTask<Object>{
+    private static final RestTemplate REST_TEMPLATE = new RestTemplate();
     record TranscribeResult(
             String filename,
             String subtitle
@@ -31,7 +32,6 @@ public class TranscribeTask extends BaseTask{
     }
     @Override
     public void doWork() throws Throwable {
-        var restTemplate =(RestTemplate) configMap.get("restTemplate");
 // 2. 准备文件资源
         FileSystemResource fileResource = new FileSystemResource(inFile);
         // 3. 设置请求体，构建 multipart/form-data
@@ -43,7 +43,7 @@ public class TranscribeTask extends BaseTask{
 
         // 5. 创建 HTTP 实体
         HttpEntity<MultiValueMap<String, Object>> requestEntity = new HttpEntity<>(body, headers);
-        var res = restTemplate.postForEntity(new URI(apiUrl), requestEntity, TranscribeResult.class);
+        var res = REST_TEMPLATE.postForEntity(new URI(apiUrl), requestEntity, TranscribeResult.class);
         TranscribeResult ret = res.getBody();
         assert ret != null;
         Files.writeString(outFile.toPath(),ret.subtitle());

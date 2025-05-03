@@ -1,7 +1,10 @@
 package fun.gatsby.sbimgutil.task.builder;
 
+import cn.hutool.core.bean.BeanUtil;
+import cn.hutool.core.bean.copier.CopyOptions;
 import cn.hutool.core.io.FileUtil;
 import cn.hutool.core.util.ReflectUtil;
+import cn.hutool.core.util.StrUtil;
 import cn.hutool.core.util.TypeUtil;
 import fun.gatsby.sbimgutil.config.AppConfig;
 import fun.gatsby.sbimgutil.task.*;
@@ -13,14 +16,36 @@ import org.apache.logging.log4j.util.Strings;
 import java.io.File;
 import java.io.FileFilter;
 import java.io.IOException;
+import java.lang.reflect.Type;
+import java.nio.file.CopyOption;
 import java.nio.file.Path;
 import java.util.*;
 
-@RequiredArgsConstructor
-public abstract class AbstractTaskBuilder<T extends BaseTask> implements TaskBuilder<T>{
+public abstract class AbstractTaskBuilder<T extends BaseTask<?>> implements TaskBuilder<T>{
 
     final AppConfig.GlobalTaskConfig gtc;
     final Map<String, Object> configMap;
+    private final Class<?> configClass;
+    private final Class<T> taskClass;
+
+    static  final CopyOptions COPY_OPTIONS = CopyOptions.create()
+            .setIgnoreCase(true)  // 忽略大小写
+            .setFieldNameEditor(name -> {
+                // 自定义名称转换：先转小写，然后处理横杆和下划线
+                name = name.toLowerCase();
+                return StrUtil.toCamelCase(name.replace('-', '_'));
+            });
+
+    private final Object config;
+
+    public AbstractTaskBuilder(AppConfig.GlobalTaskConfig gtc, Map<String, Object> configMap) {
+        this.gtc = gtc;
+        this.configMap = configMap;
+
+        configClass = getConfigClass();
+        taskClass = getTaskClass();
+        config = BeanUtil.toBean(configMap, configClass,COPY_OPTIONS);
+    }
 
     @Override
     public List<T> build() throws IOException {
@@ -38,14 +63,18 @@ public abstract class AbstractTaskBuilder<T extends BaseTask> implements TaskBui
     @Override
     public T build(File inFile) throws IOException {
         File outFile = outFile(inFile);
-        return ReflectUtil.newInstance(getTaskClass(), inFile, outFile, configMap);
+        return ReflectUtil.newInstance(getTaskClass(), inFile, outFile, config);
     }
 
-    @Override
-    public Class<T> getTaskClass() {
+    protected Class<T> getTaskClass() {
         var clazz = getClass();
         var type = TypeUtil.getTypeArgument(clazz, 0);
         return (Class<T>) type;
+    }
+
+    protected Class<?> getConfigClass() {
+        var taskClass = getTaskClass();
+        return (Class<?>) TypeUtil.getTypeArgument(taskClass.getGenericSuperclass(), 0);
     }
 
     @Override

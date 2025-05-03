@@ -18,20 +18,20 @@ import javax.imageio.stream.ImageOutputStream;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.io.Serializable;
 import java.util.*;
 
 @Slf4j
-public class ImageTransformTask extends BaseTask{
+public class ImageTransformTask extends BaseTask<ImageTransformTask.Config>{
 
     String ext;
 
-    record Config (
+    public record Config (
         String ext
-    ){}
+    ) implements Serializable {}
 
-    public ImageTransformTask(File inFile, File outFile, Map<String,Object> configMap){
-        super(inFile, outFile, configMap);
-        this.ext = configMap.get("ext").toString();
+    public ImageTransformTask(File inFile, File outFile, Config config){
+        super(inFile, outFile, config);
     }
 
     int oriWDpi=600, oriHDpi=600;
