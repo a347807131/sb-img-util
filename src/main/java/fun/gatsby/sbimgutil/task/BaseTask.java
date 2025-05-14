@@ -33,10 +33,16 @@ public abstract class BaseTask<C> implements ITask {
 
     private LocalDateTime startDate;
     protected TaskStateEnum state = TaskStateEnum.NEW;
-    protected final File outFile;
     protected final File inFile;
+    protected File outFile;
     @Getter
     protected final C config;
+
+    public BaseTask(File inFile, File outFile,C config) {
+        this.inFile = inFile;
+        this.config = config;
+        this.outFile = outFile;
+    }
 
     static final String TEMP_FILE_PREFIX = ".tmp";
     @Override
@@ -50,6 +56,7 @@ public abstract class BaseTask<C> implements ITask {
                 Files.delete(tempFile.toPath());
             }
             outFile.renameTo(tempFile);
+            outFile = tempFile;
             if (!outFile.getParentFile().exists()) {
                 FileUtils.forceMkdirParent(outFile);
             }

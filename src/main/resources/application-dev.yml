@@ -4,12 +4,11 @@ logging:
     fun.gatsby: DEBUG
 
 app:
-  task-to-startup: CHAT_API
+  task-to-startup: TEXT_TO_BLOG_MD
   global-task-config:
     #输入目录
-    in-dir: "/Volumes/影视/转录分析/文本分析"
+    in-dir: "/Volumes/影视/temp/手动收录未明子b站视频音频(gemini偏学术)"
     #输出目录
-#    out-dir: "/Volumes/影视/media/音频转录/UP主投稿/未明子"
     out-dir: "/Users/jg/Downloads/temp"
     enforce: false
     threads: 4
