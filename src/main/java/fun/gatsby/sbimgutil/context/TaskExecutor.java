@@ -12,9 +12,7 @@ import lombok.extern.slf4j.Slf4j;
 
 import java.io.IOException;
 import java.util.*;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ForkJoinPool;
-import java.util.concurrent.ForkJoinTask;
+import java.util.concurrent.*;
 
 @Slf4j
 public class TaskExecutor {
@@ -59,6 +57,24 @@ public class TaskExecutor {
     public void excute() throws ExecutionException, InterruptedException {
         log.info("任务总数：{}",taskGroup.size());
         log.info("启动参数{}",gtc);
+
+        ExecutorService executor = Executors.newFixedThreadPool(gtc.getThreads());
+        List<CompletableFuture<Object>> futures = new ArrayList<>();
+        for (var task : taskGroup) {
+            CompletableFuture<Object> future = CompletableFuture.supplyAsync(task, executor)
+                    .orTimeout(timeout, TimeUnit.MILLISECONDS)
+                    .exceptionally(ex -> {
+                        System.out.println("Task failed or timed out: " + ex.getMessage());
+                        return null; // 或返回默认值
+                    });
+            futures.add(future);
+        }
+
+
+        // 等待所有任务完成
+        CompletableFuture.allOf(futures.toArray(new CompletableFuture[0])).join();
+
+
         ForkJoinTask<?> forkJoinTask =
                 this.forkJoinPool.submit(() -> taskGroup.parallelStream().forEach(Runnable::run));
         forkJoinTask.get();
