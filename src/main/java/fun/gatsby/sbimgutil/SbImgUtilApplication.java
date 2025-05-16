@@ -10,6 +10,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.context.ApplicationContext;
 
+import java.util.HashMap;
 import java.util.Map;
 
 @Slf4j
@@ -33,7 +34,7 @@ public class SbImgUtilApplication  {
         };
 
         TaskEnum taskEnum = TaskEnum.valueOf(appConfig.getTaskToStartup());
-        var configMap = appConfig.getTaskConfigMap().get(taskEnum.name());
+        var configMap = appConfig.getTaskConfigMap().getOrDefault(taskEnum.name(), new HashMap<>());
 
         TaskExecutor executor = new TaskExecutor(
                 appConfig.getGlobalTaskConfig(),
