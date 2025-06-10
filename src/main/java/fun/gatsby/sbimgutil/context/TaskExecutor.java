@@ -13,6 +13,7 @@ import lombok.extern.slf4j.Slf4j;
 import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.*;
+import java.util.function.Supplier;
 
 @Slf4j
 public class TaskExecutor {
@@ -54,15 +55,25 @@ public class TaskExecutor {
         return taskGroup;
     }
 
-    public void excute() throws ExecutionException, InterruptedException {
+    public void excute() {
         log.info("任务总数：{}",taskGroup.size());
         log.info("启动参数{}",gtc);
 
         ExecutorService executor = Executors.newFixedThreadPool(gtc.getThreads());
         List<CompletableFuture<Object>> futures = new ArrayList<>();
         for (var task : taskGroup) {
-            CompletableFuture<Object> future = CompletableFuture.supplyAsync(task, executor)
+            long timeout = 1000 * 60 * 10;
+            var supplier= new Supplier<Object>(){
+                @Override
+                public Object get() {
+                    task.run();
+                    return null;
+                }
+            };
+
+            CompletableFuture<Object> future = CompletableFuture.supplyAsync(supplier, executor)
                     .orTimeout(timeout, TimeUnit.MILLISECONDS)
+                    .runAfterBoth()
                     .exceptionally(ex -> {
                         System.out.println("Task failed or timed out: " + ex.getMessage());
                         return null; // 或返回默认值
@@ -75,9 +86,9 @@ public class TaskExecutor {
         CompletableFuture.allOf(futures.toArray(new CompletableFuture[0])).join();
 
 
-        ForkJoinTask<?> forkJoinTask =
-                this.forkJoinPool.submit(() -> taskGroup.parallelStream().forEach(Runnable::run));
-        forkJoinTask.get();
+//        ForkJoinTask<?> forkJoinTask =
+//                this.forkJoinPool.submit(() -> taskGroup.parallelStream().forEach(Runnable::run));
+//        forkJoinTask.get();
     }
 
     public int getTaskCount(){
