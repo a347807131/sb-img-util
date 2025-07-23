@@ -3,8 +3,9 @@ package fun.gatsby.sbimgutil.task;
 import fun.gatsby.sbimgutil.utils.PDFUtils;
 
 import java.io.File;
+import java.util.Map;
 
-public class PdfAddCataTask extends BaseTask<Object>{
+public class PdfAddCataTask extends BaseTask<ImageTransformTask.Config>{
     private final File pdfFile;
     private final File cataFile;
     private final File outFile;

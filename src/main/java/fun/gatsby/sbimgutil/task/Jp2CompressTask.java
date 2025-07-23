@@ -7,6 +7,7 @@ import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.io.Serializable;
 import java.util.Map;
 
 /**
@@ -17,7 +18,7 @@ public class Jp2CompressTask extends BaseTask<Jp2CompressTask.Config> {
 
     public record Config(
         Integer limit
-    ){}
+    ) implements Serializable {}
 
     public Jp2CompressTask(File inFile, File outFile, Config config){
         super(inFile, outFile, config);

@@ -9,11 +9,12 @@ import org.apache.logging.log4j.util.Strings;
 import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.io.Serializable;
 import java.nio.file.Files;
 import java.util.*;
 
 @Slf4j
-public class PdfMergeTask extends BaseTask<Object> {
+public class PdfMergeTask extends BaseTask<Serializable> {
 
     private List<File> inFiles;
     private File cataFile;

@@ -5,7 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import java.io.IOException;
 import java.util.function.Supplier;
 
-public interface ITask extends Runnable , Supplier<String> {
+public interface ITask extends Runnable  {
 
     /**
      * 执行前

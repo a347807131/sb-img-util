@@ -13,6 +13,7 @@ import org.springframework.web.client.RestTemplate;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.Serializable;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.util.List;
@@ -22,7 +23,7 @@ import java.util.stream.Collectors;
 public class ChatApiTask extends BaseTask<ChatApiTask.Config>{
     private static final RestTemplate REST_TEMPLATE = new RestTemplate();
     @Data
-    public static class Config {
+    public static class Config implements Serializable {
         String apiKey;
         String model;
     }

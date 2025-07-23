@@ -16,16 +16,17 @@ import org.apache.logging.log4j.util.Strings;
 import java.io.File;
 import java.io.FileFilter;
 import java.io.IOException;
+import java.io.Serializable;
 import java.lang.reflect.Type;
 import java.nio.file.CopyOption;
 import java.nio.file.Path;
 import java.util.*;
 
-public abstract class AbstractTaskBuilder<T extends BaseTask<?>> implements TaskBuilder<T>{
+public abstract class AbstractTaskBuilder<T extends BaseTask<?extends Serializable>> implements TaskBuilder<T>{
 
     final AppConfig.GlobalTaskConfig gtc;
     final Map<String, Object> configMap;
-    private final Class<?> configClass;
+    private final Class<Serializable> configClass;
     private final Class<T> taskClass;
 
     static  final CopyOptions COPY_OPTIONS = CopyOptions.create()
@@ -72,9 +73,9 @@ public abstract class AbstractTaskBuilder<T extends BaseTask<?>> implements Task
         return (Class<T>) type;
     }
 
-    protected Class<?> getConfigClass() {
+    protected Class<Serializable> getConfigClass() {
         var taskClass = getTaskClass();
-        return (Class<?>) TypeUtil.getTypeArgument(taskClass.getGenericSuperclass(), 0);
+        return (Class<Serializable>) TypeUtil.getTypeArgument(taskClass.getGenericSuperclass(), 0);
     }
 
     @Override
