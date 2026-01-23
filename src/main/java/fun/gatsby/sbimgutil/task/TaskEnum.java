@@ -15,7 +15,7 @@ public enum TaskEnum {
     PDF_MERGE("pdf合并", PdfMergeTaskBuilder.class),
     JP2_COMPRESS("JP2图片压缩", Jp2CompressTaskBuilder.class),
     DRAW_BLUR("绘制水印", DrawBlurTaskBuilder.class),
-    PDF_SPLIT("pdf拆分", PdfMergeTaskBuilder.class),
+    PDF_SPLIT("pdf拆分", PdfSplitTaskBuilder.class),
     PDF_ADD_CATA("pdf添加目录", PdfAddCateTaskBuilder.class),
     PUNCTUATE("自然语言断句", PunctuateTaskBuilder.class),
     SOUNDTRACK_EXTRACT("音频提取", SoundtrackExtractTaskBuilder.class),

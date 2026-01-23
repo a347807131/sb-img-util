@@ -4,12 +4,12 @@ logging:
     fun.gatsby: DEBUG
 
 app:
-  task-to-startup: PDF_SPLIT
+  task-to-startup: PDF_MERGE
   global-task-config:
     #输入目录
-    in-dir: "E:/OneDrive/桌面/New folder"
+    in-dir: "E:/OneDrive/桌面/德飞劳动合同-hq.pdf"
     #输出目录
-    out-dir: "E:/OneDrive/桌面/"
+    out-dir: "E:/OneDrive/桌面/aa"
     enforce: false
     threads: 4
 

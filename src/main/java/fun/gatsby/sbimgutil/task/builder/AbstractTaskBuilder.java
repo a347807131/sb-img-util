@@ -96,12 +96,14 @@ public abstract class AbstractTaskBuilder<T extends BaseTask<?extends Serializab
                 new File(gtc.getInDir()).getAbsolutePath(),
                 ""
         );
-        return Path.of(gtc.getOutDir(), midpiece, outFileName).toFile();
+        //fix 路径问题
+        return Path.of(midpiece, outFileName).toFile();
     }
 
     @Override
     public List<File> loadInFiles() {
-        return loadSortedDirToFilesMap().values().stream().collect(
+        return loadSortedDirToFilesMap()
+                .values().stream().collect(
             LinkedList::new,
             LinkedList::addAll,
             LinkedList::addAll
@@ -114,7 +116,7 @@ public abstract class AbstractTaskBuilder<T extends BaseTask<?extends Serializab
             FileUtil.loopFiles(inPath.toFile()) :
             Arrays.stream(Objects.requireNonNull(inPath.toFile().listFiles(e -> !e.isDirectory()))).toList();
         //@formatter:off-->
-        return FileFilterUtils.filterList(getFileFileter(),files).stream()
+        LinkedHashMap<File, List<File>> outMap =  FileFilterUtils.filterList(getFileFileter(),files).stream()
             .collect(
                 LinkedHashMap::new,
                 (m, k) -> {
@@ -124,6 +126,7 @@ public abstract class AbstractTaskBuilder<T extends BaseTask<?extends Serializab
                 LinkedHashMap::putAll
             );
         //@formatter:on-->
+        return outMap;
     }
 
     @Override

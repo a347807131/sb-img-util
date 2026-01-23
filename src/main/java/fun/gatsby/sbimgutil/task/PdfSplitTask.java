@@ -18,7 +18,7 @@ public class PdfSplitTask extends BaseTask<Serializable>{
     private final Path outDir;
 
     public PdfSplitTask(File pdfFile, Path outDir){
-        super(null,null,null);
+        super(pdfFile,null,null);
         this.pdfFile = pdfFile;
         this.outDir = outDir;
     }
