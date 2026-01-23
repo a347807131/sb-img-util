@@ -16,13 +16,14 @@ import org.apache.commons.lang3.StringUtils;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.Serializable;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.util.*;
 import java.util.stream.Collectors;
 
 @Slf4j
-public class PunctuateTask extends BaseTask<Object>{
+public class PunctuateTask extends BaseTask<Serializable>{
 
     private final List<File> rawTextFiles;
     private final File isf;
@@ -33,7 +34,7 @@ public class PunctuateTask extends BaseTask<Object>{
     final static int maxShardSize=300;
 
     public PunctuateTask(Map.Entry<File, List<File>> entry, File outDir, Map<String,Object> configMap) {
-        super(null,null,configMap);
+        super(null,null, (Serializable) configMap);
         this.containerDir=entry.getKey();
         this.rawTextFiles = entry.getValue();
         this.outDir = outDir;

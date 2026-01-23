@@ -1,6 +1,7 @@
 package fun.gatsby.sbimgutil.task;
 
 import java.io.File;
+import java.io.Serializable;
 import java.nio.file.Files;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
@@ -11,7 +12,7 @@ import java.util.stream.Collectors;
 
 public class TextToBlogMdTask extends BaseTask<TextToBlogMdTask.Config>{
 
-    record Config(){
+    record Config()implements Serializable {
 
     }
 

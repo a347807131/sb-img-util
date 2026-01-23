@@ -7,11 +7,12 @@ import fun.gatsby.sbimgutil.utils.PDFUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import java.io.File;
+import java.io.Serializable;
 import java.nio.file.Path;
 import java.util.LinkedList;
 import java.util.List;
 
-public class PdfSplitTask extends BaseTask<Object>{
+public class PdfSplitTask extends BaseTask<Serializable>{
 
     private final File pdfFile;
     private final Path outDir;

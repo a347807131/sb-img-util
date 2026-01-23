@@ -18,9 +18,11 @@ import java.util.concurrent.TimeUnit;
 @Slf4j
 public class Mp3ExtractTask extends BaseTask<Mp3ExtractTask.Config>{
 
+
+
     public record Config(
             Integer timeout
-    ){}
+    ) implements Serializable{}
 
     public Mp3ExtractTask(File inFile, File outFile, Config config) {
         super(inFile, outFile, config);

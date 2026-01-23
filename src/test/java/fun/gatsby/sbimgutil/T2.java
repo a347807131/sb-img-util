@@ -12,10 +12,8 @@ public class T2 {
 
     @Test
     public void t1() throws IOException {
-
-
         String jsongString = Files.readString(Path.of("src/test/resources/合同导出.json"));
         List<Stats> stats = JSON.parseArray(jsongString, Stats.class);
-        System.out.println();
+        stats.forEach(System.out::println);
     }
 }

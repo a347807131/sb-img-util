@@ -73,7 +73,7 @@ public class TaskExecutor {
 
             CompletableFuture<Object> future = CompletableFuture.supplyAsync(supplier, executor)
                     .orTimeout(timeout, TimeUnit.MILLISECONDS)
-                    .runAfterBoth()
+//                    .runAfterBoth()
                     .exceptionally(ex -> {
                         System.out.println("Task failed or timed out: " + ex.getMessage());
                         return null; // 或返回默认值

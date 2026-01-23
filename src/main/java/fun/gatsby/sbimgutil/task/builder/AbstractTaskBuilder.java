@@ -45,7 +45,8 @@ public abstract class AbstractTaskBuilder<T extends BaseTask<?extends Serializab
 
         configClass = getConfigClass();
         taskClass = getTaskClass();
-        config = BeanUtil.toBean(configMap, configClass,COPY_OPTIONS);
+        config = new Object();
+//                BeanUtil.toBean(configMap, configClass,COPY_OPTIONS);
     }
 
     @Override

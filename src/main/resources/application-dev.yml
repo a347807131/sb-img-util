@@ -4,12 +4,12 @@ logging:
     fun.gatsby: DEBUG
 
 app:
-  task-to-startup: TEXT_TO_BLOG_MD
+  task-to-startup: PDF_SPLIT
   global-task-config:
     #输入目录
-    in-dir: "/Volumes/影视/temp/手动收录未明子b站视频音频(gemini偏学术)"
+    in-dir: "E:/OneDrive/桌面/New folder"
     #输出目录
-    out-dir: "/Users/jg/Downloads/temp"
+    out-dir: "E:/OneDrive/桌面/"
     enforce: false
     threads: 4
 

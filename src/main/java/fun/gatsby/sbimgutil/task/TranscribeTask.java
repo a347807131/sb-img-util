@@ -13,11 +13,12 @@ import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
 
 import java.io.File;
+import java.io.Serializable;
 import java.net.URI;
 import java.nio.file.Files;
 import java.util.Map;
 
-public class TranscribeTask extends BaseTask<Object>{
+public class TranscribeTask extends BaseTask<Serializable>{
     private static final RestTemplate REST_TEMPLATE = new RestTemplate();
     record TranscribeResult(
             String filename,
@@ -27,7 +28,7 @@ public class TranscribeTask extends BaseTask<Object>{
     private final String apiUrl;
 
     public TranscribeTask(File inFile, File outFile, Map<String,Object> configMap) {
-        super(inFile, outFile, configMap);
+        super(inFile, outFile, (Serializable) configMap);
         this.apiUrl=configMap.get("apiUrl").toString();
     }
     @Override

@@ -22,7 +22,7 @@ public class PdfMergeTask extends BaseTask<Serializable> {
     private float imageScale=1f;
 
     public PdfMergeTask(List<File> inFiles, File outFile, File cataFile, Map<String,Object> configMap) {
-        super(null, outFile, configMap);
+        super((File) null, outFile, (Serializable) configMap);
         this.inFiles = inFiles;
         this.cataFile =cataFile;
         this.imageScale=configMap.get("pdfImageScale")==null?1f:(float)configMap.get("pdfImageScale");
