@@ -5,6 +5,7 @@ import fun.gatsby.sbimgutil.task.DrawBlurTask;
 
 import java.util.Map;
 
+
 public class DrawBlurTaskBuilder extends AbstractTaskBuilder<DrawBlurTask>{
     public DrawBlurTaskBuilder(AppConfig.GlobalTaskConfig gtc, Map<String, Object> configMap) {
         super(gtc, configMap);

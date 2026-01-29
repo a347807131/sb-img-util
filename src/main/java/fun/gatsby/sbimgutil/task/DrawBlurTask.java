@@ -15,6 +15,8 @@ import java.util.Map;
 @Slf4j
 public class DrawBlurTask extends BaseTask<DrawBlurTask.Config>{
 
+    public record C1(String blurImageFile) implements Serializable { }
+
     public record Config(
         String blurImageFile
     ) implements Serializable { }

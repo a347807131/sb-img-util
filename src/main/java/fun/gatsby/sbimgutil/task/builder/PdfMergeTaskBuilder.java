@@ -24,8 +24,8 @@ public class PdfMergeTaskBuilder extends AbstractTaskBuilder<PdfMergeTask>{
     public PdfMergeTask build(File inFile) throws IOException {
         File[] files = inFile.listFiles();
         List<File> imgFiles = FileFilterUtils.filterList(getFileFileter(), files);
-        File outFile = outFile(inFile, "pdf");
-        String cataDirPath = configMap.get("cataDirPath").toString();
+        File outFile = outFile(inFile);
+        String cataDirPath = configMap.getOrDefault("cataDirPath","").toString();
         File cataFile = null;
         if (Strings.isNotBlank(cataDirPath)) {
             String cataFileName = inFile.getAbsolutePath().replace(new File(gtc.getInDir()).getAbsolutePath(), "") + ".txt";

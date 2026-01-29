@@ -22,7 +22,7 @@ import java.util.Map;
 
 @Slf4j
 @RequiredArgsConstructor
-public abstract class BaseTask<C extends Object> implements ITask {
+public abstract class BaseTask<C extends Serializable> implements ITask {
 
     //bugfixed
     static {
