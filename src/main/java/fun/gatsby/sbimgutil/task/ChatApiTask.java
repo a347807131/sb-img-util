@@ -22,7 +22,6 @@ import java.util.stream.Collectors;
 
 public class ChatApiTask extends BaseTask<ChatApiTask.Config>{
     private static final RestTemplate REST_TEMPLATE = new RestTemplate();
-    @Data
     public static class Config implements Serializable {
         String apiKey;
         String model;
